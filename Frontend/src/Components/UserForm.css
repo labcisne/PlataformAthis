@@ -1,0 +1,132 @@
+.container {
+    padding: 20px;
+    background-color: #D7D7D7;
+    max-width: 412px;
+    width: 100%;
+}
+
+.userFormHeader {
+    margin-bottom: 16px;
+}
+
+.returnIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    background-color: #F0A22E;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-bottom: 24px;
+    cursor: pointer;
+}
+
+.returnIcon:hover {
+    background-color: #f09a19;
+}
+
+label {
+    display: block;
+    margin-bottom: 4px; 
+}
+
+.checkLabel {
+    display: inline;
+    margin-left: 4px;
+}
+
+.userFormContainer{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 4px;
+}
+
+.preencher {
+    grid-column: 1 / 3;
+}
+
+
+.checkContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+
+#cadastrar {
+    background-color: #f09a19;
+    width: 100%;
+    height: 100%;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    width: 100%;
+    padding: 12px 6px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    font-size: 1.2rem;
+}
+
+input[type="text"]:hover,
+input[type="password"]:hover,
+input[type="email"]:hover,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+    border: 1px solid #000000;
+}
+
+.celula {
+    text-align: left;
+    margin-bottom: 16px;
+}
+
+a {
+    text-decoration: none;
+    color: #363535
+}
+
+#cadastrar {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 1.4rem;
+    background-color: #F0A22E;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    color: #FDFCFC;
+    font-weight: 700;
+}
+
+#cadastrar:hover, .addBtn:hover {
+    background-color: #f09a19;
+}
+
+select {
+    width: 100%;
+    padding: 12px 4px;
+    font-size: 1rem;
+    outline: none;
+    border-radius: 5px;
+    border: none;
+}
+
+select:hover,
+select:focus {
+    border: 1px solid #000000;
+}
+
+.addBtn {
+    padding: 4px;
+    font-size: 1.1rem;
+    background-color: #F0A22E;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    color: #FDFCFC;
+    margin-top: 8px;
+}
