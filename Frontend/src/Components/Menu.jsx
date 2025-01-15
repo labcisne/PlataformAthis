@@ -25,7 +25,6 @@ function Menu(){
     const role = location.state?.role;
     const nomeUsuario = location.state?.nomeUsuario;
 
-
     const renderButtons = () => {
         switch(role){
             case "Administrador":
@@ -108,7 +107,7 @@ function Menu(){
 
     return (
         <div className="container">
-            <a href="#" className="returnBtn">
+            <a href="#">
                 <button className="returnIcon">
                     ⬅
                 </button>

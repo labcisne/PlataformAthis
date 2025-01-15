@@ -33,7 +33,7 @@ function LoginForm(){
 
     return (
         <div className="container">
-            <a href="#" className="returnBtn">
+            <a href="#">
                 <div className="returnIcon">
                     ⬅
                 </div>

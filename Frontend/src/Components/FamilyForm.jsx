@@ -59,8 +59,8 @@ function FamilyForm(){
 
     return (
         <div className="container">
-            <a href="#" className="returnIcon">
-                <div>
+            <a href="#">
+                <div className="returnIcon">
                     ⬅
                 </div>
             </a>

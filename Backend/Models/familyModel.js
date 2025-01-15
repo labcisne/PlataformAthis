@@ -7,6 +7,10 @@ const familySchema = mongoose.Schema({
     dadosFamilia: {
         type: dadosPessoais,
         required: true
+    },
+    usuariosAssociados: {
+        type: [String],
+        default: []
     }
 });
 

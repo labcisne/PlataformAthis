@@ -61,7 +61,7 @@ exports.verificaLogin = asyncErrorHandler(async (req, res, next) => {
     const token = req.cookies.authToken;
 
     if(!token){
-            throw new CustomError('Faça login para continuar!', 401);
+        throw new CustomError('Faça login para continuar!', 401);
     }
 
     //valida o token
@@ -257,10 +257,10 @@ exports.getUsuarios = asyncErrorHandler(async (req, res, next) => {
 
 
 exports.getUsuariosParaAssociar = asyncErrorHandler(async (req, res, next) => {
-    
+
     const users = await User.find({
-        _id: { $ne: req.user._id },
-        tipoUsuario: {$in: ["Entrevistador", "Lider Comunitario"]}
+        tipoUsuario: { $in: ["Entrevistador", "Lider Comunitario"] },
+        familiasAssociadas: { $ne: req.query.familiaId },
     });
     
     if(!users){

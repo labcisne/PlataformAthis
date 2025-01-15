@@ -35,13 +35,17 @@ exports.criaFamilia = asyncErrorHandler(async (req, res, next) => {
 
     //cria um usuário para o morador
     const novoMorador = criaNovoMorador(req.body, newFamily._id);
-    await User.create(novoMorador);
+    const morador = await User.create(novoMorador);
 
     //salvando o id da familia no entrevistador que criou ela
     if(req.user.tipoUsuario === 'Entrevistador'){
         req.user.familiasAssociadas.push(newFamily._id);
         await req.user.save({validateBeforeSave: false});
+        newFamily.usuariosAssociados.push(req.user._id);
     }
+
+    newFamily.usuariosAssociados.push(morador._id);
+    await newFamily.save({validateBeforeSave:false});
 
     res.status(201).json({
         status: 'success',
@@ -93,6 +97,7 @@ exports.getFamilia = asyncErrorHandler(async (req, res, next) => {
 exports.associaFamilia = asyncErrorHandler(async(req, res, next) => {
 
     const user = await User.findById(req.body.userId);
+    const familia = await Family.findById(req.params.id);
 
     if(!user){
         throw new CustomError('Usuário não existe!', 404);
@@ -103,9 +108,59 @@ exports.associaFamilia = asyncErrorHandler(async(req, res, next) => {
     }
 
     user.familiasAssociadas.push(req.params.id);
-    await user.save({validateBeforeSave:false})
+    familia.usuariosAssociados.push(user._id);
+    await user.save({validateBeforeSave:false});
+    await familia.save({validateBeforeSave:false});
 
     res.status(200).json({
         status: 'success',
     })
+});
+
+
+exports.deletaFamilia = asyncErrorHandler(async (req, res, next) => {
+        
+    if(req.body.userRole !== "Administrador" && req.body.userRole !== "Entrevistador"){
+        throw new CustomError('Você não tem permissão para essa ação!', 400);
+    }
+
+    const familia = await Family.findById(req.params.id);
+    const users = await User.find({_id : {$in: familia.usuariosAssociados}});
+    
+    users.forEach(async (user) => {
+        if(user.tipoUsuario === "Morador"){
+            await User.findByIdAndDelete(user._id);
+        }
+        else{
+            const idx = user.familiasAssociadas.indexOf(req.params.id);
+            user.familiasAssociadas.splice(idx, 1);
+            await user.save({validateBeforeSave:false});
+        }
+    });
+
+    await Family.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+        status: 'success',
+        message: 'familia deletada com sucesso'
+    })
+});
+
+
+exports.getUsuariosAssociados = asyncErrorHandler(async (req, res, next) => {
+
+
+    const users = await User.find({
+        _id: { $in: req.query.usuariosAssociadosId},
+        //tipoUsuario: { $in: ['Entrevistador', 'Lider Comunitario']}
+    });
+
+    if(!users) {
+        throw new CustomError("Nao tem usuarios associados");
+    }
+
+    res.status(200).json({
+        status: "success",
+        users
+    });
 });
