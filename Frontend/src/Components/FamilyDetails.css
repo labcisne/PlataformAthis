@@ -5,6 +5,8 @@
 }
 
 .familyDataContainer {
+    display: flex;
+    flex-direction: column;
     text-align: left;
     margin-bottom: 20px;
 }
@@ -39,4 +41,12 @@
 
 .familyDetailsBtn:hover {
     background-color: #f09a19;
+}
+
+.editDeleteBtn {
+    background-color: #f0652e;
+}
+
+.editDeleteBtn:hover {
+    background-color: #ec5c23;
 }

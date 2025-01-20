@@ -20,7 +20,7 @@ const criaNovoMorador = (dadosFamilia, id) => {
         senha,
         confirmarSenha: senha,
         tipoUsuario: 'Morador',
-        nome: 'Novo morador',
+        nome: dadosFamilia.nomeMorador,
         familiasAssociadas: [id],
         perguntaSeguranca: "Qual é o nome do seu animal de estimação?",
         respostaSeguranca: "gato"
@@ -152,7 +152,6 @@ exports.getUsuariosAssociados = asyncErrorHandler(async (req, res, next) => {
 
     const users = await User.find({
         _id: { $in: req.query.usuariosAssociadosId},
-        //tipoUsuario: { $in: ['Entrevistador', 'Lider Comunitario']}
     });
 
     if(!users) {
@@ -164,3 +163,25 @@ exports.getUsuariosAssociados = asyncErrorHandler(async (req, res, next) => {
         users
     });
 });
+
+
+exports.editaFamilia = asyncErrorHandler(async (req, res, next) => {
+
+    if(req.query.userRole !== "Administrador" && req.query.userRole !== "Entrevistador"){
+        throw new CustomError('Você não tem permissão para essa ação!', 400);
+    }
+
+    const newFamily = await Family.findByIdAndUpdate(req.params.id, {"dadosFamilia": req.body.familiaEditada}, {
+        runValidators: true,
+        new: true
+    })
+
+    if(!newFamily) {
+        throw new CustomError("Não foi possível editar os dados");
+    }
+
+    res.status(200).json({
+        status: "success",
+        newFamily: newFamily.dadosFamilia
+    });
+})

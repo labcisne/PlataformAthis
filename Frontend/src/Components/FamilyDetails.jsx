@@ -15,19 +15,37 @@ function Componente() {
     const referenciaDialog1 = useRef(null);
     const referenciaDialog2 = useRef(null);
     const [familia, setFamilia] = useState({});
+    const [familiaEditada, setFamiliaEditada] = useState({});
+    const [modoEdicao, setModoEdicao] = useState(false);
 
     const location = useLocation();
     const familiaId = location.state?.id;
     const role = location.state?.role;
 
+    const listaCidades  = [
+        'Cariacica',
+        'Fundão',
+        'Guarapari',
+        'Serra',
+        'Viana',
+        'Vila Velha',
+        'Vitória'
+    ];
+
     useEffect(() => {
         axios.get(`http://localhost:3000/familia/${familiaId}`, {withCredentials:true})
         .then((response) => {
-                setFamilia(response.data.familia);
-                const usuariosAssociadosId = response.data.familia.usuariosAssociados;
-                return axios.get("http://localhost:3000/familia/usuariosAssociados", {params: {usuariosAssociadosId}, withCredentials: true})
+                setFamilia(response.data.familia.dadosFamilia);
+                setFamiliaEditada(response.data.familia.dadosFamilia);
+                if(role === "Administrador" || role === "Entrevistador"){
+                    const usuariosAssociadosId = response.data.familia.usuariosAssociados;
+                    return axios.get("http://localhost:3000/familia/usuariosAssociados", {params: {usuariosAssociadosId}, withCredentials: true})
+                }
+                else return undefined
             })
-        .then((response => {setUsuariosAssociados(response.data.users)}))
+        .then((response => {if(response) setUsuariosAssociados(response.data.users);
+                            else setUsuariosAssociados([]);
+        }))
         .catch((error) => console.log(error));
     }, [])
 
@@ -39,12 +57,6 @@ function Componente() {
             .catch((error) => console.log(error));
         }, [])
     }
-
-    // const usuariosParaAssociar = async () => {
-    //     axios.get("http://localhost:3000/usuariosParaAssociar", {params: {familiaId}, withCredentials:true})
-    //         .then((response) => setUsuarios(response.data.users))
-    //         .catch((error) => console.log(error));
-    // }
 
     const apareceDialog = (referenciaDialog) => {
         if(!referenciaDialog.current){
@@ -78,6 +90,26 @@ function Componente() {
             .catch((error) => console.log(error));
     }
 
+    const handleInputChange = (event) => {
+        const {name, value} = event.target;
+        setFamiliaEditada({...familiaEditada, [name]: value});
+    }
+
+    const salvarAlteracoes = () => {
+        if(familiaEditada.regiao){
+            familiaEditada.regiao = familiaEditada.regiao.trim().toLowerCase();
+        }
+        else{
+            familiaEditada.regiao = "Data not found"
+        }
+        axios.patch(`http://localhost:3000/familia/${familiaId}`, {familiaEditada}, {params: {userRole: role}, withCredentials: true})
+        .then((response) => {
+            setFamilia(response.data.newFamily);
+            setModoEdicao(false);
+        })
+        .catch(error => console.log(error));
+    }
+
     return (
         <div className="container">
             <a href="#">
@@ -87,16 +119,169 @@ function Componente() {
             </a>
             <h3 className="familyDetailsHeader">Dados da família:</h3>
             <div className="familyDataContainer">
-                <p className="familyData"><span className="familyAttribute">ID: </span>{familiaId ? familiaId : "Loading..."}</p>
-                <p className="familyData"><span className="familyAttribute">Nome do Morador: </span>{familia.dadosFamilia ? familia.dadosFamilia.nomeMorador : "Loading..."}</p>
-                <p className="familyData"><span className="familyAttribute">Documento: </span>{familia.dadosFamilia ? familia.dadosFamilia.documentoResponsavel : "Loading..."}</p>
-                <p className="familyData"><span className="familyAttribute">Tipo de Documento: </span>{familia.dadosFamilia ? familia.dadosFamilia.opcaoSelecionada?.toUpperCase() : "Loading..."}</p>
-                <p className="familyData"><span className="familyAttribute">Endereço: </span>{familia.dadosFamilia ? familia.dadosFamilia.endereco : "Loading..."}</p>
-                <p className="familyData"><span className="familyAttribute">Número: </span>{familia.dadosFamilia ? familia.dadosFamilia.numeroCasa : "Loading..."}</p>
-                <p className="familyData"><span className="familyAttribute">Cidade: </span>{familia.dadosFamilia ? familia.dadosFamilia.cidade : "Loading..."}</p>
-                <p className="familyData"><span className="familyAttribute">Região: </span>{familia.dadosFamilia ? familia.dadosFamilia.regiao : "Loading..."}</p>
-                <p className="familyData"><span className="familyAttribute">Telefone: </span>{familia.dadosFamilia ? familia.dadosFamilia.telefone : "Loading..."}</p>
-                <p className="familyData"><span className="familyAttribute">Dono do Telefone: </span>{familia.dadosFamilia ? familia.dadosFamilia.donoTelefone : "Loading..."}</p>
+                {modoEdicao ? (
+                    <div>
+                        <div className="celula">
+                            <label htmlFor="" className="familyAttribute">Nome do Morador:</label>
+                            <input 
+                                type="text"
+                                name="nomeMorador"
+                                value={familiaEditada ? familiaEditada.nomeMorador : "Loading..."}
+                                placeholder="Nome do morador"
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className="celula">
+                            <label htmlFor="" className="familyAttribute">Documento:</label>
+                            <input 
+                                type="text"
+                                name="documentoResponsavel"
+                                value={familiaEditada ? familiaEditada.documentoResponsavel : "Loading..."}
+                                placeholder="Nº documento"
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className="celula">
+                            <label htmlFor="" className="familyAttribute">Tipo de Documento:</label>
+                            <div style={{display: "flex", gap: "8px"}}>
+                                <div>
+                                    <input 
+                                        type="checkbox"
+                                        name="opcaoSelecionada"
+                                        value={"cpf"}
+                                        checked={familiaEditada?.opcaoSelecionada === "cpf"}
+                                        onChange={handleInputChange}
+                                        id="cpfEdit"
+                                    />
+                                    <label htmlFor="cpfEdit" className="checkLabel">CPF</label>
+                                </div>
+                                <div>
+                                    <input 
+                                        type="checkbox"
+                                        name="opcaoSelecionada"
+                                        value={"rg"}
+                                        checked={familiaEditada?.opcaoSelecionada === "rg"}
+                                        onChange={handleInputChange}
+                                        id="rgEdit"
+                                    />
+                                    <label htmlFor="rgEdit" className="checkLabel">RG</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="celula">
+                            <label htmlFor="" className="familyAttribute">Endereço:</label>
+                            <input 
+                                type="text"
+                                name="endereco"
+                                value={familiaEditada ? familiaEditada.endereco : "Loading..."}
+                                placeholder="Endereço"
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className="celula">
+                            <label htmlFor="" className="familyAttribute">Número:</label>
+                            <input 
+                                type="text"
+                                name="numeroCasa"
+                                value={familiaEditada ? familiaEditada.numeroCasa : "Loading..."}
+                                placeholder="Número"
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className="celula">
+                            <label htmlFor="" className="familyAttribute">Cidade:</label>
+                            <select 
+                                name="cidade"
+                                value={familiaEditada?.cidade}
+                                onChange={handleInputChange}
+                            >
+                                <option value="" disabled>
+                                    Escolha uma cidade
+                                </option>
+                                {listaCidades.map((cidade, index) => (
+                                    <option key={index} value={cidade}>
+                                        {cidade}
+                                    </option>
+                                ))}                                 
+                            </select>
+                        </div>
+                        <div className="celula">
+                            <label htmlFor="" className="familyAttribute">Região:</label>
+                            <input 
+                                type="text"
+                                name="regiao"
+                                value={familiaEditada ? familiaEditada.regiao : "Loading..."}
+                                placeholder="Região"
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className="celula">
+                            <label htmlFor="" className="familyAttribute">Telefone:</label>
+                            <input 
+                                type="text"
+                                name="telefone"
+                                value={familiaEditada ? familiaEditada.telefone : "Loading..."}
+                                placeholder="(27)12345-6789"
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className="celula">
+                            <label htmlFor="" className="familyAttribute">Dono do Telefone:</label>
+                            <input 
+                                type="text"
+                                name="donoTelefone"
+                                value={familiaEditada ? familiaEditada.donoTelefone : "Loading..."}
+                                placeholder="Dono tel."
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                    </div>
+                    
+                ) : (
+                    <div>
+                        <p className="familyData"><span className="familyAttribute">ID: </span>{familiaId ? familiaId : "Loading..."}</p>
+                        <p className="familyData"><span className="familyAttribute">Nome do Morador: </span>{familia ? familia.nomeMorador : "Loading..."}</p>
+                        <p className="familyData"><span className="familyAttribute">Documento: </span>{familia ? familia.documentoResponsavel : "Loading..."}</p>
+                        <p className="familyData"><span className="familyAttribute">Tipo de Documento: </span>{familia ? familia.opcaoSelecionada?.toUpperCase() : "Loading..."}</p>
+                        <p className="familyData"><span className="familyAttribute">Endereço: </span>{familia ? familia.endereco : "Loading..."}</p>
+                        <p className="familyData"><span className="familyAttribute">Número: </span>{familia ? familia.numeroCasa : "Loading..."}</p>
+                        <p className="familyData"><span className="familyAttribute">Cidade: </span>{familia ? familia.cidade : "Loading..."}</p>
+                        <p className="familyData"><span className="familyAttribute">Região: </span>{familia ? familia.regiao : "Loading..."}</p>
+                        <p className="familyData"><span className="familyAttribute">Telefone: </span>{familia ? familia.telefone : "Loading..."}</p>
+                        <p className="familyData"><span className="familyAttribute">Dono do Telefone: </span>{familia ? familia.donoTelefone : "Loading..."}</p>
+                    </div>
+                )}
+                {(role === "Administrador" || role === "Entrevistador") ? (
+
+                    modoEdicao ? (
+                        <button 
+                            className="familyDetailsBtn editDeleteBtn"
+                            onClick={salvarAlteracoes}                        
+                        >
+                            Salvar alterações
+                        </button>
+                    ) : (
+                        <div 
+                            style={{display: "flex", gap: "12px"}}
+                        >
+                            <button
+                                className="familyDetailsBtn editDeleteBtn"
+                                onClick={() => {setModoEdicao(true)}}
+                            >
+                                Editar Família
+                            </button>
+
+                            <button 
+                                className="familyDetailsBtn editDeleteBtn"
+                                onClick={deletaFamilia}
+                            >
+                                Excluir Família
+                            </button>
+                        </div>
+                    )
+                ) : (
+                    <></>
+                )}
             </div>
             <div className="familyDetailsBtnContainer">
                 <button className="familyDetailsBtn">Localização</button>
@@ -129,14 +314,10 @@ function Componente() {
                         />);
                         apareceDialog(referenciaDialog2);
                     }}
-                >Usuarios Associados</button>
-                <button className="familyDetailsBtn">Editar Família</button>
-                <button 
-                    className="familyDetailsBtn"
-                    onClick={deletaFamilia}
                 >
-                    Excluir Família
+                    Usuarios Associados
                 </button>
+                
             </div>
             <dialog ref={referenciaDialog1} className="dialogContainer">
                 {tabelaUsuariosParaAssociar}

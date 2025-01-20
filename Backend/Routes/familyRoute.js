@@ -15,6 +15,7 @@ router.route('/')
 router.route('/:id')
     .get(familyController.getFamilia)
     .post(familyController.associaFamilia)
-    .delete(familyController.deletaFamilia);
+    .delete(familyController.deletaFamilia)
+    .patch(familyController.editaFamilia);
 
 module.exports = router;
