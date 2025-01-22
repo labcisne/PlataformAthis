@@ -10,13 +10,16 @@ function Componente() {
 
     const [tabelaUsuariosParaAssociar, setTabelaUsuariosParaAssociar] = useState(null);
     const [tabelaUsuariosAssociados, setTabelaUsuariosAssociados] = useState(null);
+    const [janelaLocalizacao, setJanelaLocalizacao] = useState(null);
     const [usuarios, setUsuarios] = useState([]);
     const [usuariosAssociados, setUsuariosAssociados] = useState([]);
     const referenciaDialog1 = useRef(null);
     const referenciaDialog2 = useRef(null);
+    const referenciaDialog3 = useRef(null);
     const [familia, setFamilia] = useState({});
     const [familiaEditada, setFamiliaEditada] = useState({});
     const [modoEdicao, setModoEdicao] = useState(false);
+    const [localizacao, setLocalizacao] = useState(null);
 
     const location = useLocation();
     const familiaId = location.state?.id;
@@ -37,6 +40,7 @@ function Componente() {
         .then((response) => {
                 setFamilia(response.data.familia.dadosFamilia);
                 setFamiliaEditada(response.data.familia.dadosFamilia);
+                setLocalizacao(response.data.familia.localizacaoFamilia);
                 if(role === "Administrador" || role === "Entrevistador"){
                     const usuariosAssociadosId = response.data.familia.usuariosAssociados;
                     return axios.get("http://localhost:3000/familia/usuariosAssociados", {params: {usuariosAssociadosId}, withCredentials: true})
@@ -108,6 +112,15 @@ function Componente() {
             setModoEdicao(false);
         })
         .catch(error => console.log(error));
+    }
+
+    const getLocalizacao = () => {
+        return (
+            <div>
+                <p>Latitude: {localizacao.latitude}</p> <br />
+                <p>Longitude: {localizacao.longitude}</p> <br />
+            </div>
+        );
     }
 
     return (
@@ -284,7 +297,15 @@ function Componente() {
                 )}
             </div>
             <div className="familyDetailsBtnContainer">
-                <button className="familyDetailsBtn">Localização</button>
+                <button 
+                    className="familyDetailsBtn"
+                    onClick={() => {
+                        setJanelaLocalizacao(getLocalizacao());
+                        apareceDialog(referenciaDialog3);
+                    }}
+                >
+                    Localização
+                </button>
                 <button className="familyDetailsBtn">Tabela Socioeconômica</button>
                 <button className="familyDetailsBtn">Tabela Estrutural</button>
                 <button className="familyDetailsBtn">Arquivos</button>
@@ -326,6 +347,10 @@ function Componente() {
             <dialog ref={referenciaDialog2} className="dialogContainer">
                 {tabelaUsuariosAssociados}
                 <button onClick={() => {apareceDialog(referenciaDialog2)}}>Fechar</button>
+            </dialog>
+            <dialog ref={referenciaDialog3} className="dialogContainer">
+                {janelaLocalizacao}
+                <button onClick={() => {apareceDialog(referenciaDialog3)}}>Fechar</button>
             </dialog>
         </div>
     )

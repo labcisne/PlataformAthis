@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const dadosPessoais = require('../Schemas/dadosPessoais');
-
+const localizacao = require('../Schemas/localizacao.js');
 
 const familySchema = mongoose.Schema({
 
@@ -11,6 +11,10 @@ const familySchema = mongoose.Schema({
     usuariosAssociados: {
         type: [String],
         default: []
+    },
+    localizacaoFamilia: {
+        type: localizacao,
+        required: true
     }
 });
 

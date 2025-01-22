@@ -25,6 +25,21 @@ function FamilyForm(){
     ];
 
     const [regiao, setRegiao] = useState("");
+    const [localizacao, setLocalizacao] = useState(null);
+
+    const handleGetLocalizacao = () => {
+        if(navigator.geolocation){
+            navigator.geolocation.getCurrentPosition((position) => {
+                const { latitude, longitude } = position.coords;
+                setLocalizacao({ latitude, longitude });
+            }, (error) => {
+                console.log(error.message);
+            });
+        }
+        else{
+            console.log("Localização não é suportada pelo browser.")
+        }
+    }
 
     const handleSubmit = (event) => {
 
@@ -39,10 +54,10 @@ function FamilyForm(){
             cidade: cidadeSelecionada,
             regiao: regiao.trim().toLowerCase(),
             telefone,
-            donoTelefone
+            donoTelefone,
         }
 
-        axios.post("http://localhost:3000/familia", obj, {withCredentials: true})
+        axios.post("http://localhost:3000/familia", {dadosPessoais: obj, localizacao}, {withCredentials: true})
         .then((response) => console.log(response.data))
         .catch((error) => console.log(error.response.data.message));
 
@@ -55,6 +70,7 @@ function FamilyForm(){
         setDonoTelefone("");
         setCidadeSelecionada("");
         setRegiao("");
+        setLocalizacao(null);
     }
 
     return (
@@ -126,6 +142,7 @@ function FamilyForm(){
                     <button
                         id="localizacao"
                         type="button"
+                        onClick={handleGetLocalizacao}
                     >
                         Acessar GPS
                     </button>

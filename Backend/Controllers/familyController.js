@@ -31,10 +31,15 @@ const criaNovoMorador = (dadosFamilia, id) => {
 
 exports.criaFamilia = asyncErrorHandler(async (req, res, next) => {
 
-    const newFamily = await Family.create({dadosFamilia: req.body});
+    console.log(req.body);
+
+    const newFamily = await Family.create({
+        dadosFamilia: req.body.dadosPessoais,
+        localizacaoFamilia: req.body.localizacao
+    });
 
     //cria um usuário para o morador
-    const novoMorador = criaNovoMorador(req.body, newFamily._id);
+    const novoMorador = criaNovoMorador(req.body.dadosPessoais, newFamily._id);
     const morador = await User.create(novoMorador);
 
     //salvando o id da familia no entrevistador que criou ela
