@@ -31,8 +31,6 @@ const criaNovoMorador = (dadosFamilia, id) => {
 
 exports.criaFamilia = asyncErrorHandler(async (req, res, next) => {
 
-    console.log(req.body);
-
     const newFamily = await Family.create({
         dadosFamilia: req.body.dadosPessoais,
         localizacaoFamilia: req.body.localizacao

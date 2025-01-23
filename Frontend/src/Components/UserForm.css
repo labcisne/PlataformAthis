@@ -119,14 +119,3 @@ select:hover,
 select:focus {
     border: 1px solid #000000;
 }
-
-.addBtn {
-    padding: 4px;
-    font-size: 1.1rem;
-    background-color: #F0A22E;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    color: #FDFCFC;
-    margin-top: 8px;
-}

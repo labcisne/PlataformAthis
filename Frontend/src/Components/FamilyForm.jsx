@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 
+import Mapa from "./Mapa.jsx";
+
 import "./FamilyForm.css";
 
 function FamilyForm(){
@@ -27,18 +29,11 @@ function FamilyForm(){
     const [regiao, setRegiao] = useState("");
     const [localizacao, setLocalizacao] = useState(null);
 
-    const handleGetLocalizacao = () => {
-        if(navigator.geolocation){
-            navigator.geolocation.getCurrentPosition((position) => {
-                const { latitude, longitude } = position.coords;
-                setLocalizacao({ latitude, longitude });
-            }, (error) => {
-                console.log(error.message);
-            });
-        }
-        else{
-            console.log("Localização não é suportada pelo browser.")
-        }
+    const handleGetLocalizacao = (location) => {
+        setLocalizacao({
+            latitude: location[0],
+            longitude: location[1]
+        });
     }
 
     const handleSubmit = (event) => {
@@ -58,7 +53,7 @@ function FamilyForm(){
         }
 
         axios.post("http://localhost:3000/familia", {dadosPessoais: obj, localizacao}, {withCredentials: true})
-        .then((response) => console.log(response.data))
+        .then((response) => {console.log(response.data); alert("família criada com sucesso")})
         .catch((error) => console.log(error.response.data.message));
 
         setNomeMorador("");
@@ -138,14 +133,8 @@ function FamilyForm(){
                            onChange={(event) => {setRegiao(event.target.value)}}/>
                 </div>
                 <div className="celula" id="localizacaoContainer">
-                    <label htmlFor="localizacao">Localização:</label>
-                    <button
-                        id="localizacao"
-                        type="button"
-                        onClick={handleGetLocalizacao}
-                    >
-                        Acessar GPS
-                    </button>
+                    <label >Localização:</label>
+                    <Mapa onLocationChange={handleGetLocalizacao}/>
                 </div>
                 <div className="celula" id="telefoneContainer">
                     <label htmlFor="telefone">Telefone:</label>
