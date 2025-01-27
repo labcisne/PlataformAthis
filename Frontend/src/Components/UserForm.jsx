@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import "./UserForm.css"
 
 function UserForm(){
+
+    const navigate = useNavigate();
 
     const [login, setLogin] = useState("");
     const [senha, setSenha] = useState("");
@@ -30,7 +33,11 @@ function UserForm(){
 
         //response.data pega o objeto da resposta que enviamos pelo backend
         axios.post("http://localhost:3000/criarUsuario", obj, {withCredentials: true})
-        .then((response) => console.log(response))
+        .then((response) => {
+            console.log(response);
+            alert("Usuário criado com sucesso!");
+            navigate("/menu");
+        })
         .catch((error) => console.error(error.response.data.message));
 
         setLogin("");
@@ -45,11 +52,9 @@ function UserForm(){
 
     return (
         <div className="container">
-            <a href="#">
-                <div className="returnIcon">
-                    ⬅
-                </div>
-            </a>
+            <button className="returnBtn" onClick={() => navigate("/menu")}>
+                ⬅
+            </button>
             <h3 className="userFormHeader">Entre com os dados do novo usuário:</h3>
             <form action="#" className="userFormContainer" onSubmit={handleSubmit}>
                 <div className="celula preencher" id="loginContainer">

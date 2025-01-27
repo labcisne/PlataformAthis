@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import Mapa from "./Mapa.jsx";
@@ -7,6 +8,7 @@ import "./FamilyForm.css";
 
 function FamilyForm(){
     
+    const navigate = useNavigate();
     const [nomeMorador, setNomeMorador] = useState("");
     const [documentoResponsavel, setDocumentoResponsavel] = useState("");
     const [opcaoSelecionada, setOpocaoSelecionada] = useState("");
@@ -53,7 +55,11 @@ function FamilyForm(){
         }
 
         axios.post("http://localhost:3000/familia", {dadosPessoais: obj, localizacao}, {withCredentials: true})
-        .then((response) => {console.log(response.data); alert("família criada com sucesso")})
+        .then((response) => {
+            console.log(response.data); 
+            alert("Família criada com sucesso!");
+            navigate("/menu");
+        })
         .catch((error) => console.log(error.response.data.message));
 
         setNomeMorador("");
@@ -70,11 +76,9 @@ function FamilyForm(){
 
     return (
         <div className="container">
-            <a href="#">
-                <div className="returnIcon">
-                    ⬅
-                </div>
-            </a>
+            <button className="returnBtn" onClick={() => navigate("/menu")}>
+                ⬅
+            </button>
             <h3 className="familyFormHeader">Entre com os dados da família:</h3>
             <form action="#" className="familyFormContainer" onSubmit={handleSubmit}>
                 <div className="celula" id="nomeMoradorContainer">

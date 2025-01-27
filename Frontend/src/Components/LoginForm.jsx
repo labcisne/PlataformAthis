@@ -8,7 +8,6 @@ function LoginForm(){
 
     const [login, setLogin] = useState("");
     const [senha, setSenha] = useState("");
-    const [stayConnected, setStayConnected] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = (event) => {
@@ -20,24 +19,17 @@ function LoginForm(){
         }
 
         axios.post("http://localhost:3000", obj, {withCredentials: true})
-        .then((response) => {
-            navigate("/menu", {state: {role: response.data.user.tipoUsuario, 
-                                       nomeUsuario: response.data.user.nome}});
+        .then(() => {
+            navigate("/menu");
         })
         .catch((error) => {console.error(error.response.data.message)});
 
         setLogin("");
         setSenha("");
-        setStayConnected(false);
     }
 
     return (
         <div className="container">
-            <a href="#">
-                <div className="returnIcon">
-                    ⬅
-                </div>
-            </a>
             <h1>Acesso</h1>
             <form action="#" className="loginFormContainer" onSubmit={handleSubmit}>
                 <div className="row">
@@ -50,12 +42,7 @@ function LoginForm(){
                     <input type="password" name="senha" id="senha" placeholder="Entre com sua senha" required
                            value={senha} onChange={(event) => {setSenha(event.target.value)}}/>
                 </div>
-                <div className="row specialRow">
-                    <div>
-                        <input type="checkbox" name="conectado" id="conectado" checked={stayConnected}
-                               onChange={(event) => {setStayConnected(event.target.checked)}}/>
-                        <label htmlFor="conectado" id="checkLabel">Mantenha-me conectado</label>
-                    </div>
+                <div className="row">
                     <div>
                         <a href="#" className="esqueciSenha">Esqueci minha senha</a>
                     </div>

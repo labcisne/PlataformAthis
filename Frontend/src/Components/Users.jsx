@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import Tabela from "./Tabela";
@@ -9,6 +10,7 @@ import "./Users.css";
 function Users(){
 
     const [usuarios, setUsuarios] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get("http://localhost:3000/usuarios", {withCredentials:true})
@@ -27,11 +29,9 @@ function Users(){
 
     return (
         <div className="container">
-            <a href="#" className="returnBtn">
-                <button className="returnIcon">
-                    ⬅
-                </button>
-            </a>
+            <button className="returnBtn" onClick={() => navigate("/menu")}>
+                ⬅
+            </button>
             <label className="tableTitle">Usuários Cadastrados:</label>
             <Tabela 
                 dados={usuarios}

@@ -13,6 +13,14 @@
   align-items: center;
 }
 
+.container {
+  text-align: center;
+  padding: 20px;
+  background-color: #D7D7D7;
+  max-width: 412px;
+  width: 100%;
+}
+
 /*Nav Bar*/
 .navBar {
   width: 100vw;
@@ -22,7 +30,7 @@
   align-items: center;
 }
 
-.returnIcon {
+.returnBtn {
   color: black;
   display: flex;
   justify-content: center;
@@ -37,7 +45,7 @@
   cursor: pointer;
 }
 
-.returnIcon:hover {
+.returnBtn:hover {
   background-color: #f09a19;
 }
 

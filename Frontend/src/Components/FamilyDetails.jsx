@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import Tabela from "./Tabela";
@@ -10,18 +10,17 @@ function Componente() {
 
     const [tabelaUsuariosParaAssociar, setTabelaUsuariosParaAssociar] = useState(null);
     const [tabelaUsuariosAssociados, setTabelaUsuariosAssociados] = useState(null);
-    const [janelaLocalizacao, setJanelaLocalizacao] = useState(null);
     const [usuarios, setUsuarios] = useState([]);
     const [usuariosAssociados, setUsuariosAssociados] = useState([]);
     const referenciaDialog1 = useRef(null);
     const referenciaDialog2 = useRef(null);
-    const referenciaDialog3 = useRef(null);
     const [familia, setFamilia] = useState({});
     const [familiaEditada, setFamiliaEditada] = useState({});
     const [modoEdicao, setModoEdicao] = useState(false);
     const [localizacao, setLocalizacao] = useState(null);
 
     const location = useLocation();
+    const navigate = useNavigate();
     const familiaId = location.state?.id;
     const role = location.state?.role;
 
@@ -115,21 +114,15 @@ function Componente() {
     }
 
     const getLocalizacao = () => {
-        return (
-            <div>
-                <p>Latitude: {localizacao.latitude}</p> <br />
-                <p>Longitude: {localizacao.longitude}</p> <br />
-            </div>
-        );
+        const googleMapsLink = `https://www.google.com/maps?q=${localizacao.latitude},${localizacao.longitude}`;
+        window.open(googleMapsLink, "_blank");
     }
 
     return (
         <div className="container">
-            <a href="#">
-                <div className="returnIcon">
-                    ⬅
-                </div>
-            </a>
+            <button className="returnBtn" onClick={() => navigate("/menu")}>
+                ⬅
+            </button>
             <h3 className="familyDetailsHeader">Dados da família:</h3>
             <div className="familyDataContainer">
                 {modoEdicao ? (
@@ -299,10 +292,7 @@ function Componente() {
             <div className="familyDetailsBtnContainer">
                 <button 
                     className="familyDetailsBtn"
-                    onClick={() => {
-                        setJanelaLocalizacao(getLocalizacao());
-                        apareceDialog(referenciaDialog3);
-                    }}
+                    onClick={getLocalizacao}
                 >
                     Localização
                 </button>
@@ -347,10 +337,6 @@ function Componente() {
             <dialog ref={referenciaDialog2} className="dialogContainer">
                 {tabelaUsuariosAssociados}
                 <button onClick={() => {apareceDialog(referenciaDialog2)}}>Fechar</button>
-            </dialog>
-            <dialog ref={referenciaDialog3} className="dialogContainer">
-                {janelaLocalizacao}
-                <button onClick={() => {apareceDialog(referenciaDialog3)}}>Fechar</button>
             </dialog>
         </div>
     )

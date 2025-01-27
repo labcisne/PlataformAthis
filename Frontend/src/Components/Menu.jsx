@@ -10,6 +10,20 @@ import "./Menu.css";
 function Menu(){
     
     const [familias, setFamilias] = useState([]);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const [role, setRole] = useState("");
+    const [nomeUsuario, setNomeUsuario] = useState("");
+
+    useEffect(() => {
+        axios.get("http://localhost:3000/protected", {withCredentials: true})
+        .then((response) => {
+            setRole(response.data.user.tipoUsuario);
+            setNomeUsuario(response.data.user.nome);
+        })
+        .catch(() => navigate("/"));
+    }, []);
 
     useEffect(() => {
         axios.get("http://localhost:3000/familia", {withCredentials: true})
@@ -18,12 +32,6 @@ function Menu(){
         })
         .catch((error) => console.log(error));
     }, []);
-
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    const role = location.state?.role;
-    const nomeUsuario = location.state?.nomeUsuario;
 
     const renderButtons = () => {
         switch(role){
@@ -107,11 +115,9 @@ function Menu(){
 
     return (
         <div className="container">
-            <a href="#">
-                <button className="returnIcon">
-                    ⬅
-                </button>
-            </a>
+            <button className="returnBtn" onClick={() => {navigate("/")}}>
+                ⬅
+            </button>
             <h3 className="menuHeader">{nomeUsuario ? `Olá, ${nomeUsuario}` : `Olá, usuário`}</h3>
             <div className="buttonsContainer">
                 {renderButtons()}

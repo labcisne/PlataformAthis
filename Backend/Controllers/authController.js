@@ -79,9 +79,9 @@ exports.verificaLogin = asyncErrorHandler(async (req, res, next) => {
         throw new CustomError('Senha alterada recentemente. Faça login para continuar.', 401);
     }
 
-    req.user = user;
     res.status(200).json({
-        status:'success'
+        status:'success',
+        user
     });
 }); 
 

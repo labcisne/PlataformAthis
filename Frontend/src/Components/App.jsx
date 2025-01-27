@@ -14,11 +14,11 @@ function App(){
         <Router>
             <Routes>
                 <Route path="/" element={<LoginForm />} />
-                <Route path="/menu" element={<Protected pageToReturn="/"> <Menu /> </Protected>} />
+                <Route path="/menu" element={<Menu />} />
                 <Route path="/criarUsuario" element={<Protected pageToReturn="/"> <UserForm /> </Protected>} />
                 <Route path="/familia" element={<Protected pageToReturn="/"> <FamilyForm /> </Protected>} />
                 <Route path="/usuarios" element={ <Protected pageToReturn="/"> <Users /> </Protected>}/>
-                <Route path="/familia/dadosFamilia" element={<FamilyDetails />} />
+                <Route path="/familia/dadosFamilia" element={<Protected pageToReturn="/"> <FamilyDetails /> </Protected>} />
             </Routes>
         </Router>
     );
