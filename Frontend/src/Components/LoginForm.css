@@ -47,6 +47,7 @@ a {
 
 .esqueciSenha:hover {
     text-decoration: underline;
+    cursor: pointer;
 }
 .esqueciSenha:active {
     color: #5a5858;

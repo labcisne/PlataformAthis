@@ -6,7 +6,9 @@ import UserForm from "./UserForm.jsx";
 import FamilyForm from "./FamilyForm.jsx";
 import Protected from "./Protected.jsx";
 import Users from "./Users.jsx";
-import FamilyDetails from "./FamilyDetails.jsx"
+import FamilyDetails from "./FamilyDetails.jsx";
+import EsqueciSenha from "./EsqueciSenha.jsx";
+import EsqueciSenhaUsuario from "./EsqueciSenhaUsuario.jsx";
 
 function App(){
     
@@ -19,6 +21,8 @@ function App(){
                 <Route path="/familia" element={<Protected pageToReturn="/"> <FamilyForm /> </Protected>} />
                 <Route path="/usuarios" element={ <Protected pageToReturn="/"> <Users /> </Protected>}/>
                 <Route path="/familia/dadosFamilia" element={<Protected pageToReturn="/"> <FamilyDetails /> </Protected>} />
+                <Route path="/esqueciMinhaSenha" element={<EsqueciSenha />} />
+                <Route path="/esqueciMinhaSenha/usuario" element={<EsqueciSenhaUsuario />} />
             </Routes>
         </Router>
     );

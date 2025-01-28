@@ -44,7 +44,14 @@ function LoginForm(){
                 </div>
                 <div className="row">
                     <div>
-                        <a href="#" className="esqueciSenha">Esqueci minha senha</a>
+                        <a  
+                            className="esqueciSenha"
+                            onClick={() => {
+                                navigate("/esqueciMinhaSenha");
+                            }}
+                        >
+                            Esqueci minha senha
+                        </a>
                     </div>
                 </div>
                 <div className="row buttonContainer">

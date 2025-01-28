@@ -140,7 +140,7 @@ exports.achaUsuario = asyncErrorHandler(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
-        link: `http://localhost:3000/usuarios/esqueciMinhaSenha/${user._id}`
+        link: `http://localhost:3000/esqueciMinhaSenha/usuario/${user._id}`
     })
 });
 
@@ -165,7 +165,7 @@ exports.esqueciMinhaSenha = asyncErrorHandler (async (req, res, next) => {
     }
 
     const tokenResetSenha = user.geraTokenResetSenha();
-    await user.save({validateBeforeSave: false});
+    //await user.save({validateBeforeSave: false});
 
     res.status(200).json({
         status: 'success',
