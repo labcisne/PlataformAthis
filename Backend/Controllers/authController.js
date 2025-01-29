@@ -165,12 +165,12 @@ exports.esqueciMinhaSenha = asyncErrorHandler (async (req, res, next) => {
     }
 
     const tokenResetSenha = user.geraTokenResetSenha();
-    //await user.save({validateBeforeSave: false});
+    await user.save({validateBeforeSave: false});
 
     res.status(200).json({
         status: 'success',
         message: 'O token abaixo irá expirar em 10 minutos!',
-        link: `http://localhost:3000/usuarios/resetaSenha/${tokenResetSenha}`
+        link: `http://localhost:3000/resetaSenha/${tokenResetSenha}`
     });
 });
 

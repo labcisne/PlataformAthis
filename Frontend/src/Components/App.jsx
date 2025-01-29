@@ -9,6 +9,7 @@ import Users from "./Users.jsx";
 import FamilyDetails from "./FamilyDetails.jsx";
 import EsqueciSenha from "./EsqueciSenha.jsx";
 import EsqueciSenhaUsuario from "./EsqueciSenhaUsuario.jsx";
+import ResetaSenha from "./ResetaSenha.jsx";
 
 function App(){
     
@@ -23,6 +24,7 @@ function App(){
                 <Route path="/familia/dadosFamilia" element={<Protected pageToReturn="/"> <FamilyDetails /> </Protected>} />
                 <Route path="/esqueciMinhaSenha" element={<EsqueciSenha />} />
                 <Route path="/esqueciMinhaSenha/usuario" element={<EsqueciSenhaUsuario />} />
+                <Route path="/esqueciMinhaSenha/resetaSenha" element={<ResetaSenha />} />
             </Routes>
         </Router>
     );
