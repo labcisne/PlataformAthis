@@ -9,6 +9,10 @@ router.route('/criarUsuario').post(authController.verificaAcesso, authController
                              
 router.route('/usuarios').get(authController.verificaAcesso, authController.verificaTipoUsuario("Administrador"), authController.getUsuarios);
 
+router.route('/usuarios/:id')
+    .get(authController.getUsuario)
+    .delete(authController.deletaUsuario);
+
 router.route('/usuariosParaAssociar').get(authController.verificaAcesso, authController.verificaTipoUsuario("Administrador", "Entrevistador"), authController.getUsuariosParaAssociar);
 
 router.route('/').post(authController.login);

@@ -11,7 +11,6 @@ function Menu(){
     
     const [familias, setFamilias] = useState([]);
     const navigate = useNavigate();
-    const location = useLocation();
 
     const [role, setRole] = useState("");
     const [nomeUsuario, setNomeUsuario] = useState("");

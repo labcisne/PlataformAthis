@@ -1,4 +1,5 @@
 const User = require('../Models/userModel');
+const Family = require('../Models/familyModel')
 const jwt = require('jsonwebtoken');
 const util = require('node:util');
 const asyncErrorHandler = require('../Utils/asyncErrorHandler');
@@ -204,18 +205,31 @@ exports.resetaSenha = asyncErrorHandler(async (req, res, next) => {
 
 exports.alterarSenha = asyncErrorHandler(async (req, res, next) => {
 
-    const user = await User.findById(req.user._id).select('+senha');
+    let user;
 
-    const senhaAtual = req.body.senhaAtual;
+    if(req.body.id){
 
-    if(!senhaAtual || !(await user.verificaSenha(senhaAtual, user.senha))){
-        throw new CustomError('Senha atual incorreta!', 400);
+        user = await User.findById(req.body.id).select('+senha');
+
+        user.senha = req.body.novaSenha;
+        user.confirmarSenha = req.body.confirmarNovaSenha;
+        user.senhaAlteradaEm = Date.now();
+        await user.save({validateBeforeSave: true});
     }
+    else{
 
-    user.senha = req.body.novaSenha;
-    user.confirmarSenha = req.body.confirmarNovaSenha;
-    user.senhaAlteradaEm = Date.now();
-    await user.save({validateBeforeSave: true});
+        user = await User.findById(req.user._id).select('+senha');
+        const senhaAtual = req.body.senhaAtual;
+    
+        if(!senhaAtual || !(await user.verificaSenha(senhaAtual, user.senha))){
+            throw new CustomError('Senha atual incorreta!', 400);
+        }
+    
+        user.senha = req.body.novaSenha;
+        user.confirmarSenha = req.body.confirmarNovaSenha;
+        user.senhaAlteradaEm = Date.now();
+        await user.save({validateBeforeSave: true});
+    }
 
     res.status(200).json({
         status: 'success',
@@ -226,7 +240,15 @@ exports.alterarSenha = asyncErrorHandler(async (req, res, next) => {
 
 exports.alterarDadosPessoais = asyncErrorHandler (async (req, res, next) => {
 
-    const updatedUser = await User.findByIdAndUpdate(req.user._id, req.body, {new: true, runValidators: true});
+    let updatedUser;
+
+    if(req.body.id){
+        updatedUser = await User.findByIdAndUpdate(req.body.id, req.body.obj, {new: true, runValidators: true});
+
+    }
+    else{ //Possivelmente ajeitar esse código abaixo por conta do req.body
+        updatedUser = await User.findByIdAndUpdate(req.user._id, req.body, {new: true, runValidators: true});
+    }
 
     if(!updatedUser){
         throw new CustomError('Usuario nao encontrado', 404);
@@ -236,7 +258,8 @@ exports.alterarDadosPessoais = asyncErrorHandler (async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
-        message: 'Dados pessoais alterados com sucesso!'
+        message: 'Dados pessoais alterados com sucesso!',
+        updatedUser
     });
 });
 
@@ -271,4 +294,44 @@ exports.getUsuariosParaAssociar = asyncErrorHandler(async (req, res, next) => {
         status: 'success',
         users
     });
+});
+
+exports.getUsuario = asyncErrorHandler(async (req, res, next) => {
+
+    const user = await User.findById(req.params.id).select("+perguntaSeguranca +dataCadastro");
+
+    if(!user){
+        throw new CustomError('Usuario não encontrado', 404);
+    }
+
+    res.status(200).json({
+        status: 'success',
+        user
+    });
+});
+
+
+exports.deletaUsuario = asyncErrorHandler(async(req, res, next) => {
+
+    const userToDelete = await User.findById(req.params.id);
+
+    if(!userToDelete){
+        throw new CustomError('Usuario não encontrado', 404);
+    }
+
+    const families = await Family.find({_id: { $in: userToDelete.familiasAssociadas }});
+    if(families){
+        families.forEach(async (family) => {
+            const idx = family.usuariosAssociados.indexOf(req.params.id);
+            family.usuariosAssociados.splice(idx, 1);
+            await family.save({validateBeforeSave: false});
+        })
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Usuário deletado com sucesso!'
+    })
 });

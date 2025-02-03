@@ -4,22 +4,6 @@
     margin-bottom: 16px;
 }
 
-.familyDataContainer {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    margin-bottom: 20px;
-}
-
-.familyAttribute {
-    font-weight: 900;
-}
-
-.familyData {
-    margin-bottom: 8px;
-    font-size: 1.2rem;
-}
-
 .familyDetailsBtnContainer {
     display: flex;
     flex-wrap: wrap;
@@ -41,12 +25,4 @@
 
 .familyDetailsBtn:hover {
     background-color: #f09a19;
-}
-
-.editDeleteBtn {
-    background-color: #f0652e;
-}
-
-.editDeleteBtn:hover {
-    background-color: #ec5c23;
 }

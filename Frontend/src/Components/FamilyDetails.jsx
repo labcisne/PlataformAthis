@@ -123,8 +123,8 @@ function Componente() {
             <button className="returnBtn" onClick={() => navigate("/menu")}>
                 ⬅
             </button>
-            <h3 className="familyDetailsHeader">Dados da família:</h3>
-            <div className="familyDataContainer">
+            <h3 className="detailsHeader">Dados da família:</h3>
+            <div className="detailsContainer">
                 {modoEdicao ? (
                     <div>
                         <div className="celula">
@@ -245,16 +245,16 @@ function Componente() {
                     
                 ) : (
                     <div>
-                        <p className="familyData"><span className="familyAttribute">ID: </span>{familiaId ? familiaId : "Loading..."}</p>
-                        <p className="familyData"><span className="familyAttribute">Nome do Morador: </span>{familia ? familia.nomeMorador : "Loading..."}</p>
-                        <p className="familyData"><span className="familyAttribute">Documento: </span>{familia ? familia.documentoResponsavel : "Loading..."}</p>
-                        <p className="familyData"><span className="familyAttribute">Tipo de Documento: </span>{familia ? familia.opcaoSelecionada?.toUpperCase() : "Loading..."}</p>
-                        <p className="familyData"><span className="familyAttribute">Endereço: </span>{familia ? familia.endereco : "Loading..."}</p>
-                        <p className="familyData"><span className="familyAttribute">Número: </span>{familia ? familia.numeroCasa : "Loading..."}</p>
-                        <p className="familyData"><span className="familyAttribute">Cidade: </span>{familia ? familia.cidade : "Loading..."}</p>
-                        <p className="familyData"><span className="familyAttribute">Região: </span>{familia ? familia.regiao : "Loading..."}</p>
-                        <p className="familyData"><span className="familyAttribute">Telefone: </span>{familia ? familia.telefone : "Loading..."}</p>
-                        <p className="familyData"><span className="familyAttribute">Dono do Telefone: </span>{familia ? familia.donoTelefone : "Loading..."}</p>
+                        <p className="detailsData"><span style={{fontWeight: "bold"}}>ID: </span>{familiaId ? familiaId : "Loading..."}</p>
+                        <p className="detailsData"><span style={{fontWeight: "bold"}}>Nome do Morador: </span>{familia ? familia.nomeMorador : "Loading..."}</p>
+                        <p className="detailsData"><span style={{fontWeight: "bold"}}>Documento: </span>{familia ? familia.documentoResponsavel : "Loading..."}</p>
+                        <p className="detailsData"><span style={{fontWeight: "bold"}}>Tipo de Documento: </span>{familia ? familia.opcaoSelecionada?.toUpperCase() : "Loading..."}</p>
+                        <p className="detailsData"><span style={{fontWeight: "bold"}}>Endereço: </span>{familia ? familia.endereco : "Loading..."}</p>
+                        <p className="detailsData"><span style={{fontWeight: "bold"}}>Número: </span>{familia ? familia.numeroCasa : "Loading..."}</p>
+                        <p className="detailsData"><span style={{fontWeight: "bold"}}>Cidade: </span>{familia ? familia.cidade : "Loading..."}</p>
+                        <p className="detailsData"><span style={{fontWeight: "bold"}}>Região: </span>{familia ? familia.regiao : "Loading..."}</p>
+                        <p className="detailsData"><span style={{fontWeight: "bold"}}>Telefone: </span>{familia ? familia.telefone : "Loading..."}</p>
+                        <p className="detailsData"><span style={{fontWeight: "bold"}}>Dono do Telefone: </span>{familia ? familia.donoTelefone : "Loading..."}</p>
                     </div>
                 )}
                 {(role === "Administrador" || role === "Entrevistador") ? (

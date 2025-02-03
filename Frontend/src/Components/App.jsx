@@ -10,6 +10,9 @@ import FamilyDetails from "./FamilyDetails.jsx";
 import EsqueciSenha from "./EsqueciSenha.jsx";
 import EsqueciSenhaUsuario from "./EsqueciSenhaUsuario.jsx";
 import ResetaSenha from "./ResetaSenha.jsx";
+import UserDetails from "./UserDetails.jsx";
+import AlterarSenha from "./AlterarSenha.jsx";
+import AlterarPerguntaSeg from "./AlterarPerguntaSeg.jsx";
 
 function App(){
     
@@ -25,6 +28,9 @@ function App(){
                 <Route path="/esqueciMinhaSenha" element={<EsqueciSenha />} />
                 <Route path="/esqueciMinhaSenha/usuario" element={<EsqueciSenhaUsuario />} />
                 <Route path="/esqueciMinhaSenha/resetaSenha" element={<ResetaSenha />} />
+                <Route path="/usuarios/detalhesUsuario" element={<UserDetails />} />
+                <Route path="/usuarios/detalhesUsuario/alterarSenha" element={<AlterarSenha />} />
+                <Route path="/usuarios/detalhesUsuario/alterarPerguntaSeg" element={<AlterarPerguntaSeg />} />
             </Routes>
         </Router>
     );

@@ -26,6 +26,11 @@ function Users(){
         return usuario.tipoUsuario;
     }
 
+    const changePage = (usuario) => {
+        return () => {
+            navigate("/usuarios/detalhesUsuario", { state: { id: usuario._id } });
+        }
+    }
 
     return (
         <div className="container">
@@ -39,6 +44,7 @@ function Users(){
                 secondHeader={"Tipo de Usuário"}
                 getFirstHeader={getNomeUsuario}
                 getSecondHeader={getTipoUsuario}
+                action={changePage}
             />
         </div>
     )

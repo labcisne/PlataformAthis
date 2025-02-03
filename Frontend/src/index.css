@@ -120,3 +120,46 @@
 .dialogContainer::backdrop {
   background-color: hsla(0, 0%, 0%, 0.50);
 }
+
+.detailsHeader {
+  font-size: 1.3rem;
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.detailsContainer {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.detailsData {
+  margin-bottom: 8px;
+  font-size: 1.2rem;
+}
+
+.detailsBtn {
+  background-color: #F0A22E;
+  width: 110px;
+  height: 60px;
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  color: #FDFCFC;
+  font-weight: 600;
+}
+
+.detailsBtn:hover {
+  background-color: #f09a19;
+}
+
+.editDeleteBtn {
+  background-color: #f0652e;
+}
+
+.editDeleteBtn:hover {
+  background-color: #ec5c23;
+}
