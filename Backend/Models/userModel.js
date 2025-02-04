@@ -75,12 +75,14 @@ const userSchema = new mongoose.Schema({
 
 
 userSchema.pre('save', async function(next){
-    if(!this.isModified('senha')){ //verifica se houve mudança na senha, seja no create ou update.
-        return next();
+    // if(!this.isModified('senha')){ //verifica se houve mudança na senha, seja no create ou update.
+    //     return next();
+    // }
+    if(this.isModified('senha')){
+        this.senha = await bcrypt.hash(this.senha, 12);
+        this.confirmarSenha = undefined;
     }
-    this.senha = await bcrypt.hash(this.senha, 12);
-    this.confirmarSenha = undefined;
-    if(this.isModified('respostaSeguranca')){
+    else if(this.isModified('respostaSeguranca')){
         this.respostaSeguranca = await bcrypt.hash(this.respostaSeguranca, 12);
     }
     next();

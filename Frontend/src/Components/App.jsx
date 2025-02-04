@@ -30,7 +30,7 @@ function App(){
                 <Route path="/esqueciMinhaSenha/resetaSenha" element={<ResetaSenha />} />
                 <Route path="/usuarios/detalhesUsuario" element={<UserDetails />} />
                 <Route path="/usuarios/detalhesUsuario/alterarSenha" element={<AlterarSenha />} />
-                <Route path="/usuarios/detalhesUsuario/alterarPerguntaSeg" element={<AlterarPerguntaSeg />} />
+                <Route path="/usuarios/detalhesUsuario/alterarPerguntaSeguranca" element={<AlterarPerguntaSeg />} />
             </Routes>
         </Router>
     );

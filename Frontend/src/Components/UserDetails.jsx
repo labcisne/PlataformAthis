@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import Tabela from "./Tabela.jsx";
 import axios from "axios";
 
 function UserDetails(){
@@ -9,6 +10,9 @@ function UserDetails(){
     const [user, setUser] = useState({});
     const [userEditado, setUserEditado] = useState({});
     const [modoEdicao, setModoEdicao] = useState(false);
+    
+    const referenciaDialog = useRef(null);
+    const [tabelaFamiliasAssociadas, setTabelaFamiliasAssociadas] = useState(null);
 
     const id = location.state?.id;
     const role = location.state?.role;
@@ -23,7 +27,6 @@ function UserDetails(){
         .catch((error) => console.log(error));
     }, [])
 
-    //AJEITAR PROBLEMA AQUI
     const salvarAlteracoes = () => {
         const obj = {
             tipoUsuario: userEditado.tipoUsuario,
@@ -61,7 +64,45 @@ function UserDetails(){
     }
 
     const handleAlteraPergunta = () => {
-        navigate("/usuarios/detalhesUsuario/alterarPerguntaSeg", {state: { id, perguntaSeguranca: user.perguntaSeguranca }});
+        navigate("/usuarios/detalhesUsuario/alterarPerguntaSeguranca", {state: { id, perguntaSeguranca: user.perguntaSeguranca }});
+    }
+
+    const getDocumentoResponsavel = (familia) => {
+        return familia.dadosFamilia.documentoResponsavel;
+    }
+
+    const getNomeMorador = (familia) => {
+        return familia.dadosFamilia.nomeMorador;
+    }
+
+    const apareceDialog = () => {
+        if(!referenciaDialog.current){
+            return;
+        }
+        referenciaDialog.current.hasAttribute("open")
+            ? referenciaDialog.current.close()
+            : referenciaDialog.current.showModal();
+    }
+
+    const handleFamiliasAssociadas = () => {
+        axios.get("http://localhost:3000/familia", {
+            withCredentials: true,
+            params: {user}
+        })
+        .then((response) => {
+            setTabelaFamiliasAssociadas(
+                <Tabela
+                    dados={response.data.familias}
+                    firstHeader={"Documento"}
+                    secondHeader={"Nome"}
+                    getFirstHeader={getDocumentoResponsavel}
+                    getSecondHeader={getNomeMorador}
+                />
+            )
+            apareceDialog();
+        })
+        .catch((error) => console.log(error));
+
     }
 
     return (
@@ -209,11 +250,15 @@ function UserDetails(){
                 </button>
                 <button
                     className="detailsBtn"
-                    onClick={() => console.log("Mostra as famílias")}
+                    onClick={handleFamiliasAssociadas}
                 >
                     Famílias Associadas
                 </button>
             </div>
+            <dialog ref={referenciaDialog} className="dialogContainer">
+                {tabelaFamiliasAssociadas}
+                <button onClick={apareceDialog}>Fechar</button>
+            </dialog>
         </div>
     )
 }

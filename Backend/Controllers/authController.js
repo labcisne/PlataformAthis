@@ -214,7 +214,7 @@ exports.alterarSenha = asyncErrorHandler(async (req, res, next) => {
         user.senha = req.body.novaSenha;
         user.confirmarSenha = req.body.confirmarNovaSenha;
         user.senhaAlteradaEm = Date.now();
-        await user.save({validateBeforeSave: true});
+        await user.save({validateModifiedOnly: true});
     }
     else{
 
@@ -228,7 +228,7 @@ exports.alterarSenha = asyncErrorHandler(async (req, res, next) => {
         user.senha = req.body.novaSenha;
         user.confirmarSenha = req.body.confirmarNovaSenha;
         user.senhaAlteradaEm = Date.now();
-        await user.save({validateBeforeSave: true});
+        await user.save({validateModifiedOnly: true});
     }
 
     res.status(200).json({
@@ -334,4 +334,34 @@ exports.deletaUsuario = asyncErrorHandler(async(req, res, next) => {
         status: 'success',
         message: 'Usuário deletado com sucesso!'
     })
+});
+
+exports.alteraPerguntaSeguranca = asyncErrorHandler(async (req, res, next) => {
+
+    let user;
+
+    const perguntaSeguranca = req.body.perguntaSeguranca;
+    const respostaSeguranca = req.body.respostaSeguranca;
+
+    if(req.body.id){
+        user = await User.findById(req.body.id).select('+perguntaSeguranca +respostaSeguranca');
+
+        user.perguntaSeguranca = perguntaSeguranca;
+        user.respostaSeguranca = respostaSeguranca;
+
+        await user.save({validateModifiedOnly: true});
+    }
+    else{
+        user = await User.findById(req.user._id).select('+perguntaSeguranca +respostaSeguranca');
+
+        user.perguntaSeguranca = perguntaSeguranca;
+        user.respostaSeguranca = respostaSeguranca;
+
+        await user.save({validateModifiedOnly: true});
+    }
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Pergunta de seguraça alterada com sucesso!'
+    });
 });

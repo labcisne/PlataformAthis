@@ -65,14 +65,21 @@ exports.listarFamilias = asyncErrorHandler(async (req, res, next) => {
 
     let familias = [];
 
-    //verificando qual o tipo de usuário e listando as familias
-    if(req.user.tipoUsuario === 'Administrador'){
-        //retorna todas as familias
-        familias = await Family.find();
+    if(req.query.user){
+        req.query.user.tipoUsuario === "Administrador" ? 
+        familias = await Family.find() :
+        familias = await Family.find({_id: {$in: req.query.user.familiasAssociadas}});
     }
     else{
-        //retorna as familias associadas a ele
-        familias = await Family.find({_id: {$in: req.user.familiasAssociadas}});
+        //verificando qual o tipo de usuário e listando as familias
+        if(req.user.tipoUsuario === 'Administrador'){
+            //retorna todas as familias
+            familias = await Family.find();
+        }
+        else{
+            //retorna as familias associadas a ele
+            familias = await Family.find({_id: {$in: req.user.familiasAssociadas}});
+        }
     }
 
     res.status(200).json({

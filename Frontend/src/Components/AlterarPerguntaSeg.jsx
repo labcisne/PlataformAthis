@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 
 
 function AlterarPerguntaSeg(){
@@ -13,7 +14,13 @@ function AlterarPerguntaSeg(){
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        console.log(perguntaSeguranca, respostaSeguranca);
+        
+        axios.patch("http://localhost:3000/alterarPerguntaSeguranca", {perguntaSeguranca, respostaSeguranca, id}, {withCredentials: true})
+        .then((response) => {
+            alert(response.data.message)
+            navigate("/usuarios/detalhesUsuario", {state: { id }})
+        })
+        .catch((error) => console.log(error));
     }
 
     return(
