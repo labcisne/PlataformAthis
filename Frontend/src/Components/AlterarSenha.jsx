@@ -29,21 +29,21 @@ function AlterarSenha(){
                 alert("Senha alterada com sucesso!");
                 navigate("/menu");
             })
-            .catch((error) => console.log(error));
+            .catch((error) => alert(error.response.data.message));
         }
         else{
             axios.patch("http://localhost:3000/alterarSenha", obj, {withCredentials: true})
             .then(() => {
                 alert("Senha alterada com sucesso!");
-                navigate("/menu");
+                navigate("/");
             })
-            .catch((error) => console.log(error));
+            .catch((error) => alert(error.response.data.message));
         }
     }
 
     return (
         <div className="container">
-            <button className="returnBtn" onClick={() => {navigate("/usuarios/detalhesUsuario", {state: { id }})}}>
+            <button className="returnBtn" onClick={() => {navigate("/menu")}}>
                 ⬅
             </button>
             <h2 style={{marginBottom: "16px"}}>Definir nova Senha</h2>

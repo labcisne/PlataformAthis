@@ -14,6 +14,8 @@ L.Icon.Default.mergeOptions({
 function Mapa({ onLocationChange }){
     const [position, setPosition] = useState(null);
     const [mapVisible, setMapVisible] = useState(false);
+    const [confirmouLocalizacao, setConfirmouLocalizacao] = useState(false);
+    const [positionString, setPositionString] = useState("");
 
     const handleGetLocation = () => {
         if(navigator.geolocation){
@@ -21,6 +23,7 @@ function Mapa({ onLocationChange }){
                 (location) => {
                     const {latitude, longitude} = location.coords;
                     setPosition([latitude, longitude]);
+                    setPositionString(`${latitude}, ${longitude}`)
                     setMapVisible(true);
                 },
                 (error) => {
@@ -46,6 +49,8 @@ function Mapa({ onLocationChange }){
                         const latLng = e.target.getLatLng();
                         setMarkerPosition([latLng.lat, latLng.lng]);
                         setPosition([latLng.lat, latLng.lng]);
+                        setPositionString(`${latLng.lat.toFixed(7)}, ${latLng.lng.toFixed(7)}`)
+                        setConfirmouLocalizacao(false);
                     },
                 }}
             />
@@ -55,8 +60,22 @@ function Mapa({ onLocationChange }){
     const handleConfirm = () => {
         if(onLocationChange && position){
             onLocationChange(position);
+            setConfirmouLocalizacao(true);
         }
     }
+
+    // const handleChange = (event) => {
+    //     const array = event.target.value.split(",");
+    //     if(array.length > 1){
+    //         setPosition([array[0], array[1]]);
+    //         const newString = `${array[0]}, ${array[1]}`;
+    //         setPositionString(newString);
+    //         setConfirmouLocalizacao(false);
+    //     }
+    //     else{
+    //         alert("Deixe a localização entre vírgulas!");
+    //     }
+    // }
 
     return (
         <div>
@@ -71,6 +90,11 @@ function Mapa({ onLocationChange }){
             )}
             {mapVisible && position && (
                 <div>
+                    <input 
+                        type="text"
+                        value={positionString}
+                        readOnly
+                    />
                     <MapContainer
                         center={position}
                         zoom={18}
@@ -82,14 +106,21 @@ function Mapa({ onLocationChange }){
                         />
                         <DraggableMarker />
                     </MapContainer>
-                    <button 
-                        id="localizacao"
-                        type="button"
-                        onClick={handleConfirm}
-                        style={{marginTop: "8px"}}
-                    >
-                        Confirmar Localização
-                    </button>
+                    <div style={{display: "flex", alignItems: "center", gap: "12px"}}>
+                        <button 
+                            id="localizacao"
+                            type="button"
+                            onClick={handleConfirm}
+                            style={{marginTop: "8px"}}
+                        >
+                            Confirmar Localização
+                        </button>
+                        {confirmouLocalizacao && (
+                            <div style={{color: "green"}}>
+                                Localização Confirmada!
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
         </div>

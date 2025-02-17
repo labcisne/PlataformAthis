@@ -18,7 +18,7 @@ router.route('/usuariosParaAssociar').get(authController.verificaAcesso, authCon
 router.route('/').post(authController.login);
 
 router.route('/esqueciMinhaSenha').post(authController.achaUsuario);
-router.route('/esqueciMinhaSenha/usuario/:id').get(authController.verificaPerguntaSeguranca);
+router.route('/esqueciMinhaSenha/usuario/:id').get(authController.getPerguntaSeguranca);
 router.route('/esqueciMinhaSenha/usuario/:id').post(authController.esqueciMinhaSenha);
 router.route('/resetaSenha/:resetToken').patch(authController.resetaSenha);
 

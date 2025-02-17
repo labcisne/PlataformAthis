@@ -60,11 +60,13 @@ function UserDetails(){
     }
 
     const handleAlteraSenha = () => {
-        navigate("/usuarios/detalhesUsuario/alterarSenha", {state: { id }});
+        role ? navigate("/usuarios/detalhesUsuario/alterarSenha") : //usuário fazendo alterarções nele mesmo
+               navigate("/usuarios/detalhesUsuario/alterarSenha", {state: { id }}); //administrador alterando alguém
     }
 
     const handleAlteraPergunta = () => {
-        navigate("/usuarios/detalhesUsuario/alterarPerguntaSeguranca", {state: { id, perguntaSeguranca: user.perguntaSeguranca }});
+        role ? navigate("/usuarios/detalhesUsuario/alterarPerguntaSeguranca", {state: { perguntaSeguranca: user.perguntaSeguranca }}) :
+               navigate("/usuarios/detalhesUsuario/alterarPerguntaSeguranca", {state: { id, perguntaSeguranca: user.perguntaSeguranca }});
     }
 
     const getDocumentoResponsavel = (familia) => {
@@ -107,7 +109,7 @@ function UserDetails(){
 
     return (
         <div className="container">
-            <button className="returnBtn" onClick={() => navigate("/usuarios")}>
+            <button className="returnBtn" onClick={() => role ? navigate("/menu") : navigate("/usuarios")}>
                 ⬅
             </button>
             <h3 className="detailsHeader">Dados do usuário:</h3>
@@ -225,12 +227,15 @@ function UserDetails(){
                             Editar Usuário
                         </button>
 
-                        <button
-                            className="detailsBtn editDeleteBtn"
-                            onClick={deletaUsuario}
-                        >
-                            Excluir usuário
-                        </button>
+                        
+                        {!role && (
+                            <button
+                                className="detailsBtn editDeleteBtn"
+                                onClick={deletaUsuario}
+                            >
+                                Excluir usuário
+                            </button>
+                        )}
                     </div>
                 )}
 

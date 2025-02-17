@@ -271,6 +271,13 @@ function Componente() {
                             style={{display: "flex", gap: "12px"}}
                         >
                             <button
+                                className="familyDetailsBtn"
+                                onClick={() => {navigate("/familia/entrevista", {state: {id: familiaId, role}});}}
+                            >
+                                Realizar entrevista
+                            </button>
+
+                            <button
                                 className="familyDetailsBtn editDeleteBtn"
                                 onClick={() => {setModoEdicao(true)}}
                             >
@@ -299,35 +306,39 @@ function Componente() {
                 <button className="familyDetailsBtn">Tabela Socioeconômica</button>
                 <button className="familyDetailsBtn">Tabela Estrutural</button>
                 <button className="familyDetailsBtn">Arquivos</button>
-                <button 
-                    className="familyDetailsBtn" 
-                    onClick={() => {
-                        setTabelaUsuariosParaAssociar(<Tabela 
-                            dados={usuarios}
-                            firstHeader={"Nome"}
-                            secondHeader={"Tipo de Usuário"}
-                            getFirstHeader={getNomeUsuario}
-                            getSecondHeader={getTipoUsuario}
-                            action={associaUsuario}
-                        />);
-                        apareceDialog(referenciaDialog1);
-                    }}
-                >Associar Usuarios</button>
-                <button
-                    className="familyDetailsBtn"
-                    onClick={() => {
-                        setTabelaUsuariosAssociados(<Tabela
-                            dados={usuariosAssociados}
-                            firstHeader={"Nome"}
-                            secondHeader={"Tipo de Usuário"}
-                            getFirstHeader={getNomeUsuario}
-                            getSecondHeader={getTipoUsuario}
-                        />);
-                        apareceDialog(referenciaDialog2);
-                    }}
-                >
-                    Usuarios Associados
-                </button>
+                {(role === "Administrador" || role === "Entrevistador") && (
+                    <>
+                        <button 
+                            className="familyDetailsBtn" 
+                            onClick={() => {
+                                setTabelaUsuariosParaAssociar(<Tabela 
+                                    dados={usuarios}
+                                    firstHeader={"Nome"}
+                                    secondHeader={"Tipo de Usuário"}
+                                    getFirstHeader={getNomeUsuario}
+                                    getSecondHeader={getTipoUsuario}
+                                    action={associaUsuario}
+                                />);
+                                apareceDialog(referenciaDialog1);
+                            }}
+                        >Associar Usuarios</button>
+                        <button
+                            className="familyDetailsBtn"
+                            onClick={() => {
+                                setTabelaUsuariosAssociados(<Tabela
+                                    dados={usuariosAssociados}
+                                    firstHeader={"Nome"}
+                                    secondHeader={"Tipo de Usuário"}
+                                    getFirstHeader={getNomeUsuario}
+                                    getSecondHeader={getTipoUsuario}
+                                />);
+                                apareceDialog(referenciaDialog2);
+                            }}
+                        >
+                            Usuarios Associados
+                        </button>
+                    </>
+                )}
                 
             </div>
             <dialog ref={referenciaDialog1} className="dialogContainer">

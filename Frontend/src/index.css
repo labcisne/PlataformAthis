@@ -163,3 +163,16 @@
 .editDeleteBtn:hover {
   background-color: #ec5c23;
 }
+
+.entrevistaBtn {
+  background-color: #ffffff;
+  width: 110px;
+  height: 60px;
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  color: #000000;
+  font-weight: 600;
+}

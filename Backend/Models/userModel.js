@@ -75,9 +75,7 @@ const userSchema = new mongoose.Schema({
 
 
 userSchema.pre('save', async function(next){
-    // if(!this.isModified('senha')){ //verifica se houve mudança na senha, seja no create ou update.
-    //     return next();
-    // }
+    
     if(this.isModified('senha')){
         this.senha = await bcrypt.hash(this.senha, 12);
         this.confirmarSenha = undefined;

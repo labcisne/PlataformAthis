@@ -4,7 +4,11 @@ import axios from "axios";
 
 import Tabela from "./Tabela";
 
+import { TbLogout2 } from "react-icons/tb";
+import { FaUserGear } from "react-icons/fa6";
+
 import "./Menu.css";
+import { IconContext } from "react-icons";
 
 
 function Menu(){
@@ -14,12 +18,14 @@ function Menu(){
 
     const [role, setRole] = useState("");
     const [nomeUsuario, setNomeUsuario] = useState("");
+    const [id, setId] = useState("");
 
     useEffect(() => {
         axios.get("http://localhost:3000/protected", {withCredentials: true})
         .then((response) => {
             setRole(response.data.user.tipoUsuario);
             setNomeUsuario(response.data.user.nome);
+            setId(response.data.user._id);
         })
         .catch(() => navigate("/"));
     }, []);
@@ -55,9 +61,6 @@ function Menu(){
                         >
                             Cadastrar nova família
                         </button>
-                        <button className="menuBtn">
-                            Realizar entrevista
-                        </button>
                     </>
                 );
             case "Entrevistador":
@@ -69,29 +72,8 @@ function Menu(){
                         >
                             Cadastrar nova família
                         </button>
-                        <button className="menuBtn">
-                            Realizar entrevista
-                        </button>
                     </>
                 );
-            case "Lider Comunitario":
-                return (
-                    <>
-                        <button className="menuBtn">
-                            Gerenciar usuário
-                        </button>
-                    </>
-                );
-            case "Morador":
-                return (
-                    <>
-                        <button className="menuBtn">
-                            Gerenciar usuário
-                        </button>
-                    </>
-                );
-            default:
-                return <p>Loading...</p>
         }
     }
 
@@ -114,9 +96,18 @@ function Menu(){
 
     return (
         <div className="container">
-            <button className="returnBtn" onClick={() => {navigate("/")}}>
-                ⬅
-            </button>
+            <div style={{display: "flex", justifyContent: "space-between"}}>
+                <button className="returnBtn" onClick={() => {navigate("/")}}>
+                    <IconContext.Provider value={{size: "0.95em"}}>
+                        <TbLogout2 />
+                    </IconContext.Provider>
+                </button>
+                <button className="returnBtn" onClick={() => {navigate("/usuarios/detalhesUsuario", {state: {id, role}})}}>
+                    <IconContext.Provider value={{size: "0.8em"}}>
+                        <FaUserGear />
+                    </IconContext.Provider>
+                </button>
+            </div>
             <h3 className="menuHeader">{nomeUsuario ? `Olá, ${nomeUsuario}` : `Olá, usuário`}</h3>
             <div className="buttonsContainer">
                 {renderButtons()}

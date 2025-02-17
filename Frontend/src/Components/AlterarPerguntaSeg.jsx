@@ -9,33 +9,56 @@ function AlterarPerguntaSeg(){
     const location = useLocation();
 
     const id = location.state?.id;
-    const [perguntaSeguranca, setPerguntaSeguranca] = useState(location.state?.perguntaSeguranca);
-    const [respostaSeguranca, setRespostaSeguranca] = useState("");
+    const [novaPerguntaSeguranca, setNovaPerguntaSeguranca] = useState(location.state?.perguntaSeguranca);
+    const [novaRespostaSeguranca, setNovaRespostaSeguranca] = useState("");
+    const [respostaSegurancaAtual, setRespostaSegurancaAtual] = useState("");
 
     const handleSubmit = (event) => {
         event.preventDefault();
         
-        axios.patch("http://localhost:3000/alterarPerguntaSeguranca", {perguntaSeguranca, respostaSeguranca, id}, {withCredentials: true})
-        .then((response) => {
-            alert(response.data.message)
-            navigate("/usuarios/detalhesUsuario", {state: { id }})
-        })
-        .catch((error) => console.log(error));
+        if(id){
+            axios.patch("http://localhost:3000/alterarPerguntaSeguranca", {novaPerguntaSeguranca, novaRespostaSeguranca, id}, {withCredentials: true})
+            .then((response) => {
+                alert(response.data.message);
+                navigate("/menu");
+            })
+            .catch((error) => alert(error.response.data.message));
+        }
+        else{
+
+            axios.patch("http://localhost:3000/alterarPerguntaSeguranca", {respostaSegurancaAtual, novaPerguntaSeguranca, novaRespostaSeguranca}, {withCredentials: true})
+            .then((response) => {
+                alert(response.data.message);
+                navigate("/menu");
+            })
+            .catch((error) => alert(error.response.data.message));
+
+        }
     }
 
     return(
         <div className="container">
-            <button className="returnBtn" onClick={() => {navigate("/usuarios/detalhesUsuario", {state: { id }})}}>
+            <button className="returnBtn" onClick={() => {navigate("/menu")}}>
                 ⬅
             </button>
             <h2 style={{marginBottom: "28px"}}>Definir nova Pergunta de segurança</h2>
             <form onSubmit={handleSubmit}>
+                {!id && (
+                    <div className="celula">
+                        <label htmlFor="">{location.state?.perguntaSeguranca}</label>
+                        <input 
+                            type="text"
+                            value={respostaSegurancaAtual}
+                            onChange={(event) => setRespostaSegurancaAtual(event.target.value)}
+                        />
+                    </div>
+                )}
                 <div className="celula">
-                    <label htmlFor="perguntaSeguranca" style={{textAlign: "left"}}>Pergunta de segurança:</label>
+                    <label htmlFor="perguntaSeguranca" style={{textAlign: "left"}}>Nova Pergunta de segurança:</label>
                     <select 
                         id="perguntaSeguranca"
-                        value={perguntaSeguranca}
-                        onChange={(event) => setPerguntaSeguranca(event.target.value)}
+                        value={novaPerguntaSeguranca}
+                        onChange={(event) => setNovaPerguntaSeguranca(event.target.value)}
                     >
                         <option value="" disabled>
                             Escolha uma das opções
@@ -52,11 +75,11 @@ function AlterarPerguntaSeg(){
                     </select>
                 </div>
                 <div className="celula">
-                    <label>Resposta de segurança:</label>
+                    <label>Nova Resposta de segurança:</label>
                     <input 
                         type="text"
-                        value={respostaSeguranca}
-                        onChange={(event) => {setRespostaSeguranca(event.target.value)}}
+                        value={novaRespostaSeguranca}
+                        onChange={(event) => {setNovaRespostaSeguranca(event.target.value)}}
                     />
                 </div>
                 <div className="celular">

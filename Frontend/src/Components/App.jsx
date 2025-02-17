@@ -13,6 +13,9 @@ import ResetaSenha from "./ResetaSenha.jsx";
 import UserDetails from "./UserDetails.jsx";
 import AlterarSenha from "./AlterarSenha.jsx";
 import AlterarPerguntaSeg from "./AlterarPerguntaSeg.jsx";
+import Entrevista from "./Entrevista.jsx";
+import Facilities from "./Facilities.jsx";
+import Estrutural from "./Estrutural.jsx";
 
 function App(){
     
@@ -31,6 +34,9 @@ function App(){
                 <Route path="/usuarios/detalhesUsuario" element={<UserDetails />} />
                 <Route path="/usuarios/detalhesUsuario/alterarSenha" element={<AlterarSenha />} />
                 <Route path="/usuarios/detalhesUsuario/alterarPerguntaSeguranca" element={<AlterarPerguntaSeg />} />
+                <Route path="/familia/entrevista" element={<Entrevista />} />
+                <Route path="/familia/entrevista/facilities" element={<Facilities />} />
+                <Route path="/familia/entrevista/estrutural" element={<Estrutural />} />
             </Routes>
         </Router>
     );

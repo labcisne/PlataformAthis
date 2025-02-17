@@ -27,10 +27,10 @@ const facilitiesSchema = new mongoose.Schema({
     mulherChefeFamilia: {
         type: Boolean
     },
-    familiaChefiadaMaeSolo: {
+    maeSoloChefeFamilia: {
         type: Boolean
     },
-    familiaChefiadaIdoso: {
+    idosoChefeFamilia: {
         type: Boolean
     },
     numCriancas: {
@@ -82,10 +82,10 @@ const facilitiesSchema = new mongoose.Schema({
         type: Boolean
     },
     participaReuniaoAcaoComunidade: {
-        type: Boolean
+        type: String
     },
     utilizaBancoComunitario: {
-        type: Boolean
+        type: String
     },
     indicacaoDeProfissionais: {
         type: String
@@ -103,13 +103,13 @@ const facilitiesSchema = new mongoose.Schema({
         type: String
     },
     espacoParaHortasCanteiro: {
-        type: Boolean
+        type: String
     },
     possuiBanheiro: {
-        type: Boolean
+        type: String
     },
     possuiCozinha: {
-        type: Boolean
+        type: String
     },
     dataPrimeiraVisita: {
         type: Date
@@ -120,7 +120,7 @@ const facilitiesSchema = new mongoose.Schema({
     nomeResponsavelFotografico: {
         type: String
     },
-    nomeResponsavelLevArquitetonico: {
+    nomeResponsavelArquitetonico: {
         type: String
     },
     nomeAgenteComunitario: {
@@ -130,6 +130,9 @@ const facilitiesSchema = new mongoose.Schema({
         type: String
     },
     demandaDaFamilia: {
+        type: String
+    },
+    descricaoPendencias: {
         type: String
     },
     ultimaEdicao: {

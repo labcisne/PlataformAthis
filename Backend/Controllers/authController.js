@@ -146,7 +146,7 @@ exports.achaUsuario = asyncErrorHandler(async (req, res, next) => {
 });
 
 
-exports.verificaPerguntaSeguranca = asyncErrorHandler(async (req, res, next) => {
+exports.getPerguntaSeguranca = asyncErrorHandler(async (req, res, next) => {
 
     const user = await User.findById(req.params.id).select('+perguntaSeguranca');
 
@@ -340,22 +340,28 @@ exports.alteraPerguntaSeguranca = asyncErrorHandler(async (req, res, next) => {
 
     let user;
 
-    const perguntaSeguranca = req.body.perguntaSeguranca;
-    const respostaSeguranca = req.body.respostaSeguranca;
+    const novaPerguntaSeguranca = req.body.novaPerguntaSeguranca;
+    const novaRespostaSeguranca = req.body.novaRespostaSeguranca;
+    const respostaSegurancaAtual = req.body.respostaSegurancaAtual;
 
     if(req.body.id){
         user = await User.findById(req.body.id).select('+perguntaSeguranca +respostaSeguranca');
 
-        user.perguntaSeguranca = perguntaSeguranca;
-        user.respostaSeguranca = respostaSeguranca;
+        user.perguntaSeguranca = novaPerguntaSeguranca;
+        user.respostaSeguranca = novaRespostaSeguranca;
 
         await user.save({validateModifiedOnly: true});
     }
     else{
+
         user = await User.findById(req.user._id).select('+perguntaSeguranca +respostaSeguranca');
 
-        user.perguntaSeguranca = perguntaSeguranca;
-        user.respostaSeguranca = respostaSeguranca;
+        if(!respostaSegurancaAtual || !(await user.verificaSenha(respostaSegurancaAtual, user.respostaSeguranca))){
+            throw new CustomError('Resposta de seguraça atual incorreta!', 400);
+        }
+
+        user.perguntaSeguranca = novaPerguntaSeguranca;
+        user.respostaSeguranca = novaRespostaSeguranca;
 
         await user.save({validateModifiedOnly: true});
     }

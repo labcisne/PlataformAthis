@@ -7,7 +7,7 @@ const estruturalSchema = new mongoose.Schema({
         type: String
     },
     necessitaReparosEstrutural: {
-        type: Boolean
+        type: String
     },
     resolveProblemaNoProprioTerreno: {
         type: String
@@ -60,7 +60,7 @@ const estruturalSchema = new mongoose.Schema({
     avaliacaoResidencia: {
         type: String
     },
-    necessitaAcompanhamentoPsicossocial: {
+    acompanhamentoPsicossocial: {
         type: String
     },
     circulacaoInternaSegura: {
