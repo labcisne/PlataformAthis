@@ -1,6 +1,7 @@
 const express = require('express');
 const authRoute = require('./Routes/authRoute');
 const familyRoute = require('./Routes/familyRoute');
+const optionsRoute = require('./Routes/optionsRoute');
 const globalErrorHandler = require('./Controllers/errorController');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -18,6 +19,7 @@ app.use(cookieParser());
 
 app.use(authRoute);
 app.use('/familia', familyRoute);
+app.use('/options', optionsRoute);
 
 
 app.use(globalErrorHandler);

@@ -64,19 +64,6 @@ function Mapa({ onLocationChange }){
         }
     }
 
-    // const handleChange = (event) => {
-    //     const array = event.target.value.split(",");
-    //     if(array.length > 1){
-    //         setPosition([array[0], array[1]]);
-    //         const newString = `${array[0]}, ${array[1]}`;
-    //         setPositionString(newString);
-    //         setConfirmouLocalizacao(false);
-    //     }
-    //     else{
-    //         alert("Deixe a localização entre vírgulas!");
-    //     }
-    // }
-
     return (
         <div>
             {!mapVisible && (

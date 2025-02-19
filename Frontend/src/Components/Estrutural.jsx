@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import Select from "./Select";
+
 function Estrutural(){
 
     const location = useLocation();
@@ -43,6 +45,10 @@ function Estrutural(){
         const {name, value} = event.target;
         setObj({...obj, [name]: value});
     }
+
+    const handleSelectChange = (name, value) => {
+        setObj({...obj, [name]: value});
+    }
     
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -58,12 +64,12 @@ function Estrutural(){
 
                 <div className="celula">
                     <label>Há problemas de insalubridade (cada elemento separado por vírgula):</label>
-                    <input 
-                            type="text"
-                            value={obj.problemasInsalubridade}
-                            name="problemasInsalubridade"
-                            onChange={(event) => handleChange(event)}
-                            placeholder="Aberturas, Áreas molhadas, Saneamento"
+                    <input // ESSE É UM SELECT DIFERENCIADO
+                        type="text"
+                        value={obj.problemasInsalubridade}
+                        name="problemasInsalubridade"
+                        onChange={(event) => handleChange(event)}
+                        placeholder="Aberturas, Áreas molhadas, Saneamento"
                     />
                 </div>
 
@@ -105,38 +111,18 @@ function Estrutural(){
 
                 <div className="celula">
                     <label>Existe a possibilidade de resolver os problemas dentro do próprio terreno (a partir da estrutura existente)?</label>
-                    <input 
-                        type="text" 
-                        value={obj.resolveProblemaNoProprioTerreno}
+                    <Select 
+                        callback={handleSelectChange} 
                         name="resolveProblemaNoProprioTerreno"
-                        onChange={handleChange}
                     />
                 </div>
 
                 <div className="celula">
                     <label>A edificação encontra-se em área de risco?</label>
-                    <div style={{display: "flex", gap: "12px"}}>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="edificacaoEmAreaDeRisco"
-                            value="true"
-                            onClick={handleChange}
-                            style={{backgroundColor: obj.edificacaoEmAreaDeRisco === "true" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Sim
-                        </button>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="edificacaoEmAreaDeRisco"
-                            value="false"
-                            onClick={handleChange}
-                            style={{backgroundColor: obj.edificacaoEmAreaDeRisco === "false" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Não
-                        </button>
-                    </div>
+                    <Select 
+                        callback={handleSelectChange} 
+                        name="edificacaoEmAreaDeRisco"
+                    />
                 </div>
 
                 <div className="celula">

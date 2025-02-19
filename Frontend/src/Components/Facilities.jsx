@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import Select from "./Select";
+
 function Entrevista(){
 
     const location = useLocation();
@@ -56,10 +58,15 @@ function Entrevista(){
         const {name, value} = event.target;
         setObj({...obj, [name]: value});
     }
+
+    const handleSelectChange = (name, value) => {
+        setObj({...obj, [name]: value});
+    }
     
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log("gugu");
+        console.log(obj);
     }
 
     return (
@@ -215,11 +222,9 @@ function Entrevista(){
                 
                 <div className="celula">
                     <label>A família se autodeclara:</label>
-                    <input 
-                        type="text"
-                        value={obj.autoDeclaracaoFamilia}
+                    <Select 
+                        callback={handleSelectChange} 
                         name="autoDeclaracaoFamilia"
-                        onChange={(event) => handleChange(event)}
                     />
                 </div>
 
@@ -255,11 +260,9 @@ function Entrevista(){
 
                 <div className="celula">
                     <label>Qual a forma de aquisição do imóvel?</label>
-                    <input 
-                        type="text"
-                        value={obj.formaAquisicaoImovel}
+                    <Select 
+                        callback={handleSelectChange} 
                         name="formaAquisicaoImovel"
-                        onChange={(event) => handleChange(event)}
                     />
                 </div>
 
@@ -377,12 +380,10 @@ function Entrevista(){
                 </div>
 
                 <div className="celula">
-                    <label>Utilização do serviço do Banco Comunitário?</label>
-                    <input 
-                        type="text"
-                        value={obj.utilizaBancoComunitario}
+                    <label>Utilização dos serviços do Banco Comunitário?</label>
+                    <Select 
+                        callback={handleSelectChange} 
                         name="utilizaBancoComunitario"
-                        onChange={(event) => handleChange(event)}
                     />
                 </div>
 
@@ -418,52 +419,42 @@ function Entrevista(){
 
                 <div className="celula">
                     <label>Possui reservatório de água na residência?</label>
-                    <input 
-                        type="text"
-                        value={obj.possuiReservatorioAgua}
+                    <Select 
+                        callback={handleSelectChange} 
                         name="possuiReservatorioAgua"
-                        onChange={(event) => handleChange(event)}
                     />
                 </div>
 
                 <div className="celula">
                     <label>Qual o estado do reservatório de água?</label>
-                        <input 
-                            type="text"
-                            value={obj.estadoReservatorioAgua}
-                            name="estadoReservatorioAgua"
-                            onChange={(event) => handleChange(event)}
-                        />
+                    <Select 
+                        callback={handleSelectChange} 
+                        name="estadoReservatorioAgua"
+                    />
                 </div>
 
                 <div className="celula">
                     <label>Possui espaço para criação de hortas / canteiros?</label>
-                        <input 
-                            type="text"
-                            value={obj.espacoParaHortasCanteiro}
-                            name="espacoParaHortasCanteiro"
-                            onChange={(event) => handleChange(event)}
-                        />
+                    <Select 
+                        callback={handleSelectChange} 
+                        name="espacoParaHortasCanteiro"
+                    />
                 </div>
 
                 <div className="celula">
                     <label>A unidade tem banheiro?</label>
-                        <input 
-                            type="text"
-                            value={obj.possuiBanheiro}
-                            name="possuiBanheiro"
-                            onChange={(event) => handleChange(event)}
-                        />
+                    <Select 
+                        callback={handleSelectChange} 
+                        name="possuiBanheiro"
+                    />
                 </div>
 
                 <div className="celula">
                     <label>A unidade tem cozinha?</label>
-                        <input 
-                            type="text"
-                            value={obj.possuiCozinha}
-                            name="possuiCozinha"
-                            onChange={(event) => handleChange(event)}
-                        />
+                    <Select 
+                        callback={handleSelectChange} 
+                        name="possuiCozinha"
+                    />
                 </div>
                 
                 <div className="celula">
