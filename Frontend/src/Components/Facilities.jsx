@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Select from "./Select";
+import BotoesSelecionaveis from "./BotoesSelecionaveis";
 
 function Entrevista(){
 
@@ -11,10 +12,9 @@ function Entrevista(){
     const familiaId = location.state?.id;
     const role = location.state?.role;
 
-    const tiposDeLevantamento = ["levantamentoProjeto", "pmvIdentificacao", "pmvDemolicao"];
+    const [tipoLevantamento, setTipoLevantamento] = useState("");
 
     const [obj, setObj] = useState({
-        tipoLevantamento: "",
         numMoradores: "0",
         idadeResidentes: "",
         adultosEmpregados: "",
@@ -66,7 +66,8 @@ function Entrevista(){
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log("gugu");
-        console.log(obj);
+        //console.log(obj);
+        console.log(tipoLevantamento);
     }
 
     return (
@@ -79,23 +80,11 @@ function Entrevista(){
 
                 <div className="celula">
                     <label>Esse levantamento se enquadra:</label>
-                    <div style={{display: "flex", gap: "12px"}}>
-                        {["Levantamento Projeto", "Levantamento PMV - Identificação", "Levantemento PMV - Demolição"].map(
-                            (element, index) => (
-                                <button
-                                    type="button"
-                                    className="entrevistaBtn"
-                                    style={{backgroundColor: obj.tipoLevantamento === tiposDeLevantamento[index] ? "#F0A22E" : "#ffffff"}}
-                                    key={index}
-                                    name="tipoLevantamento"
-                                    value={tiposDeLevantamento[index]}
-                                    onClick={(event) => handleChange(event)}
-                                >
-                                {element}
-                                </button>
-                            )
-                        )}
-                    </div>
+                    <BotoesSelecionaveis 
+                        arrayDeOpcoes = {["Levantamento Projeto", "Levantamento PMV - Identificação", "Levantemento PMV - Demolição"]}
+                        selecionado={tipoLevantamento}
+                        setSelecionado={setTipoLevantamento}
+                    />
                 </div>
 
                 <div className="celula">
@@ -128,8 +117,11 @@ function Entrevista(){
                             className="entrevistaBtn"
                             name="adultosEmpregados"
                             value="true"
-                            onClick={(event) => handleChange(event)}
                             style={{backgroundColor: obj.adultosEmpregados === "true" ? "#F0A22E" : "#ffffff"}}
+                            onClick={(event) => {
+                                handleChange(event)
+                                obj.adultosEmpregados === "true" ? console.log("gugu") : console.log("juju");
+                            }}
                         >
                             Sim
                         </button>

@@ -164,7 +164,20 @@
   background-color: #ec5c23;
 }
 
-.entrevistaBtn {
+.botaoSelecionado {
+  background-color: #F0A22E;
+  width: 110px;
+  height: 60px;
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  color: #000000;
+  font-weight: 600;
+}
+
+.botaoNaoSelecionado {
   background-color: #ffffff;
   width: 110px;
   height: 60px;
@@ -175,6 +188,11 @@
   cursor: pointer;
   color: #000000;
   font-weight: 600;
+}
+
+.botaoSelecionado:hover,
+.botaoNaoSelecionado:hover {
+  border: 1px solid #7c7b7b66;
 }
 
 .selectBtnContainer {
