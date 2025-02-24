@@ -13,61 +13,84 @@ function Entrevista(){
     const role = location.state?.role;
 
     const [tipoLevantamento, setTipoLevantamento] = useState("");
-
-    const [obj, setObj] = useState({
-        numMoradores: "0",
-        idadeResidentes: "",
-        adultosEmpregados: "",
-        rendaMensalTotal: "",
-        mulherChefeFamilia: "",
-        idosoChefeFamilia: "",
-        numCriancas: "0",
-        autoDeclaracaoFamilia: "",
-        cadastradaBolsaFamilia: "",
-        comorbidadeNaFamilia: "",
-        apresentaDoencaRespiratoria: "",
-        formaAquisicaoImovel: "",
-        anoDeConstrucaoTempoResidindo: "",
-        possuiOutroImovel: "",
-        resideNoImovelLevantado: "",
-        qualValorAluguel: "",
-        relacaoAluguelRenda: "",
-        imovelTeveAcaoAnterior: "",
-        boaVivenciaVizinhos: "",
-        participaReuniaoAcaoComunidade: "",
-        utilizaBancoComunitario: "",
-        indicacaoDeProfissionais: "",
-        pontoProximoEntrega: "",
-        recebeBoletoAguaEnergia: "",
-        possuiReservatorioAgua: "",
-        estadoReservatorioAgua: "",
-        espacoParaHortasCanteiro: "",
-        possuiBanheiro: "",
-        possuiCozinha: "",
-        dataPrimeiraVisita: "",
-        nomeResponsavelFormulario: "",
-        nomeResponsavelFotografico: "",
-        nomeResponsavelArquitetonico: "",
-        nomeAgenteComunitario: "",
-        outrosProfissionaisEnvolvidos: "",
-        demandaDaFamilia: "",
-        descricaoPendencias: ""
-    })
-
-    const handleChange = (event) => {
-        const {name, value} = event.target;
-        setObj({...obj, [name]: value});
-    }
-
-    const handleSelectChange = (name, value) => {
-        setObj({...obj, [name]: value});
-    }
+    const [numMoradores, setNumMoradores] = useState("0");
+    const [idadeResidentes, setIdadeResidentes] = useState("");
+    const [adultosEmpregados, setAdultosEmpregados] = useState("");
+    const [rendaMensalTotal, setRendaMensalTotal] = useState("");
+    const [mulherChefeFamilia, setMulherChefeFamilia] = useState("");
+    const [idosoChefeFamilia, setIdosoChefeFamilia] = useState("");
+    const [numCriancas, setNumCriancas] = useState("0");
+    const [autoDeclaracaoFamilia, setAutoDeclaracaoFamilia] = useState("");
+    const [cadastradaBolsaFamilia, setCadastradaBolsaFamilia] = useState("");
+    const [comorbidadeNaFamilia, setComorbidadeNaFamilia] = useState("");
+    const [apresentaDoencaRespiratoria, setApresentaDoencaRespiratoria] = useState("");
+    const [formaAquisicaoImovel, setFormaAquisicaoImovel] = useState("");
+    const [anoDeConstrucaoTempoResidindo, setAnoDeConstrucaoTempoResidindo] = useState("");
+    const [possuiOutroImovel, setPossuiOutroImovel] = useState("");
+    const [resideNoImovelLevantado, setResideNoImovelLevantado] = useState("");
+    const [qualValorAluguel, setQualValorAluguel] = useState("");
+    const [relacaoAluguelRenda, setRelacaoAluguelRenda] = useState("");
+    const [imovelTeveAcaoAnterior, setImovelTeveAcaoAnterior] = useState("");
+    const [boaVivenciaVizinhos, setBoaVivenciaVizinhos] = useState("");
+    const [participaReuniaoAcaoComunidade, setParticipaReuniaoAcaoComunidade] = useState("");
+    const [utilizaBancoComunitario, setUtilizaBancoComunitario] = useState("");
+    const [indicacaoDeProfissionais, setIndicacaoDeProfissionais] = useState("");
+    const [pontoProximoEntrega, setPontoProximoEntrega] = useState("");
+    const [recebeBoletoAguaEnergia, setRecebeBoletoAguaEnergia] = useState("");
+    const [possuiReservatorioAgua, setPossuiReservatorioAgua] = useState("");
+    const [estadoReservatorioAgua, setEstadoReservatorioAgua] = useState("");
+    const [espacoParaHortasCanteiro, setEspacoParaHortasCanteiro] = useState("");
+    const [possuiBanheiro, setPossuiBanheiro] = useState("");
+    const [possuiCozinha, setPossuiCozinha] = useState("");
+    const [dataPrimeiraVisita, setDataPrimeiraVisita] = useState("");
+    const [nomeResponsavelFormulario, setNomeResponsavelFormulario] = useState("");
+    const [nomeResponsavelFotografico, setNomeResponsavelFotografico] = useState("");
+    const [nomeResponsavelArquitetonico, setNomeResponsavelArquitetonico] = useState("");
+    const [nomeAgenteComunitario, setNomeAgenteComunitario] = useState("");
+    const [outrosProfissionaisEnvolvidos, setOutrosProfissionaisEnvolvidos] = useState("");
+    const [demandaDaFamilia, setDemandaDaFamilia] = useState("");
+    const [descricaoPendencias, setDescricaoPendencias] = useState("");
     
     const handleSubmit = (event) => {
         event.preventDefault();
-        console.log("gugu");
-        //console.log(obj);
         console.log(tipoLevantamento);
+        console.log(numMoradores);
+        console.log(idadeResidentes);
+        console.log(adultosEmpregados);
+        console.log(rendaMensalTotal);
+        console.log(mulherChefeFamilia);
+        console.log(idosoChefeFamilia);
+        console.log(numCriancas);
+        console.log(autoDeclaracaoFamilia);
+        console.log(cadastradaBolsaFamilia);
+        console.log(comorbidadeNaFamilia);
+        console.log(apresentaDoencaRespiratoria);
+        console.log(formaAquisicaoImovel);
+        console.log(anoDeConstrucaoTempoResidindo);
+        console.log(possuiOutroImovel);
+        console.log(resideNoImovelLevantado);
+        console.log(qualValorAluguel);
+        console.log(relacaoAluguelRenda);
+        console.log(imovelTeveAcaoAnterior);
+        console.log(boaVivenciaVizinhos);
+        console.log(participaReuniaoAcaoComunidade);
+        console.log(utilizaBancoComunitario);
+        console.log(indicacaoDeProfissionais);
+        console.log(pontoProximoEntrega);
+        console.log(recebeBoletoAguaEnergia);
+        console.log(possuiReservatorioAgua);
+        console.log(estadoReservatorioAgua);
+        console.log(espacoParaHortasCanteiro);
+        console.log(possuiBanheiro);
+        console.log(possuiCozinha);
+        console.log(dataPrimeiraVisita);
+        console.log(nomeResponsavelFormulario);
+        console.log(nomeResponsavelFotografico);
+        console.log(nomeResponsavelArquitetonico);
+        console.log(nomeAgenteComunitario);
+        console.log(outrosProfissionaisEnvolvidos);
+        console.log(demandaDaFamilia);
+        console.log(descricaoPendencias);
     }
 
     return (
@@ -92,9 +115,8 @@ function Entrevista(){
                     <input 
                         type="number" 
                         min={0}
-                        value={obj.numMoradores}
-                        name="numMoradores"
-                        onChange={(event) => handleChange(event)}
+                        value={numMoradores}
+                        onChange={(event) => setNumMoradores(event.target.value)}
                     />
                 </div>
 
@@ -102,103 +124,47 @@ function Entrevista(){
                     <label>Idade dos Residentes(ex: 3 moradores - 12, 20, 35):</label>
                     <input 
                         type="text"
-                        value={obj.idadeResidentes}
-                        name="idadeResidentes"
-                        onChange={(event) => handleChange(event)}
-                        placeholder={obj.numMoradores === "0" ? "12, 20, 30" : `Insira as ${obj.numMoradores} idades!`}
+                        value={idadeResidentes}
+                        onChange={(event) => setIdadeResidentes(event.target.value)}
+                        placeholder={numMoradores === "0" ? "12, 20, 30" : `Insira as ${numMoradores} idades!`}
                     />
                 </div>
 
                 <div className="celula">
                     <label>Os adultos da família estão empregados?</label>
-                    <div style={{display: "flex", gap: "12px"}}>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="adultosEmpregados"
-                            value="true"
-                            style={{backgroundColor: obj.adultosEmpregados === "true" ? "#F0A22E" : "#ffffff"}}
-                            onClick={(event) => {
-                                handleChange(event)
-                                obj.adultosEmpregados === "true" ? console.log("gugu") : console.log("juju");
-                            }}
-                        >
-                            Sim
-                        </button>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="adultosEmpregados"
-                            value="false"
-                            onClick={(event) => handleChange(event)}
-                            style={{backgroundColor: obj.adultosEmpregados === "false" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Não
-                        </button>
-                    </div>
+                    <input 
+                        type="text"
+                        value={adultosEmpregados}
+                        onChange={(event) => setAdultosEmpregados(event.target.value)}
+                    />
                 </div>
                 
                 <div className="celula">
                     <label>Qual a Renda mensal familiar total?</label>
                     <input 
                         type="text"
-                        value={obj.rendaMensalTotal}
-                        name="rendaMensalTotal"
-                        onChange={(event) => handleChange(event)}
+                        value={rendaMensalTotal}
+                        onChange={(event) => setRendaMensalTotal(event.target.value)}
                         placeholder="R$ 0,00"
                     />
                 </div>
 
                 <div className="celula">
                     <label>Possui uma mulher como chefe de família?</label>
-                    <div style={{display: "flex", gap: "12px"}}>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="mulherChefeFamilia"
-                            value="true"
-                            onClick={(event) => handleChange(event)}
-                            style={{backgroundColor: obj.mulherChefeFamilia === "true" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Sim
-                        </button>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="mulherChefeFamilia"
-                            value="false"
-                            onClick={(event) => handleChange(event)}
-                            style={{backgroundColor: obj.mulherChefeFamilia === "false" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Não
-                        </button>
-                    </div>
+                    <BotoesSelecionaveis 
+                        arrayDeOpcoes = {["Sim", "Não"]}
+                        selecionado={mulherChefeFamilia}
+                        setSelecionado={setMulherChefeFamilia}
+                    />
                 </div>
 
                 <div className="celula">
                     <label>A familia é chefiada por pessoa idosa?</label>
-                    <div style={{display: "flex", gap: "12px"}}>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="idosoChefeFamilia"
-                            value="true"
-                            onClick={(event) => handleChange(event)}
-                            style={{backgroundColor: obj.idosoChefeFamilia === "true" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Sim
-                        </button>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="idosoChefeFamilia"
-                            value="false"
-                            onClick={(event) => handleChange(event)}
-                            style={{backgroundColor: obj.idosoChefeFamilia === "false" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Não
-                        </button>
-                    </div>
+                    <BotoesSelecionaveis 
+                        arrayDeOpcoes = {["Sim", "Não"]}
+                        selecionado={idosoChefeFamilia}
+                        setSelecionado={setIdosoChefeFamilia}
+                    />
                 </div>
 
                 <div className="celula">
@@ -206,16 +172,15 @@ function Entrevista(){
                     <input 
                         type="number" 
                         min={0}
-                        value={obj.numCriancas}
-                        name="numCriancas"
-                        onChange={(event) => handleChange(event)}
+                        value={numCriancas}
+                        onChange={(event) => setNumCriancas(event.target.value)}
                     />
                 </div>
                 
                 <div className="celula">
                     <label>A família se autodeclara:</label>
                     <Select 
-                        callback={handleSelectChange} 
+                        callback={setAutoDeclaracaoFamilia} 
                         name="autoDeclaracaoFamilia"
                     />
                 </div>
@@ -224,9 +189,8 @@ function Entrevista(){
                     <label>A família está cadastrada no Bolsa Família? Qual o número do NIS?</label>
                     <input 
                         type="text"
-                        value={obj.cadastradaBolsaFamilia}
-                        name="cadastradaBolsaFamilia"
-                        onChange={(event) => handleChange(event)}
+                        value={cadastradaBolsaFamilia}
+                        onChange={(event) => setCadastradaBolsaFamilia(event.target.value)}
                     />
                 </div>
 
@@ -234,9 +198,8 @@ function Entrevista(){
                     <label>Algum membro da família apresenta alguma comorbidade ou Doença incapacitante? Alguém recebe algum Benefício de Prestação Continuada(BPC)?</label>
                     <input 
                         type="text"
-                        value={obj.comorbidadeNaFamilia}
-                        name="comorbidadeNaFamilia"
-                        onChange={(event) => handleChange(event)}
+                        value={comorbidadeNaFamilia}
+                        onChange={(event) => setComorbidadeNaFamilia(event.target.value)}
                     />
                 </div>
 
@@ -244,16 +207,15 @@ function Entrevista(){
                     <label>Alguém apresenta doenças respiratórias crônicas?</label>
                     <input 
                         type="text"
-                        value={obj.apresentaDoencaRespiratoria}
-                        name="apresentaDoencaRespiratoria"
-                        onChange={(event) => handleChange(event)}
+                        value={apresentaDoencaRespiratoria}
+                        onChange={(event) => setApresentaDoencaRespiratoria(event.target.value)}
                     />
                 </div>
 
                 <div className="celula">
                     <label>Qual a forma de aquisição do imóvel?</label>
                     <Select 
-                        callback={handleSelectChange} 
+                        callback={setFormaAquisicaoImovel} 
                         name="formaAquisicaoImovel"
                     />
                 </div>
@@ -262,9 +224,8 @@ function Entrevista(){
                     <label>Sabem dizer em que ano a casa foi construída? Há quanto tempo residem neste imóvel?</label>
                     <input 
                         type="text"
-                        value={obj.anoDeConstrucaoTempoResidindo}
-                        name="anoDeConstrucaoTempoResidindo"
-                        onChange={(event) => handleChange(event)}
+                        value={anoDeConstrucaoTempoResidindo}
+                        onChange={(event) => setAnoDeConstrucaoTempoResidindo(event.target.value)}
                     />
                 </div>
 
@@ -272,56 +233,36 @@ function Entrevista(){
                     <label>A família possui algum outro imóvel?</label>
                     <input 
                         type="text"
-                        value={obj.possuiOutroImovel}
-                        name="possuiOutroImovel"
-                        onChange={(event) => handleChange(event)}
+                        value={possuiOutroImovel}
+                        onChange={(event) => setPossuiOutroImovel(event.target.value)}
                     />
                 </div>
 
                 <div className="celula">
                     <label>A família está residindo no imóvel levantado?</label>
-                    <div style={{display: "flex", gap: "12px"}}>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="resideNoImovelLevantado"
-                            value="true"
-                            onClick={(event) => handleChange(event)}
-                            style={{backgroundColor: obj.resideNoImovelLevantado === "true" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Sim
-                        </button>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="resideNoImovelLevantado"
-                            value="false"
-                            onClick={(event) => handleChange(event)}
-                            style={{backgroundColor: obj.resideNoImovelLevantado === "false" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Não
-                        </button>
-                    </div>
+                    <BotoesSelecionaveis 
+                        arrayDeOpcoes = {["Sim", "Não"]}
+                        selecionado={resideNoImovelLevantado}
+                        setSelecionado={setResideNoImovelLevantado}
+                    />
                 </div>
                 
                 <div className="celula">
                     <label>Se a família está morando de aluguel, qual o valor?</label>
                     <input 
                         type="text"
-                        value={obj.qualValorAluguel}
-                        name="qualValorAluguel"
-                        onChange={(event) => handleChange(event)}
+                        value={qualValorAluguel}
+                        onChange={(event) => setQualValorAluguel(event.target.value)}
                         placeholder="R$ 0,00"
                     />
                 </div>
 
                 <div className="celula">
                     <label>O aluguel em relação a renda familiar mensal:</label>
-                    <input 
+                    <input //AJEITAR ESSE COMPONENTE!!!!!!
                         type="text"
-                        value={obj.relacaoAluguelRenda}
-                        name="relacaoAluguelRenda"
-                        onChange={(event) => handleChange(event)}
+                        value={relacaoAluguelRenda}
+                        onChange={(event) => setRelacaoAluguelRenda(event.target.value)}
                     />
                 </div>
 
@@ -329,52 +270,33 @@ function Entrevista(){
                     <label>O imóvel já foi alvo de alguma ação anterior? (Quando / Como / Quem) </label>
                     <input 
                         type="text"
-                        value={obj.imovelTeveAcaoAnterior}
-                        name="imovelTeveAcaoAnterior"
-                        onChange={(event) => handleChange(event)}
+                        value={imovelTeveAcaoAnterior}
+                        onChange={(event) => setImovelTeveAcaoAnterior(event.target.value)}
                     />
                 </div>
 
                 <div className="celula">
                     <label>Boa convivência com a vizinhança?</label>
-                    <div style={{display: "flex", gap: "12px"}}>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="boaVivenciaVizinhos"
-                            value="true"
-                            onClick={(event) => handleChange(event)}
-                            style={{backgroundColor: obj.boaVivenciaVizinhos === "true" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Sim
-                        </button>
-                        <button
-                            type="button"
-                            className="entrevistaBtn"
-                            name="boaVivenciaVizinhos"
-                            value="false"
-                            onClick={(event) => handleChange(event)}
-                            style={{backgroundColor: obj.boaVivenciaVizinhos === "false" ? "#F0A22E" : "#ffffff"}}
-                        >
-                            Não
-                        </button>
-                    </div>
+                    <BotoesSelecionaveis 
+                        arrayDeOpcoes = {["Sim", "Não"]}
+                        selecionado={boaVivenciaVizinhos}
+                        setSelecionado={setBoaVivenciaVizinhos}
+                    />
                 </div>
                 
                 <div className="celula">
                     <label>Participa das reuniões do Fórum Bem Maior e/ou das ações da comunidade?</label>
                     <input 
                         type="text"
-                        value={obj.participaReuniaoAcaoComunidade}
-                        name="participaReuniaoAcaoComunidade"
-                        onChange={(event) => handleChange(event)}
+                        value={participaReuniaoAcaoComunidade}
+                        onChange={(event) => setParticipaReuniaoAcaoComunidade(event.target.value)}
                     />
                 </div>
 
                 <div className="celula">
                     <label>Utilização dos serviços do Banco Comunitário?</label>
                     <Select 
-                        callback={handleSelectChange} 
+                        callback={setUtilizaBancoComunitario} 
                         name="utilizaBancoComunitario"
                     />
                 </div>
@@ -383,9 +305,8 @@ function Entrevista(){
                     <label>Profissionais e lojas indicadas pela família:</label>
                     <input 
                         type="text"
-                        value={obj.indicacaoDeProfissionais}
-                        name="indicacaoDeProfissionais"
-                        onChange={(event) => handleChange(event)}
+                        value={indicacaoDeProfissionais}
+                        onChange={(event) => setIndicacaoDeProfissionais(event.target.value)}
                     />
                 </div>
 
@@ -393,9 +314,8 @@ function Entrevista(){
                     <label>Qual o ponto mais próximo de entrega de materiais?</label>
                     <input 
                         type="text"
-                        value={obj.pontoProximoEntrega}
-                        name="pontoProximoEntrega"
-                        onChange={(event) => handleChange(event)}
+                        value={pontoProximoEntrega}
+                        onChange={(event) => setPontoProximoEntrega(event.target.value)}
                     />
                 </div>
 
@@ -403,16 +323,15 @@ function Entrevista(){
                     <label>Estão recebendo boleto de cobrança (talão) de água e energia?</label>
                     <input 
                         type="text"
-                        value={obj.recebeBoletoAguaEnergia}
-                        name="recebeBoletoAguaEnergia"
-                        onChange={(event) => handleChange(event)}
+                        value={recebeBoletoAguaEnergia}
+                        onChange={(event) => setRecebeBoletoAguaEnergia(event.target.value)}
                     />
                 </div>
 
                 <div className="celula">
                     <label>Possui reservatório de água na residência?</label>
                     <Select 
-                        callback={handleSelectChange} 
+                        callback={setPossuiReservatorioAgua} 
                         name="possuiReservatorioAgua"
                     />
                 </div>
@@ -420,7 +339,7 @@ function Entrevista(){
                 <div className="celula">
                     <label>Qual o estado do reservatório de água?</label>
                     <Select 
-                        callback={handleSelectChange} 
+                        callback={setEstadoReservatorioAgua} 
                         name="estadoReservatorioAgua"
                     />
                 </div>
@@ -428,7 +347,7 @@ function Entrevista(){
                 <div className="celula">
                     <label>Possui espaço para criação de hortas / canteiros?</label>
                     <Select 
-                        callback={handleSelectChange} 
+                        callback={setEspacoParaHortasCanteiro} 
                         name="espacoParaHortasCanteiro"
                     />
                 </div>
@@ -436,7 +355,7 @@ function Entrevista(){
                 <div className="celula">
                     <label>A unidade tem banheiro?</label>
                     <Select 
-                        callback={handleSelectChange} 
+                        callback={setPossuiBanheiro} 
                         name="possuiBanheiro"
                     />
                 </div>
@@ -444,7 +363,7 @@ function Entrevista(){
                 <div className="celula">
                     <label>A unidade tem cozinha?</label>
                     <Select 
-                        callback={handleSelectChange} 
+                        callback={setPossuiCozinha} 
                         name="possuiCozinha"
                     />
                 </div>
@@ -453,9 +372,8 @@ function Entrevista(){
                     <label>Data 1° visita:</label>
                         <input //DESCOBRIR UMA MANEIRA MELHOR PARA ESSE CAMPO
                             type="text"
-                            value={obj.dataPrimeiraVisita}
-                            name="dataPrimeiraVisita"
-                            onChange={(event) => handleChange(event)}
+                            value={dataPrimeiraVisita}
+                            onChange={(event) => setDataPrimeiraVisita(event.target.value)}
                         />
                 </div>
 
@@ -463,9 +381,8 @@ function Entrevista(){
                     <label>Nome do responsável pelo formulário:</label>
                         <input 
                             type="text"
-                            value={obj.nomeResponsavelFormulario}
-                            name="nomeResponsavelFormulario"
-                            onChange={(event) => handleChange(event)}
+                            value={nomeResponsavelFormulario}
+                            onChange={(event) => setNomeResponsavelFormulario(event.target.value)}
                         />
                 </div>
 
@@ -473,9 +390,8 @@ function Entrevista(){
                     <label>Nome do responsável pelo relatório fotográfico:</label>
                         <input 
                             type="text"
-                            value={obj.nomeResponsavelFotografico}
-                            name="nomeResponsavelFotografico"
-                            onChange={(event) => handleChange(event)}
+                            value={nomeResponsavelFotografico}
+                            onChange={(event) => setNomeResponsavelFotografico(event.target.value)}
                         />
                 </div>
                 
@@ -483,9 +399,8 @@ function Entrevista(){
                     <label>Nome do responsável pelo levantamento arquitetônico:</label>
                         <input 
                             type="text"
-                            value={obj.nomeResponsavelArquitetonico}
-                            name="nomeResponsavelArquitetonico"
-                            onChange={(event) => handleChange(event)}
+                            value={nomeResponsavelArquitetonico}
+                            onChange={(event) => setNomeResponsavelArquitetonico(event.target.value)}
                         />
                 </div>
 
@@ -493,9 +408,8 @@ function Entrevista(){
                     <label>Nome do agente comunitário:</label>
                         <input 
                             type="text"
-                            value={obj.nomeAgenteComunitario}
-                            name="nomeAgenteComunitario"
-                            onChange={(event) => handleChange(event)}
+                            value={nomeAgenteComunitario}
+                            onChange={(event) => setNomeAgenteComunitario(event.target.value)}
                         />
                 </div>
 
@@ -503,9 +417,8 @@ function Entrevista(){
                     <label>Outros profissionais envolvidos(nomes e funções desempenhadas):</label>
                         <input 
                             type="text"
-                            value={obj.outrosProfissionaisEnvolvidos}
-                            name="outrosProfissionaisEnvolvidos"
-                            onChange={(event) => handleChange(event)}
+                            value={outrosProfissionaisEnvolvidos}
+                            onChange={(event) => setOutrosProfissionaisEnvolvidos(event.target.value)}
                         />
                 </div>
 
@@ -513,9 +426,8 @@ function Entrevista(){
                     <label>Demanda apresentada pela família:</label>
                         <input 
                             type="text"
-                            value={obj.demandaDaFamilia}
-                            name="demandaDaFamilia"
-                            onChange={(event) => handleChange(event)}
+                            value={demandaDaFamilia}
+                            onChange={(event) => setDemandaDaFamilia(event.target.value)}
                         />
                 </div>
 
@@ -523,9 +435,8 @@ function Entrevista(){
                     <label>Descrição das pendências:</label>
                         <input 
                             type="text"
-                            value={obj.descricaoPendencias}
-                            name="descricaoPendencias"
-                            onChange={(event) => handleChange(event)}
+                            value={descricaoPendencias}
+                            onChange={(event) => setDescricaoPendencias(event.target.value)}
                         />
                 </div>
 

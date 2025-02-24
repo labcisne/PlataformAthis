@@ -25,11 +25,11 @@ function Select({ callback, name }){
         if(event.target.value === "adicionar"){
             setAdicionarOpcao(true);
             setOpcaoSelecionada("adicionar");
-            callback(name, "");
+            callback("");
         }
         else{
             setOpcaoSelecionada(event.target.value);
-            callback(name, event.target.value);
+            callback(event.target.value);
             setAdicionarOpcao(false);
         }
     }
@@ -38,14 +38,14 @@ function Select({ callback, name }){
         if(novaOpcao && !opcoes.includes(novaOpcao)){
             setOpcoes([...opcoes, novaOpcao]);
             setOpcaoSelecionada(novaOpcao);
-            callback(name, novaOpcao);
+            callback(novaOpcao);
             setNovaOpcao("");
             setAdicionarOpcao(false);
             adicionaNoBanco(novaOpcao);
         }
         else{
             setOpcaoSelecionada(novaOpcao);
-            callback(name, novaOpcao);
+            callback(novaOpcao);
             setNovaOpcao("");
             setAdicionarOpcao(false);
         }
@@ -53,7 +53,7 @@ function Select({ callback, name }){
 
     const handleCancel = () => {
         setOpcaoSelecionada("");
-        callback(name, "");
+        callback("");
         setNovaOpcao("");
         setAdicionarOpcao(false);
     }

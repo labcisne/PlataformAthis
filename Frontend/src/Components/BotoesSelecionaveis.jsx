@@ -5,7 +5,7 @@ function BotoesSelecionaveis( { arrayDeOpcoes, selecionado, setSelecionado } ){
     }
 
     return (
-        <div style={{display: "flex", gap: "12px"}}>
+        <div style={{display: "flex", gap: "12px", flexWrap: "wrap"}}>
             {arrayDeOpcoes.map((opcao, idx) => (
                 <button
                     type="button"
