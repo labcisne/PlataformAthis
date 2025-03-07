@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import Select from "./Select";
 import BotoesSelecionaveis from "./BotoesSelecionaveis";
 
 function Entrevista(){
+
+    const getCurrentDate = () => {
+        const today = new Date();
+        return today.toISOString().split("T")[0]; // Pega apenas a parte da data
+    }
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -42,7 +48,7 @@ function Entrevista(){
     const [espacoParaHortasCanteiro, setEspacoParaHortasCanteiro] = useState("");
     const [possuiBanheiro, setPossuiBanheiro] = useState("");
     const [possuiCozinha, setPossuiCozinha] = useState("");
-    const [dataPrimeiraVisita, setDataPrimeiraVisita] = useState("");
+    const [dataPrimeiraVisita, setDataPrimeiraVisita] = useState(getCurrentDate());
     const [nomeResponsavelFormulario, setNomeResponsavelFormulario] = useState("");
     const [nomeResponsavelFotografico, setNomeResponsavelFotografico] = useState("");
     const [nomeResponsavelArquitetonico, setNomeResponsavelArquitetonico] = useState("");
@@ -53,44 +59,73 @@ function Entrevista(){
     
     const handleSubmit = (event) => {
         event.preventDefault();
-        console.log(tipoLevantamento);
-        console.log(numMoradores);
-        console.log(idadeResidentes);
-        console.log(adultosEmpregados);
-        console.log(rendaMensalTotal);
-        console.log(mulherChefeFamilia);
-        console.log(idosoChefeFamilia);
-        console.log(numCriancas);
-        console.log(autoDeclaracaoFamilia);
-        console.log(cadastradaBolsaFamilia);
-        console.log(comorbidadeNaFamilia);
-        console.log(apresentaDoencaRespiratoria);
-        console.log(formaAquisicaoImovel);
-        console.log(anoDeConstrucaoTempoResidindo);
-        console.log(possuiOutroImovel);
-        console.log(resideNoImovelLevantado);
-        console.log(qualValorAluguel);
-        console.log(relacaoAluguelRenda);
-        console.log(imovelTeveAcaoAnterior);
-        console.log(boaVivenciaVizinhos);
-        console.log(participaReuniaoAcaoComunidade);
-        console.log(utilizaBancoComunitario);
-        console.log(indicacaoDeProfissionais);
-        console.log(pontoProximoEntrega);
-        console.log(recebeBoletoAguaEnergia);
-        console.log(possuiReservatorioAgua);
-        console.log(estadoReservatorioAgua);
-        console.log(espacoParaHortasCanteiro);
-        console.log(possuiBanheiro);
-        console.log(possuiCozinha);
-        console.log(dataPrimeiraVisita);
-        console.log(nomeResponsavelFormulario);
-        console.log(nomeResponsavelFotografico);
-        console.log(nomeResponsavelArquitetonico);
-        console.log(nomeAgenteComunitario);
-        console.log(outrosProfissionaisEnvolvidos);
-        console.log(demandaDaFamilia);
-        console.log(descricaoPendencias);
+        const obj = {
+            tipoLevantamento,
+            numMoradores,
+            idadeResidentes,
+            adultosEmpregados,
+            rendaMensalTotal,
+            mulherChefeFamilia,
+            idosoChefeFamilia,
+            numCriancas,
+            autoDeclaracaoFamilia,
+            cadastradaBolsaFamilia,
+            comorbidadeNaFamilia,
+            apresentaDoencaRespiratoria,
+            formaAquisicaoImovel,
+            anoDeConstrucaoTempoResidindo,
+            possuiOutroImovel,
+            resideNoImovelLevantado,
+            qualValorAluguel,
+            relacaoAluguelRenda,
+            imovelTeveAcaoAnterior,
+            boaVivenciaVizinhos,
+            participaReuniaoAcaoComunidade,
+            utilizaBancoComunitario,
+            indicacaoDeProfissionais,
+            pontoProximoEntrega,
+            recebeBoletoAguaEnergia,
+            possuiReservatorioAgua,
+            estadoReservatorioAgua,
+            espacoParaHortasCanteiro,
+            possuiBanheiro,
+            possuiCozinha,
+            dataPrimeiraVisita,
+            nomeResponsavelFormulario,
+            nomeResponsavelFotografico,
+            nomeResponsavelArquitetonico,
+            nomeAgenteComunitario,
+            outrosProfissionaisEnvolvidos,
+            demandaDaFamilia,
+            descricaoPendencias
+        }
+
+        axios.post("http://localhost:3000/familia/entrevista/facilities", {id: familiaId, obj}, {withCredentials: true})
+        .then((response) => {
+            console.log(response.data);
+            alert("Relatório enviado com sucesso!");
+            navigate("/familia/entrevista", {state: {id: familiaId, role}})
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    }
+
+    const converteParaFloat = (valor) => {
+        if(!valor){
+            return 0
+        }
+        return parseFloat(valor.replace(/\./g, "").replace(",", "."));
+    }
+
+    const calculaRelacaoAluguelRenda = (renda, aluguel) => {
+        const rendaConvertida = converteParaFloat(renda);
+        const aluguelConvertido = converteParaFloat(aluguel);
+
+        if(aluguelConvertido === 0){
+            setRelacaoAluguelRenda("0,00%");
+        }
+        setRelacaoAluguelRenda(((aluguelConvertido / rendaConvertida) * 100).toFixed(2).replace(".", ",") + "%");
     }
 
     return (
@@ -151,7 +186,7 @@ function Entrevista(){
 
                 <div className="celula">
                     <label>Possui uma mulher como chefe de família?</label>
-                    <BotoesSelecionaveis 
+                    <BotoesSelecionaveis
                         arrayDeOpcoes = {["Sim", "Não"]}
                         selecionado={mulherChefeFamilia}
                         setSelecionado={setMulherChefeFamilia}
@@ -248,21 +283,24 @@ function Entrevista(){
                 </div>
                 
                 <div className="celula">
-                    <label>Se a família está morando de aluguel, qual o valor?</label>
+                    <label>Se a família está morando de aluguel, qual o valor? (caso a família não more de aluguel, coloque 0)</label>
                     <input 
                         type="text"
                         value={qualValorAluguel}
-                        onChange={(event) => setQualValorAluguel(event.target.value)}
+                        onChange={(event) => {
+                            setQualValorAluguel(event.target.value);
+                            calculaRelacaoAluguelRenda(rendaMensalTotal, event.target.value);
+                        }}
                         placeholder="R$ 0,00"
                     />
                 </div>
 
                 <div className="celula">
                     <label>O aluguel em relação a renda familiar mensal:</label>
-                    <input //AJEITAR ESSE COMPONENTE!!!!!!
+                    <input
                         type="text"
                         value={relacaoAluguelRenda}
-                        onChange={(event) => setRelacaoAluguelRenda(event.target.value)}
+                        readOnly
                     />
                 </div>
 
@@ -371,7 +409,7 @@ function Entrevista(){
                 <div className="celula">
                     <label>Data 1° visita:</label>
                         <input //DESCOBRIR UMA MANEIRA MELHOR PARA ESSE CAMPO
-                            type="text"
+                            type="date"
                             value={dataPrimeiraVisita}
                             onChange={(event) => setDataPrimeiraVisita(event.target.value)}
                         />

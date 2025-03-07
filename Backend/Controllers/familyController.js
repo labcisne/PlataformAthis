@@ -194,4 +194,48 @@ exports.editaFamilia = asyncErrorHandler(async (req, res, next) => {
         status: "success",
         newFamily: newFamily.dadosFamilia
     });
-})
+});
+
+
+exports.enviaFormularioFacilities = asyncErrorHandler(async (req, res, next) => {
+
+    if(!req.body.id){
+        throw new CustomError('Id da família não enviado!', 400);
+    }
+
+    const familia = await Family.findById(req.body.id);
+
+    if(!familia){
+        throw new CustomError('Família não encontrada!', 404);
+    }
+
+    familia.tabelaSocioeconomica = req.body.obj;
+    await familia.save({validadeBeforeSave:false});
+
+    res.status(200).json({
+        status: 'success',
+        tabela: familia.tabelaSocioeconomica
+    })
+});
+
+
+exports.enviaFormularioEstrutural = asyncErrorHandler(async (req, res, next) => {
+
+    if(!req.body.id){
+        throw new CustomError('Id da família não enviado!', 400);
+    }
+    
+    const familia = await Family.findById(req.body.id);
+
+    if(!familia){
+        throw new CustomError('Família não encontrada!', 404);
+    }
+
+    familia.tabelaEstrutural = req.body.obj;
+    await familia.save({validadeBeforeSave:false});
+
+    res.status(200).json({
+        status: 'success',
+        tabela: familia.tabelaEstrutural
+    })
+});

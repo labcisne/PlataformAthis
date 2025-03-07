@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const dadosPessoais = require('../Schemas/dadosPessoais');
 const localizacao = require('../Schemas/localizacao.js');
+const facilities = require('../Schemas/facilities.js');
+const estrutural = require('../Schemas/estrutural.js');
 
 const familySchema = mongoose.Schema({
 
@@ -15,6 +17,12 @@ const familySchema = mongoose.Schema({
     localizacaoFamilia: {
         type: localizacao,
         required: true
+    },
+    tabelaSocioeconomica: {
+        type: facilities
+    },
+    tabelaEstrutural: {
+        type: estrutural
     }
 });
 

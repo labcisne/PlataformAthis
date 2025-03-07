@@ -18,4 +18,8 @@ router.route('/:id')
     .delete(familyController.deletaFamilia)
     .patch(familyController.editaFamilia);
 
+router.post('/entrevista/facilities', familyController.enviaFormularioFacilities);
+
+router.post('/entrevista/estrutural', familyController.enviaFormularioEstrutural);
+
 module.exports = router;

@@ -16,22 +16,16 @@ const facilitiesSchema = new mongoose.Schema({
         type: String
     },
     adultosEmpregados: {
-        type: Boolean
-    },
-    extraSobreEmpregados: {
         type: String
     },
     rendaMensalTotal: {
         type: Number
     },
     mulherChefeFamilia: {
-        type: Boolean
-    },
-    maeSoloChefeFamilia: {
-        type: Boolean
+        type: String
     },
     idosoChefeFamilia: {
-        type: Boolean
+        type: String
     },
     numCriancas: {
         type: Number
@@ -40,22 +34,13 @@ const facilitiesSchema = new mongoose.Schema({
         type: String
     },
     cadastradaBolsaFamilia: {
-        type: Boolean
-    },
-    numNis: {
         type: String
     },
     comorbidadeNaFamilia: {
-        type: Boolean
-    },
-    recebeBPC: {
-        type: Boolean
-    },
-    qualComorbidade: {
         type: String
     },
     apresentaDoencaRespiratoria: {
-        type: Boolean
+        type: String
     },
     formaAquisicaoImovel: {
         type: String
@@ -67,19 +52,19 @@ const facilitiesSchema = new mongoose.Schema({
         type: String
     },
     resideNoImovelLevantado: {
-        type: Boolean
+        type: String
     },
     qualValorAluguel: {
         type: Number
     },
     relacaoAluguelRenda: {
-        type: Number
+        type: String
     },
     imovelTeveAcaoAnterior: {
         type: String
     },
     boaVivenciaVizinhos: {
-        type: Boolean
+        type: String
     },
     participaReuniaoAcaoComunidade: {
         type: String
@@ -135,9 +120,9 @@ const facilitiesSchema = new mongoose.Schema({
     descricaoPendencias: {
         type: String
     },
-    ultimaEdicao: {
+    /*ultimaEdicao: {
         type: Date
-    }
+    }*/
 });
 
 

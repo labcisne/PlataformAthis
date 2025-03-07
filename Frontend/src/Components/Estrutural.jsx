@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import Select from "./Select";
 import BotoesSelecionaveis from "./BotoesSelecionaveis";
@@ -41,31 +42,43 @@ function Estrutural(){
     
     const handleSubmit = (event) => {
         event.preventDefault();
-        console.log(problemasInsalubridade);
-        console.log(necesitaReparosEstrutural);
-        console.log(resolveProblemaNoProprioTerreno);
-        console.log(edificacaoEmAreaDeRisco);
-        console.log(numQuartos);
-        console.log(coabitacao);
-        console.log(insercaoLote);
-        console.log(fundacoes);
-        console.log(estrutura);
-        console.log(paredes);
-        console.log(cobertura);
-        console.log(hidrossanitario);
-        console.log(eletrico);
-        console.log(banheiros);
-        console.log(cozinhaAreaDeServico);
-        console.log(conforto);
-        console.log(avaliacaoResidencia);
-        console.log(acompanhamentoPsicossocial);
-        console.log(circulacaoInternaSegura);
-        console.log(avaliacaoInfraestruturaUrbana);
-        console.log(avaliacaoAcessibilidadeTransporteLazerSaneamento);
-        console.log(opiniaoGeralDaCasa);
-        console.log(diagnosticoPreliminar);
-        console.log(situacaoPositiva);
-        console.log(observacoesGerais);
+        const obj = {
+            problemasInsalubridade,
+            necesitaReparosEstrutural,
+            resolveProblemaNoProprioTerreno,
+            edificacaoEmAreaDeRisco,
+            numQuartos,
+            coabitacao,
+            insercaoLote,
+            fundacoes,
+            estrutura,
+            paredes,
+            cobertura,
+            hidrossanitario,
+            eletrico,
+            banheiros,
+            cozinhaAreaDeServico,
+            conforto,
+            avaliacaoResidencia,
+            acompanhamentoPsicossocial,
+            circulacaoInternaSegura,
+            avaliacaoInfraestruturaUrbana,
+            avaliacaoAcessibilidadeTransporteLazerSaneamento,
+            opiniaoGeralDaCasa,
+            diagnosticoPreliminar,
+            situacaoPositiva,
+            observacoesGerais
+        }
+
+        axios.post("http://localhost:3000/familia/entrevista/estrutural", {id: familiaId, obj}, {withCredentials: true})
+        .then((response) => {
+            console.log(response.data);
+            alert("Relatório enviado com sucesso!");
+            navigate("/familia/entrevista", {state: {id: familiaId, role}})
+        })
+        .catch((error) => {
+            console.log(error);
+        });
     }
 
     return (
@@ -211,7 +224,7 @@ function Estrutural(){
                 </div>
 
                 <div className="celula">
-                    <label>Cozinha/área de serviço:</label>
+                    <label>Cozinha / área de serviço:</label>
                     <BotoesSelecionaveis 
                         arrayDeOpcoes = {["1", "2", "3"]}
                         selecionado={cozinhaAreaDeServico}

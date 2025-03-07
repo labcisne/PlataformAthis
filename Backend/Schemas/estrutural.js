@@ -18,11 +18,8 @@ const estruturalSchema = new mongoose.Schema({
     numQuartos: {
         type: Number
     },
-    superpopulacao: {
-        type: Boolean
-    },
     coabitacao: {
-        type: Boolean
+        type: String
     },
     insercaoLote: {
         type: Number
@@ -64,7 +61,7 @@ const estruturalSchema = new mongoose.Schema({
         type: String
     },
     circulacaoInternaSegura: {
-        type: Boolean
+        type: String
     },
     avaliacaoInfraestruturaUrbana: {
         type: Number
@@ -84,9 +81,9 @@ const estruturalSchema = new mongoose.Schema({
     observacoesGerais: {
         type: String
     },
-    ultimaEdicao: {
+    /*ultimaEdicao: {
         type: Date
-    }
+    }*/
 });
 
 
