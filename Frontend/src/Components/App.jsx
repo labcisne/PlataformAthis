@@ -16,6 +16,8 @@ import AlterarPerguntaSeg from "./AlterarPerguntaSeg.jsx";
 import Entrevista from "./Entrevista.jsx";
 import Facilities from "./Facilities.jsx";
 import Estrutural from "./Estrutural.jsx";
+import DadosFacilities from "./DadosFacilities.jsx";
+import DadosEstrutural from "./DadosEstrutural.jsx";
 
 function App(){
     
@@ -37,6 +39,8 @@ function App(){
                 <Route path="/familia/entrevista" element={<Entrevista />} />
                 <Route path="/familia/entrevista/facilities" element={<Facilities />} />
                 <Route path="/familia/entrevista/estrutural" element={<Estrutural />} />
+                <Route path="/familia/dadosFamilia/dadosFacilities" element={<DadosFacilities />} />
+                <Route path="/familia/dadosFamilia/dadosEstrutural" element={<DadosEstrutural />} />
             </Routes>
         </Router>
     );

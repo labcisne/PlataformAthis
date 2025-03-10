@@ -14,7 +14,7 @@ function Estrutural(){
     const role = location.state?.role;
 
     const [problemasInsalubridade, setProblemasInsalubridade] = useState("");
-    const [necesitaReparosEstrutural, setNecessitaReparosEstrutural] = useState("");
+    const [necessitaReparosEstrutural, setNecessitaReparosEstrutural] = useState("");
     const [resolveProblemaNoProprioTerreno, setResolveProblemaNoProprioTerreno] = useState("");
     const [edificacaoEmAreaDeRisco, setEdificacaoEmAreaDeRisco] = useState("");
     const [numQuartos, setNumQuartos] = useState("0");
@@ -44,7 +44,7 @@ function Estrutural(){
         event.preventDefault();
         const obj = {
             problemasInsalubridade,
-            necesitaReparosEstrutural,
+            necessitaReparosEstrutural,
             resolveProblemaNoProprioTerreno,
             edificacaoEmAreaDeRisco,
             numQuartos,
@@ -54,6 +54,7 @@ function Estrutural(){
             estrutura,
             paredes,
             cobertura,
+            esquadrias,
             hidrossanitario,
             eletrico,
             banheiros,
@@ -102,7 +103,7 @@ function Estrutural(){
                     <label>Existe a necessidade de realização de reparos estruturais?</label>
                     <BotoesSelecionaveis 
                         arrayDeOpcoes = {["Sim", "Não", "Verificar com engenheiro"]}
-                        selecionado={necesitaReparosEstrutural}
+                        selecionado={necessitaReparosEstrutural}
                         setSelecionado={setNecessitaReparosEstrutural}
                     />
                 </div>

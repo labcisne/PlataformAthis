@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 
 const facilitiesSchema = new mongoose.Schema({
 
-    numLevantamento: {
+    /*numLevantamento: {
         type: Number
-    },
-    tipoLevantemento: {
+    },*/
+    tipoLevantamento: {
         type: String
     },
     numMoradores: {

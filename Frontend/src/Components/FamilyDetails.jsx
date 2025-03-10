@@ -303,9 +303,23 @@ function Componente() {
                 >
                     Localização
                 </button>
-                <button className="familyDetailsBtn">Tabela Socioeconômica</button>
-                <button className="familyDetailsBtn">Tabela Estrutural</button>
-                <button className="familyDetailsBtn">Arquivos</button>
+                <button 
+                    className="familyDetailsBtn"
+                    onClick={() => navigate("/familia/dadosFamilia/dadosFacilities", {state: {id: familiaId, role}})}
+                >
+                    Tabela Socioeconômica
+                </button>
+                <button
+                    className="familyDetailsBtn"
+                    onClick={() => navigate("/familia/dadosFamilia/dadosEstrutural", {state: {id: familiaId, role}})}
+                >
+                    Tabela Estrutural
+                </button>
+                <button 
+                    className="familyDetailsBtn"
+                >
+                    Arquivos
+                </button>
                 {(role === "Administrador" || role === "Entrevistador") && (
                     <>
                         <button 
