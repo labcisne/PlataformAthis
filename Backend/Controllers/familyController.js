@@ -2,6 +2,9 @@ const Family = require("../Models/familyModel");
 const User = require("../Models/userModel");
 const asyncErrorHandler = require('../Utils/asyncErrorHandler');
 const CustomError = require('../Utils/customError');
+const multer = require('multer');
+const path = require('node:path');
+const fs = require('node:fs');
 
 
 const criaNovoMorador = (dadosFamilia, id) => {
@@ -237,5 +240,86 @@ exports.enviaFormularioEstrutural = asyncErrorHandler(async (req, res, next) => 
     res.status(200).json({
         status: 'success',
         tabela: familia.tabelaEstrutural
+    })
+});
+
+//FUNÇÕES DE UPLOAD
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "imagens/");
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${req.params.id}_${Date.now()}${path.extname(file.originalname)}`);
+    }
+});
+
+const upload = multer({ storage });
+
+exports.fazUpload = upload;
+
+exports.insereNovaImagem = asyncErrorHandler(async (req, res, next) => {
+
+    const familyId = req.params.id
+    const descricao = req.body.descricao;
+    const imagePath = `/imagens/${req.file.filename}`;
+
+    const family = await Family.findById(familyId);
+    if(!family){
+        throw new CustomError('Família não encontrada!', 404);
+    }
+    
+    family.imagens.push({caminho: imagePath, descricao});
+    await family.save();
+
+    res.status(200).json({
+        status: 'success',
+        imagens: family.imagens
+    });
+});
+
+exports.deletaArquivo = asyncErrorHandler(async (req, res, next) => {
+
+    const familyId = req.params.id;
+    const caminhoArquivo = req.body.caminhoArquivo;
+
+    const family = await Family.findById(familyId);
+    if(!family){
+        throw new CustomError('Família não encontrada!', 404);
+    }
+
+    const idx = family.imagens.findIndex(imagem => imagem.caminho === caminhoArquivo);
+    family.imagens.splice(idx, 1);
+    await family.save();
+
+    fs.rm(`.${caminhoArquivo}`, (error) => {
+        if(error){
+            throw new CustomError('Erro ao remover arquivo do servidor', 400);
+        }
+    });
+
+    res.status(200).json({
+        status: 'success',
+        imagens: family.imagens
+    })
+});
+
+exports.editaDescricao = asyncErrorHandler(async (req, res, next) => {
+
+    const familyId = req.params.id;
+    const caminhoArquivo = req.body.caminhoArquivo;
+    const novaDescricao = req.body.novaDescricao;
+
+    const family = await Family.findById(familyId);
+    if(!family){
+        throw new CustomError('Família não encontrada!', 404);
+    }
+
+    const idx = family.imagens.findIndex(imagem => imagem.caminho === caminhoArquivo);
+    family.imagens[idx].descricao = novaDescricao;
+    await family.save();
+
+    res.status(200).json({
+        status: 'success',
+        imagens: family.imagens
     })
 });

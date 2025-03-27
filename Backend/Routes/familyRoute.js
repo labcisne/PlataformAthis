@@ -22,4 +22,9 @@ router.post('/entrevista/facilities', familyController.enviaFormularioFacilities
 
 router.post('/entrevista/estrutural', familyController.enviaFormularioEstrutural);
 
+router.route('/upload/:id')
+    .post(familyController.fazUpload.single('image'), familyController.insereNovaImagem)
+    .delete(familyController.deletaArquivo)
+    .patch(familyController.editaDescricao);
+
 module.exports = router;

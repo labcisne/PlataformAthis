@@ -307,16 +307,17 @@ function Componente() {
                     className="familyDetailsBtn"
                     onClick={() => navigate("/familia/dadosFamilia/dadosFacilities", {state: {id: familiaId, role}})}
                 >
-                    Tabela Socioeconômica
+                    Dados Formulário Socioeconômico
                 </button>
                 <button
                     className="familyDetailsBtn"
                     onClick={() => navigate("/familia/dadosFamilia/dadosEstrutural", {state: {id: familiaId, role}})}
                 >
-                    Tabela Estrutural
+                    Dados Formulário Estrutural
                 </button>
                 <button 
                     className="familyDetailsBtn"
+                    onClick={() => navigate("/familia/dadosFamilia/arquivos/imagens", {state: {id: familiaId, role}})}
                 >
                     Arquivos
                 </button>

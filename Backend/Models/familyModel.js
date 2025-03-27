@@ -3,6 +3,7 @@ const dadosPessoais = require('../Schemas/dadosPessoais');
 const localizacao = require('../Schemas/localizacao.js');
 const facilities = require('../Schemas/facilities.js');
 const estrutural = require('../Schemas/estrutural.js');
+const fileSchema = require('../Schemas/fileSchema.js')
 
 const familySchema = mongoose.Schema({
 
@@ -23,6 +24,10 @@ const familySchema = mongoose.Schema({
     },
     tabelaEstrutural: {
         type: estrutural
+    },
+    imagens: {
+        type: [fileSchema],
+        default: []
     }
 });
 

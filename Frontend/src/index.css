@@ -140,6 +140,7 @@
 }
 
 .detailsBtn {
+  text-align: center;
   background-color: #F0A22E;
   width: 110px;
   height: 60px;
@@ -223,4 +224,79 @@ input[type="date"] {
   border-radius: 5px;
   outline: none;
   font-size: 1.2rem;
+}
+
+#imgFile {
+  display: none;
+}
+
+a {
+  text-decoration: none;
+  color: #363535;
+}
+
+.imgContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  
+}
+
+.imgAndDescriptionContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 75%;
+}
+
+.imgBtn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #F0A22E;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.imgBtn:hover {
+  background-color: #f09a19;
+}
+
+.imgDescriptionLink:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.imgDescriptionLink:active {
+  color: #5a5858;
+}
+
+.uploadContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.descriptionContainer {
+  display: flex;
+  gap: 8px;
+}
+
+.descriptionContainer input[type="text"] {
+  width: 75%;
+}
+
+.dialogOnImg {
+  max-width: 412px;
+  margin: auto;
+  border: none;
+  padding: 16px;
+  background-color: #D7D7D7;
+}
+
+.dialogOnImg::backdrop {
+  background-color: hsla(0, 0%, 0%, 0.50);
 }

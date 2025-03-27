@@ -6,10 +6,10 @@ function NavBar(){
 
     return (
         <div className='navBar'>
-            <div className='imgContainer'>
+            <div>
                 <img src={navImage} alt="Imagem da logo" width="200px" />
             </div>
-            <div className='imgContainer'>
+            <div>
                 <img src={sponsers} alt="Imagem da logo" width="200px" />
             </div>
         </div>

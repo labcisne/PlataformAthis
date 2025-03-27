@@ -40,11 +40,6 @@ input[type="password"]:focus {
     margin-bottom: 36px;
 }
 
-a {
-    text-decoration: none;
-    color: #363535;
-}
-
 .esqueciSenha:hover {
     text-decoration: underline;
     cursor: pointer;

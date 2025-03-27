@@ -90,11 +90,6 @@ input[type="number"]:focus{
     margin-bottom: 16px;
 }
   
-a {
-    text-decoration: none;
-    color: #363535
-}
-  
 #cadastrar {
     width: 100%;
     padding: 12px 0;
