@@ -243,8 +243,8 @@ exports.enviaFormularioEstrutural = asyncErrorHandler(async (req, res, next) => 
     })
 });
 
-//FUNÇÕES DE UPLOAD
-const storage = multer.diskStorage({
+//FUNÇÕES DE UPLOAD DE IMAGEM
+const storageImagem = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, "imagens/");
     },
@@ -253,9 +253,9 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
+const uploadImagem = multer({ storage: storageImagem });
 
-exports.fazUpload = upload;
+exports.fazUploadImagem = uploadImagem;
 
 exports.insereNovaImagem = asyncErrorHandler(async (req, res, next) => {
 
@@ -277,7 +277,7 @@ exports.insereNovaImagem = asyncErrorHandler(async (req, res, next) => {
     });
 });
 
-exports.deletaArquivo = asyncErrorHandler(async (req, res, next) => {
+exports.deletaImagem = asyncErrorHandler(async (req, res, next) => {
 
     const familyId = req.params.id;
     const caminhoArquivo = req.body.caminhoArquivo;
@@ -293,17 +293,17 @@ exports.deletaArquivo = asyncErrorHandler(async (req, res, next) => {
 
     fs.rm(`.${caminhoArquivo}`, (error) => {
         if(error){
-            throw new CustomError('Erro ao remover arquivo do servidor', 400);
+            throw new CustomError('Erro ao remover a imagem do servidor', 400);
         }
     });
 
     res.status(200).json({
         status: 'success',
         imagens: family.imagens
-    })
+    });
 });
 
-exports.editaDescricao = asyncErrorHandler(async (req, res, next) => {
+exports.editaDescricaoImagem = asyncErrorHandler(async (req, res, next) => {
 
     const familyId = req.params.id;
     const caminhoArquivo = req.body.caminhoArquivo;
@@ -322,4 +322,85 @@ exports.editaDescricao = asyncErrorHandler(async (req, res, next) => {
         status: 'success',
         imagens: family.imagens
     })
+});
+
+//FUNÇÕES DE UPLOAD DE ARQUIVOS GERAIS
+const storageArquivos = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "arquivos/");
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${req.params.id}_${Date.now()}${path.extname(file.originalname)}`);
+    }
+});
+
+const uploadArquivo = multer({ storage: storageArquivos });
+
+exports.fazUploadArquivo = uploadArquivo;
+
+exports.insereNovoArquivo = asyncErrorHandler(async (req, res, next) => {
+
+    const familyId = req.params.id;
+    const descricao = req.body.descricao;
+    const arquivoPath = `/arquivos/${req.file.filename}`
+
+    const family = await Family.findById(familyId);
+    if(!family){
+        throw new CustomError("Família não encontrada!", 404);
+    }
+
+    family.arquivos.push({caminho: arquivoPath, descricao});
+    await family.save();
+
+    res.status(200).json({
+        status: 'success',
+        arquivos: family.arquivos
+    })
+});
+
+exports.deletaArquivo = asyncErrorHandler(async (req, res, next) => {
+
+    const familyId = req.params.id;
+    const caminhoArquivo = req.body.caminhoArquivo;
+
+    const family = await Family.findById(familyId);
+    if(!family){
+        throw new CustomError('Família não encontrada!', 404);
+    }
+
+    const idx = family.arquivos.findIndex(arquivo => arquivo.caminho === caminhoArquivo);
+    family.arquivos.splice(idx, 1);
+    await family.save();
+
+    fs.rm(`.${caminhoArquivo}`, (error) => {
+        if(error){
+            throw new CustomError('Erro ao remover o arquivo do servidor', 400);
+        }
+    });
+
+    res.status(200).json({
+        status: 'success',
+        arquivos: family.arquivos
+    });
+});
+
+exports.editaDescricaoArquivo = asyncErrorHandler(async (req, res, next) => {
+
+    const familyId = req.params.id;
+    const caminhoArquivo = req.body.caminhoArquivo;
+    const novaDescricao = req.body.novaDescricao;
+
+    const family = await Family.findById(familyId);
+    if(!family){
+        throw new CustomError('Família não encontrada!', 404);
+    }
+
+    const idx = family.arquivos.findIndex(arquivo => arquivo.caminho === caminhoArquivo);
+    family.arquivos[idx].descricao = novaDescricao;
+    await family.save();
+
+    res.status(200).json({
+        status: 'success',
+        arquivos: family.arquivos
+    });
 });

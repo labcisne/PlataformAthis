@@ -22,9 +22,14 @@ router.post('/entrevista/facilities', familyController.enviaFormularioFacilities
 
 router.post('/entrevista/estrutural', familyController.enviaFormularioEstrutural);
 
-router.route('/upload/:id')
-    .post(familyController.fazUpload.single('image'), familyController.insereNovaImagem)
+router.route('/upload/imagem/:id')
+    .post(familyController.fazUploadImagem.single('image'), familyController.insereNovaImagem)
+    .delete(familyController.deletaImagem)
+    .patch(familyController.editaDescricaoImagem);
+
+router.route('/upload/arquivo/:id')
+    .post(familyController.fazUploadArquivo.single('arquivo'), familyController.insereNovoArquivo)
     .delete(familyController.deletaArquivo)
-    .patch(familyController.editaDescricao);
+    .patch(familyController.editaDescricaoArquivo);
 
 module.exports = router;

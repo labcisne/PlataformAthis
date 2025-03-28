@@ -4,17 +4,18 @@ import axios from "axios";
 
 import { FaTrash } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
+import { FaFileAlt } from "react-icons/fa";
 
 import { IconContext } from "react-icons";
 
-function Imagens(){
-
+function ArquivosGerais(){
+    
     const [arquivoSelecionado, setArquivoSelecionado] = useState(null);
     const [descricao, setDescricao] = useState("");
-    const [imagens, setImagens] = useState([]);
+    const [arquivos, setArquivos] = useState([]);
 
     const referenciaDialog = useRef(null);
-    const [imagemParaEditar, setImagemParaEditar] = useState("");
+    const [arquivoParaEditar, setArquivoParaEditar] = useState("");
     const [novaDescricao, setNovaDescricao] = useState("");
 
     const location = useLocation();
@@ -25,27 +26,27 @@ function Imagens(){
 
     useEffect(() => {
         axios.get(`http://localhost:3000/familia/${familiaId}`, {withCredentials: true})
-        .then((response) => setImagens(response.data.familia.imagens))
+        .then((response) => setArquivos(response.data.familia.arquivos))
         .catch((error) => console.log(error));
     }, []);
 
     const handleUpload = () => {
         if(!arquivoSelecionado){
-            alert("Selecione pelo menos uma imagem!");
+            alert("Selecione pelo menos um arquivo!");
             return;
         }
 
         const formData = new FormData();
-        formData.append("image", arquivoSelecionado);
+        formData.append("arquivo", arquivoSelecionado);
         formData.append("descricao", descricao);
 
-        axios.post(`http://localhost:3000/familia/upload/imagem/${familiaId}`, formData, {
+        axios.post(`http://localhost:3000/familia/upload/arquivo/${familiaId}`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
             withCredentials: true
         })
         .then((response) => {
-            setImagens(response.data.imagens);
-            alert("Imagem enviada com sucesso!");
+            setArquivos(response.data.arquivos);
+            alert("Arquivo enviado com sucesso!");
             setArquivoSelecionado(null);
             setDescricao("");
         })
@@ -53,13 +54,13 @@ function Imagens(){
     }
 
     const handleDelete = (caminho) => {
-        axios.delete(`http://localhost:3000/familia/upload/imagem/${familiaId}`, {
+        axios.delete(`http://localhost:3000/familia/upload/arquivo/${familiaId}`, {
             data: {
                 caminhoArquivo: caminho
             },
             withCredentials: true
         })
-        .then((response) => setImagens(response.data.imagens))
+        .then((response) => setArquivos(response.data.arquivos))
         .catch((error) => console.log(error));
     }
 
@@ -75,42 +76,42 @@ function Imagens(){
 
     const handleEdit = (caminho) => {
         if(novaDescricao){
-            axios.patch(`http://localhost:3000/familia/upload/imagem/${familiaId}`, {
+            axios.patch(`http://localhost:3000/familia/upload/arquivo/${familiaId}`, {
                 
                 caminhoArquivo: caminho,
                 novaDescricao
             },
             {withCredentials: true})
-            .then((response) => setImagens(response.data.imagens))
+            .then((response) => setArquivos(response.data.arquivos))
             .catch((error) => console.log(error));
             setNovaDescricao("");
         }
     }
 
-    return (
-
+    return(
         <div className="container">
             <button className="returnBtn" onClick={() => navigate("/familia/dadosFamilia/arquivos", {state: {id: familiaId, role}})}>
                 ⬅
             </button>
-            <div style={{textAlign: "left"}}>
+            <div style={{textAlign:"left"}}>
+
                 <div style={{display: "flex", flexDirection:"column", gap: "8px", marginBottom: "8px"}}>
-                    <h2>Upload de Imagem</h2>
+                    <h2>Upload de Arquivo</h2>
                     <div className="uploadContainer">
-                        <label htmlFor="imgFile" className="detailsBtn">Escolha uma Imagem</label>
+                        <label htmlFor="arqFile" className="detailsBtn">Escolha um Arquivo</label>
                         <input 
                             type="file" 
                             onChange={(event) => {setArquivoSelecionado(event.target.files[0])}}
-                            id="imgFile"
+                            id="arqFile"
                         />
                         {arquivoSelecionado && (
-                            <p style={{color:"green"}}>Imagem selecionada com sucesso!</p>
+                            <p style={{color:"green"}}>Arquivo selecionado com sucesso!</p>
                         )}
                     </div>
                     <div className="descriptionContainer">
                         <input 
                             type="text" 
-                            placeholder="Descrição da imagem"
+                            placeholder="Descrição do arquivo"
                             value={descricao}
                             onChange={(event) => setDescricao(event.target.value)}
                         />
@@ -124,29 +125,30 @@ function Imagens(){
                 </div>
 
                 <div>
-                    <h3 style={{marginBottom:"8px"}}>Imagens Enviadas</h3>
-                    <div style={{ display: 'flex', flexDirection:"column" }}>
-                        {imagens?.map((image, index) => (
+                    <h3 style={{marginBottom:"8px"}}>Arquivos enviados</h3>
+                    <div style={{display:"flex", flexDirection:"column"}}>
+                        {arquivos?.map((arquivo, index) => (
                             <div key={index} className="imgContainer">
                                 <div className="imgAndDescriptionContainer">
-                                    <img 
-                                        src={`http://localhost:3000/familia/dadosFamilia/arquivosGerais${image.caminho}`} 
-                                        alt="Upload" 
-                                        style={{ width: '100px', height: '100px'}}
-                                    />
-                                    <a
-                                        href={`http://localhost:3000/familia/dadosFamilia/arquivosGerais${image.caminho}`}
+                                    <div>
+                                        <IconContext.Provider value={{size: "3.5rem"}}>
+                                            <FaFileAlt />
+                                        </IconContext.Provider>
+                                    </div>
+                                    <a 
+                                        href={`http://localhost:3000/familia/dadosFamilia/arquivosGerais${arquivo.caminho}`}
                                         target="_blank"
                                         className="imgDescriptionLink"
                                     >
-                                        <p>{image.descricao}</p>
+                                        <p>{arquivo.descricao}</p>
                                     </a>
                                 </div>
+
                                 <div style={{display:"flex", gap: "8px"}}>
                                     <button 
                                         className="imgBtn" 
-                                        onClick={() => {
-                                            setImagemParaEditar(image.caminho);
+                                        onClick={() =>{
+                                            setArquivoParaEditar(arquivo.caminho);
                                             apareceDialog();
                                         }}
                                     >
@@ -154,7 +156,7 @@ function Imagens(){
                                             <MdEdit />
                                         </IconContext.Provider>
                                     </button>
-                                    <button className="imgBtn" onClick={() => handleDelete(image.caminho)}>
+                                    <button className="imgBtn" onClick={() => handleDelete(arquivo.caminho)}>
                                         <IconContext.Provider value={{size: "1.3rem"}}>        
                                             <FaTrash />
                                         </IconContext.Provider>
@@ -166,20 +168,20 @@ function Imagens(){
                 </div>
             </div>
             <dialog ref={referenciaDialog} className="dialogOnImg">
-                <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
+                <div style={{display:"flex", flexDirection:"column", gap:"8px"}}>
                     <div>
                         <input 
-                            type="text" 
-                            placeholder="Descrição da imagem"
+                            type="text"
+                            placeholder="Descricao do arquivo"
                             value={novaDescricao}
                             onChange={(event) => setNovaDescricao(event.target.value)}
                         />
                     </div>
-                    <div style={{display: "flex", justifyContent: "space-evenly"}}>
+                    <div style={{display:"flex", justifyContent:"space-evenly"}}>
                         <button
                             onClick={() => {
-                                handleEdit(imagemParaEditar);
-                                setImagemParaEditar("");
+                                handleEdit(arquivoParaEditar);
+                                setArquivoParaEditar("");
                                 apareceDialog();
                             }}
                             className="detailsBtn"
@@ -188,7 +190,7 @@ function Imagens(){
                         </button>
                         <button
                             onClick={() => {
-                                setImagemParaEditar("");
+                                setArquivoParaEditar("");
                                 setNovaDescricao("");
                                 apareceDialog();
                             }}
@@ -203,4 +205,4 @@ function Imagens(){
     )
 }
 
-export default Imagens;
+export default ArquivosGerais;

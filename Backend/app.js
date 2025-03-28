@@ -21,7 +21,8 @@ app.use(authRoute);
 app.use('/familia', familyRoute);
 app.use('/options', optionsRoute);
 
-app.use('/familia/dadosFamilia/arquivos/imagens', express.static('imagens'));
+app.use('/familia/dadosFamilia/arquivosGerais/imagens', express.static('imagens'));
+app.use('/familia/dadosFamilia/arquivosGerais/arquivos', express.static('arquivos'));
 
 app.use(globalErrorHandler);
 

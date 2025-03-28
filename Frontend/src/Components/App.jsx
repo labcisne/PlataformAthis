@@ -18,7 +18,9 @@ import Facilities from "./Facilities.jsx";
 import Estrutural from "./Estrutural.jsx";
 import DadosFacilities from "./DadosFacilities.jsx";
 import DadosEstrutural from "./DadosEstrutural.jsx";
+import Arquivos from "./Arquivos.jsx";
 import Imagens from "./Imagens.jsx";
+import ArquivosGerais from "./ArquivosGerais.jsx";
 
 function App(){
     
@@ -42,7 +44,9 @@ function App(){
                 <Route path="/familia/entrevista/estrutural" element={<Estrutural />} />
                 <Route path="/familia/dadosFamilia/dadosFacilities" element={<DadosFacilities />} />
                 <Route path="/familia/dadosFamilia/dadosEstrutural" element={<DadosEstrutural />} />
+                <Route path="/familia/dadosFamilia/arquivos" element={<Arquivos />} />
                 <Route path="/familia/dadosFamilia/arquivos/imagens" element={<Imagens />} />
+                <Route path="/familia/dadosFamilia/arquivos/arquivosGerais" element={<ArquivosGerais />} />
             </Routes>
         </Router>
     );

@@ -28,6 +28,10 @@ const familySchema = mongoose.Schema({
     imagens: {
         type: [fileSchema],
         default: []
+    },
+    arquivos: {
+        type: [fileSchema],
+        default: []
     }
 });
 

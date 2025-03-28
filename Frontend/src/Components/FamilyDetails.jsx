@@ -317,7 +317,7 @@ function Componente() {
                 </button>
                 <button 
                     className="familyDetailsBtn"
-                    onClick={() => navigate("/familia/dadosFamilia/arquivos/imagens", {state: {id: familiaId, role}})}
+                    onClick={() => navigate("/familia/dadosFamilia/arquivos", {state: {id: familiaId, role}})}
                 >
                     Arquivos
                 </button>

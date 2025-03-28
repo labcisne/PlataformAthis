@@ -226,7 +226,7 @@ input[type="date"] {
   font-size: 1.2rem;
 }
 
-#imgFile {
+#imgFile, #arqFile {
   display: none;
 }
 
