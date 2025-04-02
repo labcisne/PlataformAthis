@@ -11,7 +11,8 @@ function UserDetails(){
     const [userEditado, setUserEditado] = useState({});
     const [modoEdicao, setModoEdicao] = useState(false);
     
-    const referenciaDialog = useRef(null);
+    const referenciaDialog1 = useRef(null);
+    const referenciaDialog2 = useRef(null);
     const [tabelaFamiliasAssociadas, setTabelaFamiliasAssociadas] = useState(null);
 
     const id = location.state?.id;
@@ -60,12 +61,12 @@ function UserDetails(){
     }
 
     const handleAlteraSenha = () => {
-        role ? navigate("/usuarios/detalhesUsuario/alterarSenha") : //usuário fazendo alterarções nele mesmo
+        role ? navigate("/usuarios/detalhesUsuario/alterarSenha", {state: { id, role }}) : //usuário fazendo alterarções nele mesmo
                navigate("/usuarios/detalhesUsuario/alterarSenha", {state: { id }}); //administrador alterando alguém
     }
 
     const handleAlteraPergunta = () => {
-        role ? navigate("/usuarios/detalhesUsuario/alterarPerguntaSeguranca", {state: { perguntaSeguranca: user.perguntaSeguranca }}) :
+        role ? navigate("/usuarios/detalhesUsuario/alterarPerguntaSeguranca", {state: { id, role, perguntaSeguranca: user.perguntaSeguranca }}) :
                navigate("/usuarios/detalhesUsuario/alterarPerguntaSeguranca", {state: { id, perguntaSeguranca: user.perguntaSeguranca }});
     }
 
@@ -77,7 +78,7 @@ function UserDetails(){
         return familia.dadosFamilia.nomeMorador;
     }
 
-    const apareceDialog = () => {
+    const apareceDialog = (referenciaDialog) => {
         if(!referenciaDialog.current){
             return;
         }
@@ -101,7 +102,7 @@ function UserDetails(){
                     getSecondHeader={getNomeMorador}
                 />
             )
-            apareceDialog();
+            apareceDialog(referenciaDialog1);
         })
         .catch((error) => console.log(error));
 
@@ -109,9 +110,16 @@ function UserDetails(){
 
     return (
         <div className="container">
-            <button className="returnBtn" onClick={() => role ? navigate("/menu") : navigate("/usuarios")}>
-                ⬅
-            </button>
+            {modoEdicao ? (
+                <button className="returnBtn" onClick={() => setModoEdicao(false)}>
+                    ⬅
+                </button>
+            ) : (
+
+                <button className="returnBtn" onClick={() => role ? navigate("/menu") : navigate("/usuarios")}>
+                    ⬅
+                </button>
+            )}
             <h3 className="detailsHeader">Dados do usuário:</h3>
             <div className="detailsContainer">
                 {modoEdicao ? (
@@ -231,9 +239,9 @@ function UserDetails(){
                         {!role && (
                             <button
                                 className="detailsBtn editDeleteBtn"
-                                onClick={deletaUsuario}
+                                onClick={() => apareceDialog(referenciaDialog2)}
                             >
-                                Excluir usuário
+                                Deletar usuário
                             </button>
                         )}
                     </div>
@@ -260,9 +268,29 @@ function UserDetails(){
                     Famílias Associadas
                 </button>
             </div>
-            <dialog ref={referenciaDialog} className="dialogContainer">
+            <dialog ref={referenciaDialog1} className="dialogContainer">
                 {tabelaFamiliasAssociadas}
-                <button onClick={apareceDialog}>Fechar</button>
+                <button onClick={() => apareceDialog(referenciaDialog1)} className="detailsBtn">Fechar</button>
+            </dialog>
+            <dialog ref={referenciaDialog2} className="dialogOnImg">
+                <h3 style={{marginBottom:"8px"}}>Tem certeza que gostaria de deletar o usuário?</h3>
+                <div style={{display: "flex", justifyContent:"center", gap: "8px"}}>
+                    <button
+                        className="detailsBtn"
+                        onClick={() => apareceDialog(referenciaDialog2)}
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        className="detailsBtn"
+                        onClick={() => {
+                            apareceDialog(referenciaDialog2);
+                            deletaUsuario();
+                        }}
+                    >
+                        Deletar
+                    </button>
+                </div>
             </dialog>
         </div>
     )

@@ -12,8 +12,11 @@ function Componente() {
     const [tabelaUsuariosAssociados, setTabelaUsuariosAssociados] = useState(null);
     const [usuarios, setUsuarios] = useState([]);
     const [usuariosAssociados, setUsuariosAssociados] = useState([]);
+
     const referenciaDialog1 = useRef(null);
     const referenciaDialog2 = useRef(null);
+    const referenciaDialog3 = useRef(null);
+
     const [familia, setFamilia] = useState({});
     const [familiaEditada, setFamiliaEditada] = useState({});
     const [modoEdicao, setModoEdicao] = useState(false);
@@ -89,7 +92,10 @@ function Componente() {
     const deletaFamilia = () => {
         
         axios.delete(`http://localhost:3000/familia/${familiaId}`, {data: {userRole: role}, withCredentials: true})
-            .then((response) => console.log(response))
+            .then(() => {
+                alert("Família deletada com sucesso");
+                navigate("/menu");
+            })
             .catch((error) => console.log(error));
     }
 
@@ -108,6 +114,7 @@ function Componente() {
         axios.patch(`http://localhost:3000/familia/${familiaId}`, {familiaEditada}, {params: {userRole: role}, withCredentials: true})
         .then((response) => {
             setFamilia(response.data.newFamily);
+            alert("Dados da família alterados com sucesso!");
             setModoEdicao(false);
         })
         .catch(error => console.log(error));
@@ -120,9 +127,16 @@ function Componente() {
 
     return (
         <div className="container">
-            <button className="returnBtn" onClick={() => navigate("/menu")}>
-                ⬅
-            </button>
+            {modoEdicao ? (
+                <button className="returnBtn" onClick={() => setModoEdicao(false)}>
+                    ⬅
+                </button>
+            ) : (
+
+                <button className="returnBtn" onClick={() => navigate("/menu")}>
+                    ⬅
+                </button>
+            )}
             <h3 className="detailsHeader">Dados da família:</h3>
             <div className="detailsContainer">
                 {modoEdicao ? (
@@ -286,9 +300,9 @@ function Componente() {
 
                             <button 
                                 className="familyDetailsBtn editDeleteBtn"
-                                onClick={deletaFamilia}
+                                onClick={() => apareceDialog(referenciaDialog3)}
                             >
-                                Excluir Família
+                                Deletar Família
                             </button>
                         </div>
                     )
@@ -358,11 +372,31 @@ function Componente() {
             </div>
             <dialog ref={referenciaDialog1} className="dialogContainer">
                 {tabelaUsuariosParaAssociar}
-                <button onClick={() => {apareceDialog(referenciaDialog1)}}>Fechar</button>
+                <button className="detailsBtn" onClick={() => {apareceDialog(referenciaDialog1)}}>Fechar</button>
             </dialog>
             <dialog ref={referenciaDialog2} className="dialogContainer">
                 {tabelaUsuariosAssociados}
-                <button onClick={() => {apareceDialog(referenciaDialog2)}}>Fechar</button>
+                <button className="detailsBtn" onClick={() => {apareceDialog(referenciaDialog2)}}>Fechar</button>
+            </dialog>
+            <dialog ref={referenciaDialog3} className="dialogOnImg">
+                <h3 style={{marginBottom:"8px"}}>Tem certeza que gostaria de deletar a família?</h3>
+                <div style={{display: "flex", justifyContent:"center", gap: "8px"}}>
+                    <button
+                        className="detailsBtn"
+                        onClick={() => apareceDialog(referenciaDialog3)}
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        className="detailsBtn"
+                        onClick={() => {
+                            apareceDialog(referenciaDialog3);
+                            deletaFamilia();
+                        }}
+                    >
+                        Deletar
+                    </button>
+                </div>
             </dialog>
         </div>
     )

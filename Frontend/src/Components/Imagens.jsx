@@ -4,6 +4,7 @@ import axios from "axios";
 
 import { FaTrash } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
+import { IoMdDownload } from "react-icons/io";
 
 import { IconContext } from "react-icons";
 
@@ -13,7 +14,9 @@ function Imagens(){
     const [descricao, setDescricao] = useState("");
     const [imagens, setImagens] = useState([]);
 
-    const referenciaDialog = useRef(null);
+    const referenciaDialog1 = useRef(null);
+    const referenciaDialog2 = useRef(null);
+
     const [imagemParaEditar, setImagemParaEditar] = useState("");
     const [novaDescricao, setNovaDescricao] = useState("");
 
@@ -63,11 +66,10 @@ function Imagens(){
         .catch((error) => console.log(error));
     }
 
-    const apareceDialog = () => {
+    const apareceDialog = (referenciaDialog) => {
         if(!referenciaDialog.current){
             return;
         }
-
         referenciaDialog.current.hasAttribute("open")
             ? referenciaDialog.current.close()
             : referenciaDialog.current.showModal();
@@ -84,6 +86,37 @@ function Imagens(){
             .then((response) => setImagens(response.data.imagens))
             .catch((error) => console.log(error));
             setNovaDescricao("");
+        }
+    }
+
+    const handleDownload = async (caminho) => {
+        
+        try {
+            // Busca o arquivo direto do link da API
+            const response = await fetch(`http://localhost:3000/familia/dadosFamilia/arquivosGerais${caminho}`);
+
+            // Converte o arquivo buscado em um objeto de arquivo para download
+            const blob = await response.blob();  
+
+            // Cria um link temporário para o arquivo (que agora é um objeto)
+            const url = window.URL.createObjectURL(blob);
+
+            // Cria um <a> tag e atribuit que a sua href será a url temporária criada anteriormente
+            const link = document.createElement("a");
+            link.href = url;
+
+            // Seta qual será o nome do arquivo para download
+            link.setAttribute("download", caminho.split('/').pop());
+
+            // Insere o arquivo no body do documento, clica no link para realizar o download e remove o link do documento
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Remove o link temporário do objeto
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Erro ao baixar a imagem:", error);
         }
     }
 
@@ -132,30 +165,41 @@ function Imagens(){
                                     <img 
                                         src={`http://localhost:3000/familia/dadosFamilia/arquivosGerais${image.caminho}`} 
                                         alt="Upload" 
-                                        style={{ width: '100px', height: '100px'}}
+                                        style={{ width: '50px', height: '50px'}}
                                     />
                                     <a
                                         href={`http://localhost:3000/familia/dadosFamilia/arquivosGerais${image.caminho}`}
                                         target="_blank"
                                         className="imgDescriptionLink"
                                     >
-                                        <p>{image.descricao}</p>
+                                        <p style={{fontSize: "0.9rem"}}>{image.descricao}</p>
                                     </a>
                                 </div>
                                 <div style={{display:"flex", gap: "8px"}}>
+                                    <button
+                                        className="imgBtn"
+                                        onClick={() => handleDownload(image.caminho)}
+                                    >
+                                        <IconContext.Provider value={{size: "1.4rem"}}>        
+                                            <IoMdDownload />
+                                        </IconContext.Provider>
+                                    </button>
                                     <button 
                                         className="imgBtn" 
                                         onClick={() => {
                                             setImagemParaEditar(image.caminho);
-                                            apareceDialog();
+                                            apareceDialog(referenciaDialog1);
                                         }}
                                     >
-                                        <IconContext.Provider value={{size: "1.5rem"}}>        
+                                        <IconContext.Provider value={{size: "1.3rem"}}>        
                                             <MdEdit />
                                         </IconContext.Provider>
                                     </button>
-                                    <button className="imgBtn" onClick={() => handleDelete(image.caminho)}>
-                                        <IconContext.Provider value={{size: "1.3rem"}}>        
+                                    <button className="imgBtn" onClick={() => {
+                                        setImagemParaEditar(image.caminho);
+                                        apareceDialog(referenciaDialog2);
+                                    }}>
+                                        <IconContext.Provider value={{size: "1.1rem"}}>        
                                             <FaTrash />
                                         </IconContext.Provider>
                                     </button>
@@ -165,7 +209,7 @@ function Imagens(){
                     </div>
                 </div>
             </div>
-            <dialog ref={referenciaDialog} className="dialogOnImg">
+            <dialog ref={referenciaDialog1} className="dialogOnImg">
                 <div style={{display: "flex", flexDirection: "column", gap: "8px"}}>
                     <div>
                         <input 
@@ -178,25 +222,49 @@ function Imagens(){
                     <div style={{display: "flex", justifyContent: "space-evenly"}}>
                         <button
                             onClick={() => {
-                                handleEdit(imagemParaEditar);
-                                setImagemParaEditar("");
-                                apareceDialog();
-                            }}
-                            className="detailsBtn"
-                        >
-                            Confirmar
-                        </button>
-                        <button
-                            onClick={() => {
                                 setImagemParaEditar("");
                                 setNovaDescricao("");
-                                apareceDialog();
+                                apareceDialog(referenciaDialog1);
                             }}
                             className="detailsBtn"
                         >
                             Fechar
                         </button>
+                        <button
+                            onClick={() => {
+                                handleEdit(imagemParaEditar);
+                                setImagemParaEditar("");
+                                apareceDialog(referenciaDialog1);
+                            }}
+                            className="detailsBtn"
+                        >
+                            Confirmar
+                        </button>
                     </div>
+                </div>
+            </dialog>
+            <dialog ref={referenciaDialog2} className="dialogOnImg">
+                <h3 style={{marginBottom:"8px"}}>Tem certeza que gostaria de deletar a imagem?</h3>
+                <div style={{display: "flex", justifyContent:"center", gap: "8px"}}>
+                    <button
+                        className="detailsBtn"
+                        onClick={() => {
+                            setImagemParaEditar("");
+                            apareceDialog(referenciaDialog2);
+                        }}
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        className="detailsBtn"
+                        onClick={() => {
+                            handleDelete(imagemParaEditar);
+                            setImagemParaEditar("");
+                            apareceDialog(referenciaDialog2);
+                        }}
+                    >
+                        Deletar
+                    </button>
                 </div>
             </dialog>
         </div>

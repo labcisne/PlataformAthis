@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -19,6 +19,8 @@ function Menu(){
     const [role, setRole] = useState("");
     const [nomeUsuario, setNomeUsuario] = useState("");
     const [id, setId] = useState("");
+
+    const referenciaDialogLogOut = useRef(null);
 
     useEffect(() => {
         axios.get("http://localhost:3000/protected", {withCredentials: true})
@@ -93,11 +95,21 @@ function Menu(){
                 role
             }});
     }
+    
+    const apareceDialog = () => {
+        if(!referenciaDialogLogOut.current){
+            return;
+        }
+
+        referenciaDialogLogOut.current.hasAttribute("open")
+            ? referenciaDialogLogOut.current.close()
+            : referenciaDialogLogOut.current.showModal();
+    }
 
     return (
         <div className="container">
             <div style={{display: "flex", justifyContent: "space-between"}}>
-                <button className="returnBtn" onClick={() => {navigate("/")}}>
+                <button className="returnBtn" onClick={apareceDialog}>
                     <IconContext.Provider value={{size: "0.95em"}}>
                         <TbLogout2 />
                     </IconContext.Provider>
@@ -121,6 +133,26 @@ function Menu(){
                 getSecondHeader={getNomeMorador}
                 action={changePage}
             />
+            <dialog ref={referenciaDialogLogOut} className="dialogContainer">
+                <h3 style={{marginBottom:"8px"}}>Tem certeza que gostaria de fazer log out?</h3>
+                <div style={{display: "flex", justifyContent:"center", gap: "8px"}}>
+                    <button
+                        className="detailsBtn"
+                        onClick={apareceDialog}
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        className="detailsBtn"
+                        onClick={() => {
+                            apareceDialog();
+                            navigate("/")
+                        }}
+                    >
+                        Log Out
+                    </button>
+                </div>
+            </dialog>
         </div>
     );
 }

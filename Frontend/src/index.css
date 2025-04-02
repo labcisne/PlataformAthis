@@ -111,6 +111,7 @@
 }
 
 .dialogContainer {
+  max-width: 412px;
   margin: auto;
   border: none;
   padding: 16px;
@@ -240,7 +241,6 @@ a {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
-  
 }
 
 .imgAndDescriptionContainer {
@@ -255,8 +255,8 @@ a {
   justify-content: center;
   align-items: center;
   background-color: #F0A22E;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border: none;
   border-radius: 50%;
   cursor: pointer;

@@ -5,6 +5,7 @@ import axios from "axios";
 import { FaTrash } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { FaFileAlt } from "react-icons/fa";
+import { IoMdDownload } from "react-icons/io";
 
 import { IconContext } from "react-icons";
 
@@ -14,7 +15,9 @@ function ArquivosGerais(){
     const [descricao, setDescricao] = useState("");
     const [arquivos, setArquivos] = useState([]);
 
-    const referenciaDialog = useRef(null);
+    const referenciaDialog1 = useRef(null);
+    const referenciaDialog2 = useRef(null);
+
     const [arquivoParaEditar, setArquivoParaEditar] = useState("");
     const [novaDescricao, setNovaDescricao] = useState("");
 
@@ -64,11 +67,10 @@ function ArquivosGerais(){
         .catch((error) => console.log(error));
     }
 
-    const apareceDialog = () => {
+    const apareceDialog = (referenciaDialog) => {
         if(!referenciaDialog.current){
             return;
         }
-
         referenciaDialog.current.hasAttribute("open")
             ? referenciaDialog.current.close()
             : referenciaDialog.current.showModal();
@@ -86,6 +88,38 @@ function ArquivosGerais(){
             .catch((error) => console.log(error));
             setNovaDescricao("");
         }
+    }
+
+    const handleDownload = async (caminho) => {
+        
+        try {
+            // Busca o arquivo direto do link da API
+            const response = await fetch(`http://localhost:3000/familia/dadosFamilia/arquivosGerais${caminho}`);
+
+            // Converte o arquivo buscado em um objeto de arquivo para download
+            const blob = await response.blob();  
+
+            // Cria um link temporário para o arquivo (que agora é um objeto)
+            const url = window.URL.createObjectURL(blob);
+
+            // Cria um <a> tag e atribuit que a sua href será a url temporária criada anteriormente
+            const link = document.createElement("a");
+            link.href = url;
+
+            // Seta qual será o nome do arquivo para download
+            link.setAttribute("download", caminho.split('/').pop());
+
+            // Insere o arquivo no body do documento, clica no link para realizar o download e remove o link do documento
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Remove o link temporário do objeto
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Erro ao baixar a imagem:", error);
+        }
+
     }
 
     return(
@@ -131,7 +165,7 @@ function ArquivosGerais(){
                             <div key={index} className="imgContainer">
                                 <div className="imgAndDescriptionContainer">
                                     <div>
-                                        <IconContext.Provider value={{size: "3.5rem"}}>
+                                        <IconContext.Provider value={{size: "2.8rem"}}>
                                             <FaFileAlt />
                                         </IconContext.Provider>
                                     </div>
@@ -140,24 +174,35 @@ function ArquivosGerais(){
                                         target="_blank"
                                         className="imgDescriptionLink"
                                     >
-                                        <p>{arquivo.descricao}</p>
+                                        <p style={{fontSize: "0.9rem"}}>{arquivo.descricao}</p>
                                     </a>
                                 </div>
 
                                 <div style={{display:"flex", gap: "8px"}}>
+                                    <button
+                                        className="imgBtn"
+                                        onClick={() => handleDownload(arquivo.caminho)}
+                                    >
+                                        <IconContext.Provider value={{size: "1.4rem"}}>        
+                                            <IoMdDownload />
+                                        </IconContext.Provider>
+                                    </button>
                                     <button 
                                         className="imgBtn" 
                                         onClick={() =>{
                                             setArquivoParaEditar(arquivo.caminho);
-                                            apareceDialog();
+                                            apareceDialog(referenciaDialog1);
                                         }}
                                     >
-                                        <IconContext.Provider value={{size: "1.5rem"}}>        
+                                        <IconContext.Provider value={{size: "1.3rem"}}>        
                                             <MdEdit />
                                         </IconContext.Provider>
                                     </button>
-                                    <button className="imgBtn" onClick={() => handleDelete(arquivo.caminho)}>
-                                        <IconContext.Provider value={{size: "1.3rem"}}>        
+                                    <button className="imgBtn" onClick={() => {
+                                        setArquivoParaEditar(arquivo.caminho);
+                                        apareceDialog(referenciaDialog2);
+                                    }}>
+                                        <IconContext.Provider value={{size: "1.1rem"}}>        
                                             <FaTrash />
                                         </IconContext.Provider>
                                     </button>
@@ -167,7 +212,7 @@ function ArquivosGerais(){
                     </div>
                 </div>
             </div>
-            <dialog ref={referenciaDialog} className="dialogOnImg">
+            <dialog ref={referenciaDialog1} className="dialogOnImg">
                 <div style={{display:"flex", flexDirection:"column", gap:"8px"}}>
                     <div>
                         <input 
@@ -180,25 +225,49 @@ function ArquivosGerais(){
                     <div style={{display:"flex", justifyContent:"space-evenly"}}>
                         <button
                             onClick={() => {
-                                handleEdit(arquivoParaEditar);
-                                setArquivoParaEditar("");
-                                apareceDialog();
-                            }}
-                            className="detailsBtn"
-                        >
-                            Confirmar
-                        </button>
-                        <button
-                            onClick={() => {
                                 setArquivoParaEditar("");
                                 setNovaDescricao("");
-                                apareceDialog();
+                                apareceDialog(referenciaDialog1);
                             }}
                             className="detailsBtn"
                         >
                             Fechar
                         </button>
+                        <button
+                            onClick={() => {
+                                handleEdit(arquivoParaEditar);
+                                setArquivoParaEditar("");
+                                apareceDialog(referenciaDialog1);
+                            }}
+                            className="detailsBtn"
+                        >
+                            Confirmar
+                        </button>
                     </div>
+                </div>
+            </dialog>
+            <dialog ref={referenciaDialog2} className="dialogOnImg">
+                <h3 style={{marginBottom:"8px"}}>Tem certeza que gostaria de deletar o arquivo?</h3>
+                <div style={{display: "flex", justifyContent:"center", gap: "8px"}}>
+                    <button
+                        className="detailsBtn"
+                        onClick={() => {
+                            setArquivoParaEditar("");
+                            apareceDialog(referenciaDialog2);
+                        }}
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        className="detailsBtn"
+                        onClick={() => {
+                            handleDelete(arquivoParaEditar);
+                            setArquivoParaEditar("");
+                            apareceDialog(referenciaDialog2);
+                        }}
+                    >
+                        Deletar
+                    </button>
                 </div>
             </dialog>
         </div>

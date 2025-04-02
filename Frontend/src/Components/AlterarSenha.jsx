@@ -14,6 +14,7 @@ function AlterarSenha(){
     });
 
     const id = location.state?.id;
+    const role = location.state?.role;
 
     const handleChange = (event) => {
         const {name, value} = event.target;
@@ -22,12 +23,12 @@ function AlterarSenha(){
     
     const handleSubmit = (event) => {
         event.preventDefault();
-        if(id){
+        if(!role){
 
             axios.patch("http://localhost:3000/alterarSenha", {...obj, id}, {withCredentials: true})
             .then(() => {
                 alert("Senha alterada com sucesso!");
-                navigate("/menu");
+                navigate("/usuarios/detalhesUsuario", {state: { id }});
             })
             .catch((error) => alert(error.response.data.message));
         }
@@ -43,12 +44,19 @@ function AlterarSenha(){
 
     return (
         <div className="container">
-            <button className="returnBtn" onClick={() => {navigate("/menu")}}>
-                ⬅
-            </button>
+            {role ? (
+                <button className="returnBtn" onClick={() => {navigate("/usuarios/detalhesUsuario", {state: {id, role }})}}>
+                    ⬅
+                </button>
+            ) : (
+
+                <button className="returnBtn" onClick={() => {navigate("/usuarios/detalhesUsuario", {state: { id }})}}>
+                    ⬅
+                </button>
+            )}
             <h2 style={{marginBottom: "16px"}}>Definir nova Senha</h2>
             <form onSubmit={handleSubmit}>
-                {!id && (
+                {role && (
                 <div className="celula">
                     <label>Senha Atual:</label>
                     <input 

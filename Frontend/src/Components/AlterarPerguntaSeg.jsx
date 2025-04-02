@@ -9,6 +9,8 @@ function AlterarPerguntaSeg(){
     const location = useLocation();
 
     const id = location.state?.id;
+    const role = location.state?.role;
+
     const [novaPerguntaSeguranca, setNovaPerguntaSeguranca] = useState(location.state?.perguntaSeguranca);
     const [novaRespostaSeguranca, setNovaRespostaSeguranca] = useState("");
     const [respostaSegurancaAtual, setRespostaSegurancaAtual] = useState("");
@@ -16,11 +18,11 @@ function AlterarPerguntaSeg(){
     const handleSubmit = (event) => {
         event.preventDefault();
         
-        if(id){
+        if(!role){
             axios.patch("http://localhost:3000/alterarPerguntaSeguranca", {novaPerguntaSeguranca, novaRespostaSeguranca, id}, {withCredentials: true})
             .then((response) => {
                 alert(response.data.message);
-                navigate("/menu");
+                navigate("/usuarios/detalhesUsuario", {state: { id }});
             })
             .catch((error) => alert(error.response.data.message));
         }
@@ -29,7 +31,7 @@ function AlterarPerguntaSeg(){
             axios.patch("http://localhost:3000/alterarPerguntaSeguranca", {respostaSegurancaAtual, novaPerguntaSeguranca, novaRespostaSeguranca}, {withCredentials: true})
             .then((response) => {
                 alert(response.data.message);
-                navigate("/menu");
+                navigate("/usuarios/detalhesUsuario", {state: {id, role }});
             })
             .catch((error) => alert(error.response.data.message));
 
@@ -38,12 +40,19 @@ function AlterarPerguntaSeg(){
 
     return(
         <div className="container">
-            <button className="returnBtn" onClick={() => {navigate("/menu")}}>
-                ⬅
-            </button>
+            {role ? (
+                <button className="returnBtn" onClick={() => {navigate("/usuarios/detalhesUsuario", {state: {id, role }})}}>
+                    ⬅
+                </button>
+            ) : (
+
+                <button className="returnBtn" onClick={() => {navigate("/usuarios/detalhesUsuario", {state: { id }})}}>
+                    ⬅
+                </button>
+            )}
             <h2 style={{marginBottom: "28px"}}>Definir nova Pergunta de segurança</h2>
             <form onSubmit={handleSubmit}>
-                {!id && (
+                {role && (
                     <div className="celula">
                         <label htmlFor="">{location.state?.perguntaSeguranca}</label>
                         <input 
