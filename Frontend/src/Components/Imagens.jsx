@@ -5,6 +5,7 @@ import axios from "axios";
 import { FaTrash } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { IoMdDownload } from "react-icons/io";
+import { FaCamera } from "react-icons/fa";
 
 import { IconContext } from "react-icons";
 
@@ -16,12 +17,16 @@ function Imagens(){
 
     const referenciaDialog1 = useRef(null);
     const referenciaDialog2 = useRef(null);
+    const referenciaDialog3 = useRef(null);
 
     const [imagemParaEditar, setImagemParaEditar] = useState("");
     const [novaDescricao, setNovaDescricao] = useState("");
 
     const location = useLocation();
     const navigate = useNavigate();
+
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
 
     const familiaId = location.state?.id;
     const role = location.state?.role;
@@ -120,12 +125,70 @@ function Imagens(){
         }
     }
 
+    const acessaCamera = () => {
+        navigator.mediaDevices.getUserMedia({video: true})
+        .then(stream => {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play();
+            apareceDialog(referenciaDialog3);
+        })
+        .catch(error => console.log(error));
+    }
+
+    const tirarFoto = () => {
+        canvasRef.current.height = videoRef.current.videoHeight;
+        canvasRef.current.width = videoRef.current.videoWidth;
+        const context = canvasRef.current.getContext('2d');
+        context.drawImage(videoRef.current, 0, 0);
+        const imageData = canvasRef.current.toDataURL();
+        const imageFile = dataURLtoFile(imageData, "imagem.png");
+        setArquivoSelecionado(imageFile);
+
+        fechaCamera();
+
+        apareceDialog(referenciaDialog3);
+    }
+
+    const fechaCamera = () => {
+        const stream = videoRef.current.srcObject;
+        if (stream) {
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop()); // Para cada track de vídeo
+        }
+        // Remover o stream do vídeo
+        videoRef.current.srcObject = null;
+    }
+
+    const dataURLtoFile = (dataUrl, filename) => {
+        const arr = dataUrl.split(",");
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n); // cada elemento da arrya possui 8 bits (1 byte)
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n); //cada caracter é representado em 1 byte
+        }
+        return new File([u8arr], filename, { type: mime });
+    };
+
     return (
 
         <div className="container">
-            <button className="returnBtn" onClick={() => navigate("/familia/dadosFamilia/arquivos", {state: {id: familiaId, role}})}>
-                ⬅
-            </button>
+            <div style={{display: "flex", justifyContent: "space-between"}}>
+                <button className="returnBtn" onClick={() => navigate("/familia/dadosFamilia/arquivos", {state: {id: familiaId, role}})}>
+                    ⬅
+                </button>
+                <button
+                    onClick={() => {
+                        acessaCamera();
+                    }}
+                    className="returnBtn"
+                >
+                    <IconContext.Provider value={{size: "1.8rem"}}>
+                        <FaCamera />
+                    </IconContext.Provider>
+                </button>
+            </div>
             <div style={{textAlign: "left"}}>
                 <div style={{display: "flex", flexDirection:"column", gap: "8px", marginBottom: "8px"}}>
                     <h2>Upload de Imagem</h2>
@@ -266,6 +329,33 @@ function Imagens(){
                         Deletar
                     </button>
                 </div>
+            </dialog>
+            <dialog className="dialogOnImg" ref={referenciaDialog3}>
+                <video ref={videoRef} width="380px"></video>
+                <div style={{display: "flex", justifyContent: "space-evenly"}}>
+                    <button
+                        onClick={() => {
+                            fechaCamera();
+                            apareceDialog(referenciaDialog3);
+                        }}
+                        className="returnBtn"
+                    >
+                        X
+                    </button>
+                    <button
+                        onClick={tirarFoto}
+                        className="returnBtn"
+                    >
+                        <IconContext.Provider value={{size: "1.8rem"}}>
+                            <FaCamera />
+                        </IconContext.Provider>
+                    </button>
+                </div>
+                <canvas
+                    ref={canvasRef}
+                    style={{display: "none"}}
+                >
+                </canvas>
             </dialog>
         </div>
     )
