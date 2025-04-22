@@ -5,6 +5,10 @@ import axios from "axios";
 import Select from "./Select";
 import BotoesSelecionaveis from "./BotoesSelecionaveis";
 
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
+
 function Entrevista(){
 
     const getCurrentDate = () => {
@@ -132,7 +136,9 @@ function Entrevista(){
 
         <div className="container">
             <button className="returnBtn" onClick={() => navigate("/familia/entrevista", {state: {id: familiaId, role}})}>
-                ⬅
+                <IconContext.Provider value={{size: "2rem"}}>
+                    <FaArrowLeft />
+                </IconContext.Provider>
             </button>
             <form action="#" onSubmit={handleSubmit}>
 

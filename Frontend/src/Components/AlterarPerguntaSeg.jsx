@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
 
 function AlterarPerguntaSeg(){
 
@@ -42,12 +45,16 @@ function AlterarPerguntaSeg(){
         <div className="container">
             {role ? (
                 <button className="returnBtn" onClick={() => {navigate("/usuarios/detalhesUsuario", {state: {id, role }})}}>
-                    ⬅
+                    <IconContext.Provider value={{size: "2rem"}}>
+                        <FaArrowLeft />
+                    </IconContext.Provider>
                 </button>
             ) : (
 
                 <button className="returnBtn" onClick={() => {navigate("/usuarios/detalhesUsuario", {state: { id }})}}>
-                    ⬅
+                    <IconContext.Provider value={{size: "2rem"}}>
+                        <FaArrowLeft />
+                    </IconContext.Provider>
                 </button>
             )}
             <h2 style={{marginBottom: "28px"}}>Definir nova Pergunta de segurança</h2>

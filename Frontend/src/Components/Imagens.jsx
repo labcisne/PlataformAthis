@@ -6,6 +6,7 @@ import { FaTrash } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { IoMdDownload } from "react-icons/io";
 import { FaCamera } from "react-icons/fa";
+import { FaArrowLeft } from "react-icons/fa6";
 
 import { IconContext } from "react-icons";
 
@@ -176,7 +177,9 @@ function Imagens(){
         <div className="container">
             <div style={{display: "flex", justifyContent: "space-between"}}>
                 <button className="returnBtn" onClick={() => navigate("/familia/dadosFamilia/arquivos", {state: {id: familiaId, role}})}>
-                    ⬅
+                    <IconContext.Provider value={{size: "2rem"}}>
+                        <FaArrowLeft />
+                    </IconContext.Provider>
                 </button>
                 <button
                     onClick={() => {

@@ -6,6 +6,10 @@ import Tabela from "./Tabela";
 
 import "./Users.css";
 
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
+
 
 function Users(){
 
@@ -35,7 +39,9 @@ function Users(){
     return (
         <div className="container">
             <button className="returnBtn" onClick={() => navigate("/menu")}>
-                ⬅
+                <IconContext.Provider value={{size: "2rem"}}>
+                    <FaArrowLeft />
+                </IconContext.Provider>
             </button>
             <label className="tableTitle">Usuários Cadastrados:</label>
             <Tabela 

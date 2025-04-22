@@ -1,5 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
+
 function Entrevista(){
     
     const location = useLocation();
@@ -20,7 +24,9 @@ function Entrevista(){
         
         <div className="container">
             <button className="returnBtn" onClick={() => navigate("/familia/dadosFamilia", {state: {id: familiaId, role}})}>
-                ⬅
+                <IconContext.Provider value={{size: "2rem"}}>
+                    <FaArrowLeft />
+                </IconContext.Provider>
             </button>
             <h2 style={{marginBottom: "16px"}}>Escolha uma das opções</h2>
             <div className="familyDetailsBtnContainer">

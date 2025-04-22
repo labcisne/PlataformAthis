@@ -6,6 +6,10 @@ import Tabela from "./Tabela";
 
 import "./FamilyDetails.css";
 
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
+
 function Componente() {
 
     const [tabelaUsuariosParaAssociar, setTabelaUsuariosParaAssociar] = useState(null);
@@ -129,12 +133,16 @@ function Componente() {
         <div className="container">
             {modoEdicao ? (
                 <button className="returnBtn" onClick={() => setModoEdicao(false)}>
-                    ⬅
+                    <IconContext.Provider value={{size: "2rem"}}>
+                        <FaArrowLeft />
+                    </IconContext.Provider>
                 </button>
             ) : (
 
                 <button className="returnBtn" onClick={() => navigate("/menu")}>
-                    ⬅
+                    <IconContext.Provider value={{size: "2rem"}}>
+                        <FaArrowLeft />
+                    </IconContext.Provider>
                 </button>
             )}
             <h3 className="detailsHeader">Dados da família:</h3>

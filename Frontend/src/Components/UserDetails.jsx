@@ -3,6 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Tabela from "./Tabela.jsx";
 import axios from "axios";
 
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
+
 function UserDetails(){
 
     const location = useLocation();
@@ -112,12 +116,16 @@ function UserDetails(){
         <div className="container">
             {modoEdicao ? (
                 <button className="returnBtn" onClick={() => setModoEdicao(false)}>
-                    ⬅
+                    <IconContext.Provider value={{size: "2rem"}}>
+                        <FaArrowLeft />
+                    </IconContext.Provider>
                 </button>
             ) : (
 
                 <button className="returnBtn" onClick={() => role ? navigate("/menu") : navigate("/usuarios")}>
-                    ⬅
+                    <IconContext.Provider value={{size: "2rem"}}>
+                        <FaArrowLeft />
+                    </IconContext.Provider>
                 </button>
             )}
             <h3 className="detailsHeader">Dados do usuário:</h3>

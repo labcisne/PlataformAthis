@@ -6,6 +6,10 @@ import Mapa from "./Mapa.jsx";
 
 import "./FamilyForm.css";
 
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
+
 function FamilyForm(){
     
     const navigate = useNavigate();
@@ -77,7 +81,9 @@ function FamilyForm(){
     return (
         <div className="container">
             <button className="returnBtn" onClick={() => navigate("/menu")}>
-                ⬅
+                <IconContext.Provider value={{size: "2rem"}}>
+                    <FaArrowLeft />
+                </IconContext.Provider>
             </button>
             <h3 className="familyFormHeader">Entre com os dados da família:</h3>
             <form action="#" className="familyFormContainer" onSubmit={handleSubmit}>

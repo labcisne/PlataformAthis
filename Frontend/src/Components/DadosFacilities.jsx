@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
+
 
 function DadosFacilities(){
 
@@ -23,7 +27,9 @@ function DadosFacilities(){
     return (
         <div className="container">
             <button className="returnBtn" onClick={() => navigate("/familia/dadosFamilia", {state: {id: familiaId, role}})}>
-                ⬅
+                <IconContext.Provider value={{size: "2rem"}}>
+                    <FaArrowLeft />
+                </IconContext.Provider>
             </button>
             <div className="detailsContainer">
                 <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>ID Levantamento: </span>

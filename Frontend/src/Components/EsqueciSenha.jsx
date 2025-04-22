@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
+
 function EsqueciSenha(){
 
     const [login, setLogin] = useState("");
@@ -23,7 +27,9 @@ function EsqueciSenha(){
 
         <div className="container">
             <button className="returnBtn" onClick={() => {navigate("/")}}>
-                ⬅
+                <IconContext.Provider value={{size: "2rem"}}>
+                    <FaArrowLeft />
+                </IconContext.Provider>
             </button>
             <h2>Recuperar Senha</h2>
             <form action="#" onSubmit={handleSubmit}>

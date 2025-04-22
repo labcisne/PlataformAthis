@@ -1,5 +1,10 @@
 import { useState } from "react";
 
+import { FaArrowRight } from "react-icons/fa6";
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
+
 function Tabela({ dados, firstHeader, secondHeader, getFirstHeader, getSecondHeader, action }){
 
     const [paginaAtual, setPaginaAtual] = useState(1);
@@ -27,10 +32,14 @@ function Tabela({ dados, firstHeader, secondHeader, getFirstHeader, getSecondHea
         <div>
             <div className="forwardBackArrows">
                 <button className="arrow" onClick={handlePaginaAnterior} disabled={paginaAtual === 1}>
-                    ⬅
+                    <IconContext.Provider value={{size: "1.3rem"}}>
+                        <FaArrowLeft />
+                    </IconContext.Provider>
                 </button>
                 <button className="arrow" onClick={handleProximaPagina} disabled={paginaAtual === paginasTotais}>
-                    ➡
+                    <IconContext.Provider value={{size: "1.3rem"}}>
+                        <FaArrowRight />
+                    </IconContext.Provider>
                 </button>
             </div>
             <table className="tableContainer">

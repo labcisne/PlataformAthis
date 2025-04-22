@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import "./UserForm.css"
+import { FaArrowLeft } from "react-icons/fa6";
+
+import { IconContext } from "react-icons";
 
 function UserForm(){
 
@@ -53,7 +56,9 @@ function UserForm(){
     return (
         <div className="container">
             <button className="returnBtn" onClick={() => navigate("/menu")}>
-                ⬅
+                <IconContext.Provider value={{size: "2rem"}}>
+                    <FaArrowLeft />
+                </IconContext.Provider>
             </button>
             <h3 className="userFormHeader">Entre com os dados do novo usuário:</h3>
             <form action="#" className="userFormContainer" onSubmit={handleSubmit}>
