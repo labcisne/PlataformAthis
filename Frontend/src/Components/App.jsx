@@ -21,6 +21,7 @@ import DadosEstrutural from "./DadosEstrutural.jsx";
 import Arquivos from "./Arquivos.jsx";
 import Imagens from "./Imagens.jsx";
 import ArquivosGerais from "./ArquivosGerais.jsx";
+import PrimeiroUsuarioAdmin from "./PrimeiroUsuarioAdmin.jsx";
 
 function App(){
     
@@ -36,17 +37,18 @@ function App(){
                 <Route path="/esqueciMinhaSenha" element={<EsqueciSenha />} />
                 <Route path="/esqueciMinhaSenha/usuario" element={<EsqueciSenhaUsuario />} />
                 <Route path="/esqueciMinhaSenha/resetaSenha" element={<ResetaSenha />} />
-                <Route path="/usuarios/detalhesUsuario" element={<UserDetails />} />
-                <Route path="/usuarios/detalhesUsuario/alterarSenha" element={<AlterarSenha />} />
-                <Route path="/usuarios/detalhesUsuario/alterarPerguntaSeguranca" element={<AlterarPerguntaSeg />} />
-                <Route path="/familia/entrevista" element={<Entrevista />} />
-                <Route path="/familia/entrevista/facilities" element={<Facilities />} />
-                <Route path="/familia/entrevista/estrutural" element={<Estrutural />} />
-                <Route path="/familia/dadosFamilia/dadosFacilities" element={<DadosFacilities />} />
-                <Route path="/familia/dadosFamilia/dadosEstrutural" element={<DadosEstrutural />} />
-                <Route path="/familia/dadosFamilia/arquivos" element={<Arquivos />} />
-                <Route path="/familia/dadosFamilia/arquivos/imagens" element={<Imagens />} />
-                <Route path="/familia/dadosFamilia/arquivos/arquivosGerais" element={<ArquivosGerais />} />
+                <Route path="/usuarios/detalhesUsuario" element={<Protected pageToReturn="/"><UserDetails /> </Protected>} />
+                <Route path="/usuarios/detalhesUsuario/alterarSenha" element={<Protected pageToReturn="/"> <AlterarSenha /> </Protected>} />
+                <Route path="/usuarios/detalhesUsuario/alterarPerguntaSeguranca" element={<Protected pageToReturn="/"> <AlterarPerguntaSeg /> </Protected>} />
+                <Route path="/familia/entrevista" element={<Protected pageToReturn="/"> <Entrevista /> </Protected>} />
+                <Route path="/familia/entrevista/facilities" element={<Protected pageToReturn="/"> <Facilities /> </Protected>} />
+                <Route path="/familia/entrevista/estrutural" element={<Protected pageToReturn="/">  <Estrutural /> </Protected>} />
+                <Route path="/familia/dadosFamilia/dadosFacilities" element={<Protected pageToReturn="/"> <DadosFacilities /> </Protected>} />
+                <Route path="/familia/dadosFamilia/dadosEstrutural" element={<Protected pageToReturn="/"> <DadosEstrutural /> </Protected>} />
+                <Route path="/familia/dadosFamilia/arquivos" element={<Protected pageToReturn="/"> <Arquivos /> </Protected>} />
+                <Route path="/familia/dadosFamilia/arquivos/imagens" element={<Protected pageToReturn="/"> <Imagens /> </Protected>} />
+                <Route path="/familia/dadosFamilia/arquivos/arquivosGerais" element={<Protected pageToReturn="/"> <ArquivosGerais /> </Protected>} />
+                <Route path="/primeiroUsuario" element={<PrimeiroUsuarioAdmin />} />
             </Routes>
         </Router>
     );

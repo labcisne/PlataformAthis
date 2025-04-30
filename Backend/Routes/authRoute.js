@@ -5,6 +5,8 @@ const router = express.Router();
 
 router.get('/protected', authController.verificaLogin);
 
+router.route('/criarPrimeiroUsuario').post(authController.criarUsuario);
+
 router.route('/criarUsuario').post(authController.verificaAcesso, authController.verificaTipoUsuario("Administrador"), authController.criarUsuario)
                              
 router.route('/usuarios').get(authController.verificaAcesso, authController.verificaTipoUsuario("Administrador"), authController.getUsuarios);
@@ -15,7 +17,9 @@ router.route('/usuarios/:id')
 
 router.route('/usuariosParaAssociar').get(authController.verificaAcesso, authController.verificaTipoUsuario("Administrador", "Entrevistador"), authController.getUsuariosParaAssociar);
 
-router.route('/').post(authController.login);
+router.route('/')
+    .get(authController.primeiroAcesso)
+    .post(authController.login);
 
 router.route('/esqueciMinhaSenha').post(authController.achaUsuario);
 router.route('/esqueciMinhaSenha/usuario/:id').get(authController.getPerguntaSeguranca);

@@ -28,6 +28,17 @@ exports.criarUsuario = asyncErrorHandler(async (req, res, next) => {
 });
 
 
+exports.primeiroAcesso = asyncErrorHandler(async (req, res, next) => {
+
+    const users = await User.find();
+
+    res.status(200).json({
+        status: "success",
+        length: users.length
+    });
+
+});
+
 exports.login = asyncErrorHandler(async (req, res, next) => {
 
     if(!req.body.login || !req.body.senha){

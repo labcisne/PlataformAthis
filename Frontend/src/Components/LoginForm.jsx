@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -9,6 +9,19 @@ function LoginForm(){
     const [login, setLogin] = useState("");
     const [senha, setSenha] = useState("");
     const navigate = useNavigate();
+
+
+    useEffect(() => {
+        axios.get("http://localhost:3000", {withCredentials: true})
+        .then((response) => {
+            if(response.data.length === 0){
+                navigate("/primeiroUsuario", { replace: true });
+            }
+        })
+        .catch((error)=> {
+            console.log(error);
+        });
+    }, []);
 
     const handleSubmit = (event) => {
         event.preventDefault();

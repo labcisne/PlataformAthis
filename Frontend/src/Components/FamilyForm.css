@@ -32,7 +32,7 @@ label {
   
 .familyFormContainer {
     display: grid;
-    grid-template-columns: repeat(4, minmax(90px, 1fr));
+    grid-template-columns: repeat(2, minmax(100px, 1fr));
     column-gap: 4px;
 }
   

@@ -80,7 +80,7 @@ userSchema.pre('save', async function(next){
         this.senha = await bcrypt.hash(this.senha, 12);
         this.confirmarSenha = undefined;
     }
-    else if(this.isModified('respostaSeguranca')){
+    if(this.isModified('respostaSeguranca')){
         this.respostaSeguranca = await bcrypt.hash(this.respostaSeguranca, 12);
     }
     next();
