@@ -1,0 +1,211 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  Administrador
+  Entrevistador
+  Morador
+  LiderComunitario @map("Lider Comunitario")
+}
+
+enum SecurityQuestion {
+  ANIMAL_DE_ESTIMACAO @map("Qual é o nome do seu animal de estimação?")
+  COMIDA_FAVORITA @map("Qual é a sua comida favorita?")
+  ESPORTE_FAVORITO @map("Qual é o seu esporte favorito?")
+}
+
+model User {
+  id                    String              @id @default(uuid()) @db.Uuid
+  login                 String              @unique
+  senha                 String
+  tipoUsuario           UserType
+  nome                  String
+  email                 String?
+  dataCadastro          DateTime            @default(now())
+  tokenResetSenha       String?
+  tokenResetSenhaExpira DateTime?
+  senhaAlteradaEm       DateTime?
+  ultimaModificacao     DateTime?
+  perguntaSeguranca     SecurityQuestion
+  respostaSeguranca     String
+  memberships           FamilyMembership[]
+
+  @@map("users")
+}
+
+model Family {
+  id             String               @id @default(uuid()) @db.Uuid
+  dadosPessoais   FamilyDadosPessoais?
+  localizacao    FamilyLocalizacao?
+  socioeconomica FamilySocioeconomica?
+  estrutural     FamilyEstrutural?
+  imagens        FamilyImage[]
+  arquivos       FamilyFile[]
+  memberships    FamilyMembership[]
+
+  @@map("families")
+}
+
+model FamilyMembership {
+  id       String @id @default(uuid()) @db.Uuid
+  userId   String @db.Uuid
+  familyId String @db.Uuid
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, familyId])
+  @@index([userId])
+  @@index([familyId])
+  @@map("family_memberships")
+}
+
+model FamilyDadosPessoais {
+  familyId            String @id @db.Uuid
+  family              Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  nomeMorador        String
+  documentoResponsavel String?
+  opcaoSelecionada   String?
+  endereco           String?
+  numeroCasa         String?
+  cidade             String?
+  regiao             String?
+  telefone           String?
+  donoTelefone       String?
+
+  @@map("family_dados_pessoais")
+}
+
+model FamilyLocalizacao {
+  familyId  String  @id @db.Uuid
+  family    Family  @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  latitude  Float?
+  longitude Float?
+
+  @@map("family_localizacao")
+}
+
+model FamilySocioeconomica {
+  familyId                              String   @id @db.Uuid
+  family                                Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  tipoLevantamento                      String?
+  numMoradores                          Float?
+  idadeResidentes                       String?
+  adultosEmpregados                     String?
+  rendaMensalTotal                      Float?
+  mulherChefeFamilia                    String?
+  idosoChefeFamilia                     String?
+  numCriancas                           Float?
+  autoDeclaracaoFamilia                 String?
+  cadastradaBolsaFamilia                String?
+  comorbidadeNaFamilia                  String?
+  apresentaDoencaRespiratoria          String?
+  formaAquisicaoImovel                  String?
+  anoDeConstrucaoTempoResidindo         String?
+  possuiOutroImovel                    String?
+  resideNoImovelLevantado              String?
+  qualValorAluguel                     Float?
+  relacaoAluguelRenda                  String?
+  imovelTeveAcaoAnterior               String?
+  boaVivenciaVizinhos                  String?
+  participaReuniaoAcaoComunidade       String?
+  utilizaBancoComunitario              String?
+  indicacaoDeProfissionais             String?
+  pontoProximoEntrega                  String?
+  recebeBoletoAguaEnergia              String?
+  possuiReservatorioAgua               String?
+  estadoReservatorioAgua               String?
+  espacoParaHortasCanteiro             String?
+  possuiBanheiro                       String?
+  possuiCozinha                        String?
+  dataPrimeiraVisita                   DateTime?
+  nomeResponsavelFormulario            String?
+  nomeResponsavelFotografico           String?
+  nomeResponsavelArquitetonico         String?
+  nomeAgenteComunitario                String?
+  outrosProfissionaisEnvolvidos        String?
+  demandaDaFamilia                     String?
+  descricaoPendencias                  String?
+
+  @@map("family_socioeconomica")
+}
+
+model FamilyEstrutural {
+  familyId                                       String  @id @db.Uuid
+  family                                         Family  @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  problemasInsalubridade                         String?
+  necessitaReparosEstrutural                    String?
+  resolveProblemaNoProprioTerreno               String?
+  edificacaoEmAreaDeRisco                       String?
+  numQuartos                                    Float?
+  coabitacao                                    String?
+  insercaoLote                                  Float?
+  fundacoes                                     Float?
+  estrutura                                     Float?
+  paredes                                       Float?
+  cobertura                                     Float?
+  esquadrias                                    Float?
+  hidrossanitario                               Float?
+  eletrico                                      Float?
+  banheiros                                     Float?
+  cozinhaAreaDeServico                          Float?
+  conforto                                      Float?
+  avaliacaoResidencia                            String?
+  acompanhamentoPsicossocial                    String?
+  circulacaoInternaSegura                       String?
+  avaliacaoInfraestruturaUrbana                 Float?
+  avaliacaoAcessibilidadeTransporteLazerSaneamento String?
+  opiniaoGeralDaCasa                            Float?
+  diagnosticoPreliminar                         String?
+  situacaoPositiva                              String?
+  observacoesGerais                             String?
+
+  @@map("family_estrutural")
+}
+
+model FamilyImage {
+  id        String @id @default(uuid()) @db.Uuid
+  familyId  String @db.Uuid
+  family    Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  caminho   String
+  descricao String?
+
+  @@index([familyId])
+  @@map("family_images")
+}
+
+model FamilyFile {
+  id        String @id @default(uuid()) @db.Uuid
+  familyId  String @db.Uuid
+  family    Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  caminho   String
+  descricao String?
+
+  @@index([familyId])
+  @@map("family_files")
+}
+
+model OptionGroup {
+  id     String         @id @default(uuid()) @db.Uuid
+  nome   String         @unique
+  opcoes OptionValue[]
+
+  @@map("option_groups")
+}
+
+model OptionValue {
+  id            String      @id @default(uuid()) @db.Uuid
+  optionGroupId String      @db.Uuid
+  optionGroup   OptionGroup @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
+  valor         String
+  ordem         Int         @default(0)
+
+  @@unique([optionGroupId, valor])
+  @@index([optionGroupId])
+  @@map("option_values")
+}
