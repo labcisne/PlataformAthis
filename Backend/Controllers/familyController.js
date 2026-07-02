@@ -87,11 +87,15 @@ exports.listarFamilias = asyncErrorHandler(async (req, res, next) => {
         //verificando qual o tipo de usuário e listando as familias
         if(req.user.tipoUsuario === 'Administrador'){
             //retorna todas as familias
-            familias = await Family.find();
+            familias = await prisma.family.findMany();
         }
         else{
             //retorna as familias associadas a ele
-            familias = await Family.find({_id: {$in: req.user.familiasAssociadas}});
+            familias = await prisma.family.findMany({
+                where: {
+                    id: { in: req.user.familiasAssociadas }
+                }
+            });
         }
     }
 

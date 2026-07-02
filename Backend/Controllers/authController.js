@@ -30,8 +30,8 @@ exports.criarUsuario = asyncErrorHandler(async (req, res, next) => {
 
 exports.primeiroAcesso = asyncErrorHandler(async (req, res, next) => {
 
-    const users = await User.find();
-
+    const users = await prisma.user.findMany();
+    
     res.status(200).json({
         status: "success",
         length: users.length
@@ -45,7 +45,11 @@ exports.login = asyncErrorHandler(async (req, res, next) => {
         throw new CustomError('Entre com as credenciais do usuário!', 400);
     }
 
-    const user = await User.findOne({login: req.body.login}).select('+senha');
+    const user = await prisma.user.findUnique({
+        where: {
+            login: req.body.login,
+        },
+    });
 
     if(!user || !(await user.verificaSenha(req.body.senha, user.senha))){
         throw new CustomError('Login ou senha incorreto!', 401);
@@ -80,7 +84,11 @@ exports.verificaLogin = asyncErrorHandler(async (req, res, next) => {
     const decodedToken = await util.promisify(jwt.verify)(token, process.env.SECRET_STR);
 
     //verifica se o usuário existe no banco de dados
-    const user = await User.findById(decodedToken.id);
+    const user = await prisma.user.findUnique({
+        where: {
+            id: decodedToken.id,
+        },
+    });
 
     if(!user){
         throw new CustomError('Usuário não existe!', 401);
@@ -112,7 +120,11 @@ exports.verificaAcesso = asyncErrorHandler(async (req, res, next) => {
     const decodedToken = await util.promisify(jwt.verify)(token, process.env.SECRET_STR);
 
     //verifica se o usuário existe no banco de dados
-    const user = await User.findById(decodedToken.id);
+    const user = await prisma.user.findUnique({
+        where: {
+            id: decodedToken.id,
+        },
+    });
 
     if(!user){
         throw new CustomError('Usuário não existe!', 401);
@@ -144,7 +156,11 @@ exports.verificaTipoUsuario = (...userType) => {
 
 exports.achaUsuario = asyncErrorHandler(async (req, res, next) => {
 
-    const user = await User.findOne(req.body);
+    const user = await prisma.user.findUnique({
+        where: {
+            login: req.body.login,
+        },
+    });
 
     if(!user){
         throw new CustomError('Usuário não existe!', 404);
@@ -159,7 +175,14 @@ exports.achaUsuario = asyncErrorHandler(async (req, res, next) => {
 
 exports.getPerguntaSeguranca = asyncErrorHandler(async (req, res, next) => {
 
-    const user = await User.findById(req.params.id).select('+perguntaSeguranca');
+    const user = await prisma.user.findUnique({
+        where: {
+            id: req.params.id
+        },
+        select: {
+            perguntaSeguranca: true
+        }
+    });
 
     res.status(200).json({
         status: 'success',
@@ -170,7 +193,14 @@ exports.getPerguntaSeguranca = asyncErrorHandler(async (req, res, next) => {
 
 exports.esqueciMinhaSenha = asyncErrorHandler (async (req, res, next) => {
 
-    const user = await User.findById(req.params.id).select('+respostaSeguranca');
+    const user = await prisma.user.findUnique({
+        where: {
+            id: req.params.id
+        },
+        select: {
+            respostaSeguranca: true
+        }
+    });
 
     if(!(await user.verificaSenha(req.body.respostaSeguranca, user.respostaSeguranca))){
         throw new CustomError('Resposta de segurança incorreta', 400);
@@ -190,9 +220,11 @@ exports.esqueciMinhaSenha = asyncErrorHandler (async (req, res, next) => {
 exports.resetaSenha = asyncErrorHandler(async (req, res, next) => {
 
     const token = crypto.createHash('sha256').update(req.params.resetToken).digest('hex');
-    const user = await User.findOne({
-        tokenResetSenha: token,
-        tokenResetSenhaExpira: {$gt: Date.now()}
+    const user = await prisma.user.findUnique({
+        where: {
+            tokenResetSenha: token,
+            tokenResetSenhaExpira: { $gt: Date.now() }
+        }
     });
 
     if(!user){
@@ -220,7 +252,11 @@ exports.alterarSenha = asyncErrorHandler(async (req, res, next) => {
 
     if(req.body.id){
 
-        user = await User.findById(req.body.id).select('+senha');
+        user = await prisma.user.findUnique({
+            where: {
+                id: req.body.id
+            }
+        });
 
         user.senha = req.body.novaSenha;
         user.confirmarSenha = req.body.confirmarNovaSenha;
@@ -229,7 +265,11 @@ exports.alterarSenha = asyncErrorHandler(async (req, res, next) => {
     }
     else{
 
-        user = await User.findById(req.user._id).select('+senha');
+        user = await prisma.user.findUnique({
+            where: {
+                id: req.user._id
+            }
+        });
         const senhaAtual = req.body.senhaAtual;
     
         if(!senhaAtual || !(await user.verificaSenha(senhaAtual, user.senha))){
@@ -254,11 +294,20 @@ exports.alterarDadosPessoais = asyncErrorHandler (async (req, res, next) => {
     let updatedUser;
 
     if(req.body.id){
-        updatedUser = await User.findByIdAndUpdate(req.body.id, req.body.obj, {new: true, runValidators: true});
-
+        updatedUser = await prisma.user.update({
+            where: {
+                id: req.body.id
+            },
+            data: req.body
+        });
     }
     else{ //Possivelmente ajeitar esse código abaixo por conta do req.body
-        updatedUser = await User.findByIdAndUpdate(req.user._id, req.body, {new: true, runValidators: true});
+        updatedUser = await prisma.user.update({
+            where: {
+                id: req.user._id
+            },
+            data: req.body
+        });
     }
 
     if(!updatedUser){
@@ -277,7 +326,11 @@ exports.alterarDadosPessoais = asyncErrorHandler (async (req, res, next) => {
 
 exports.getUsuarios = asyncErrorHandler(async (req, res, next) => {
 
-    const users = await User.find({ _id: { $ne: req.user._id } });
+    const users = await prisma.user.findMany({
+        where: {
+            id: { not: req.user._id }
+        }
+    });
 
     if(!users){
         throw new CustomError('Usuarios não encontrados', 404);
@@ -292,9 +345,11 @@ exports.getUsuarios = asyncErrorHandler(async (req, res, next) => {
 
 exports.getUsuariosParaAssociar = asyncErrorHandler(async (req, res, next) => {
 
-    const users = await User.find({
-        tipoUsuario: { $in: ["Entrevistador", "Lider Comunitario"] },
-        familiasAssociadas: { $ne: req.query.familiaId },
+    const users = await prisma.user.findMany({
+        where: {
+            tipoUsuario: { in: ["Entrevistador", "Lider Comunitario"] },
+            familiasAssociadas: { not: req.query.familiaId }
+        }
     });
     
     if(!users){
@@ -309,7 +364,11 @@ exports.getUsuariosParaAssociar = asyncErrorHandler(async (req, res, next) => {
 
 exports.getUsuario = asyncErrorHandler(async (req, res, next) => {
 
-    const user = await User.findById(req.params.id).select("+perguntaSeguranca +dataCadastro");
+    const user = await prisma.user.findUnique({
+        where: {
+            id: req.params.id
+        }
+    });
 
     if(!user){
         throw new CustomError('Usuario não encontrado', 404);
@@ -324,13 +383,21 @@ exports.getUsuario = asyncErrorHandler(async (req, res, next) => {
 
 exports.deletaUsuario = asyncErrorHandler(async(req, res, next) => {
 
-    const userToDelete = await User.findById(req.params.id);
+    const userToDelete = await prisma.user.findUnique({
+        where: {
+            id: req.params.id
+        }
+    });
 
     if(!userToDelete){
         throw new CustomError('Usuario não encontrado', 404);
     }
 
-    const families = await Family.find({_id: { $in: userToDelete.familiasAssociadas }});
+    const families = await prisma.family.findMany({
+        where: {
+            id: { in: userToDelete.familiasAssociadas }
+        }
+    });
     if(families){
         families.forEach(async (family) => {
             const idx = family.usuariosAssociados.indexOf(req.params.id);
@@ -339,7 +406,11 @@ exports.deletaUsuario = asyncErrorHandler(async(req, res, next) => {
         })
     }
 
-    await User.findByIdAndDelete(req.params.id);
+    await prisma.user.delete({
+        where: {
+            id: req.params.id
+        }
+    });
 
     res.status(200).json({
         status: 'success',
@@ -356,16 +427,27 @@ exports.alteraPerguntaSeguranca = asyncErrorHandler(async (req, res, next) => {
     const respostaSegurancaAtual = req.body.respostaSegurancaAtual;
 
     if(req.body.id){
-        user = await User.findById(req.body.id).select('+perguntaSeguranca +respostaSeguranca');
-
-        user.perguntaSeguranca = novaPerguntaSeguranca;
-        user.respostaSeguranca = novaRespostaSeguranca;
-
-        await user.save({validateModifiedOnly: true});
+        user = await prisma.user.update({
+            where: {
+                id: req.body.id
+            },
+            data: {
+                perguntaSeguranca: novaPerguntaSeguranca,
+                respostaSeguranca: novaRespostaSeguranca
+            }
+        });
     }
     else{
 
-        user = await User.findById(req.user._id).select('+perguntaSeguranca +respostaSeguranca');
+        user = await prisma.user.findUnique({
+            where: {
+                id: req.user._id
+            },
+            select: {
+                perguntaSeguranca: true,
+                respostaSeguranca: true
+            }
+        });
 
         if(!respostaSegurancaAtual || !(await user.verificaSenha(respostaSegurancaAtual, user.respostaSeguranca))){
             throw new CustomError('Resposta de seguraça atual incorreta!', 400);
