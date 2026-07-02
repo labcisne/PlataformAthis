@@ -69,9 +69,19 @@ exports.listarFamilias = asyncErrorHandler(async (req, res, next) => {
     let familias = [];
 
     if(req.query.user){
-        req.query.user.tipoUsuario === "Administrador" ? 
-        familias = await Family.find() :
-        familias = await Family.find({_id: {$in: req.query.user.familiasAssociadas}});
+        //a consulta agora sera em postgres
+        if(req.query.user.tipoUsuario === "Administrador"){
+            familias = await prisma.family.findMany();
+        }
+        else{
+            familias = await prisma.family.findMany({
+                where: {
+                    id: {
+                        in: req.query.user.familiasAssociadas
+                    }
+                }
+            });
+        }
     }
     else{
         //verificando qual o tipo de usuário e listando as familias
@@ -94,7 +104,12 @@ exports.listarFamilias = asyncErrorHandler(async (req, res, next) => {
 
 exports.getFamilia = asyncErrorHandler(async (req, res, next) => {
 
-    const familia = await Family.findById(req.params.id);
+    //const familia = await Family.findById(req.params.id);   
+    const familia = await prisma.family.findUnique({
+        where: {
+            id: req.params.id
+        }
+    });
 
     if(!familia){
         throw new CustomError('Familia não existe!', 404);
@@ -110,7 +125,11 @@ exports.getFamilia = asyncErrorHandler(async (req, res, next) => {
 exports.associaFamilia = asyncErrorHandler(async(req, res, next) => {
 
     const user = await User.findById(req.body.userId);
-    const familia = await Family.findById(req.params.id);
+    const familia = await prisma.family.findUnique({
+        where: {
+            id: req.params.id
+        }
+    });
 
     if(!user){
         throw new CustomError('Usuário não existe!', 404);
@@ -137,12 +156,26 @@ exports.deletaFamilia = asyncErrorHandler(async (req, res, next) => {
         throw new CustomError('Você não tem permissão para essa ação!', 400);
     }
 
-    const familia = await Family.findById(req.params.id);
-    const users = await User.find({_id : {$in: familia.usuariosAssociados}});
-    
+    const familia = await prisma.family.findUnique({
+        where: {
+            id: req.params.id
+        }
+    });
+    const users = await prisma.user.findMany({
+        where: {
+            id: {
+                in: familia.usuariosAssociados
+            }
+        }
+    });
+
     users.forEach(async (user) => {
         if(user.tipoUsuario === "Morador"){
-            await User.findByIdAndDelete(user._id);
+            await prisma.user.delete({
+                where: {
+                    id: user._id
+                }
+            });
         }
         else{
             const idx = user.familiasAssociadas.indexOf(req.params.id);
@@ -151,7 +184,11 @@ exports.deletaFamilia = asyncErrorHandler(async (req, res, next) => {
         }
     });
 
-    await Family.findByIdAndDelete(req.params.id);
+    await prisma.family.delete({
+        where: {
+            id: req.params.id
+        }
+    });
 
     res.status(200).json({
         status: 'success',
@@ -163,8 +200,12 @@ exports.deletaFamilia = asyncErrorHandler(async (req, res, next) => {
 exports.getUsuariosAssociados = asyncErrorHandler(async (req, res, next) => {
 
 
-    const users = await User.find({
-        _id: { $in: req.query.usuariosAssociadosId},
+    const users = await prisma.user.findMany({
+        where: {
+            id: {
+                in: req.query.usuariosAssociadosId
+            }
+        }
     });
 
     if(!users) {
@@ -184,10 +225,14 @@ exports.editaFamilia = asyncErrorHandler(async (req, res, next) => {
         throw new CustomError('Você não tem permissão para essa ação!', 400);
     }
 
-    const newFamily = await Family.findByIdAndUpdate(req.params.id, {"dadosFamilia": req.body.familiaEditada}, {
-        runValidators: true,
-        new: true
-    })
+    const newFamily = await prisma.family.update({
+        where: {
+            id: req.params.id
+        },
+        data: {
+            dadosFamilia: req.body.familiaEditada
+        }
+    });
 
     if(!newFamily) {
         throw new CustomError("Não foi possível editar os dados");
@@ -206,14 +251,24 @@ exports.enviaFormularioFacilities = asyncErrorHandler(async (req, res, next) => 
         throw new CustomError('Id da família não enviado!', 400);
     }
 
-    const familia = await Family.findById(req.body.id);
+    const familia = await prisma.family.findUnique({
+        where: {
+            id: req.body.id
+        }
+    });
 
     if(!familia){
         throw new CustomError('Família não encontrada!', 404);
     }
 
-    familia.tabelaSocioeconomica = req.body.obj;
-    await familia.save({validadeBeforeSave:false});
+    await prisma.family.update({
+        where: {
+            id: req.body.id
+        },
+        data: {
+            tabelaSocioeconomica: req.body.obj
+        }
+    });
 
     res.status(200).json({
         status: 'success',
@@ -228,14 +283,24 @@ exports.enviaFormularioEstrutural = asyncErrorHandler(async (req, res, next) => 
         throw new CustomError('Id da família não enviado!', 400);
     }
     
-    const familia = await Family.findById(req.body.id);
+    const familia = await prisma.family.findUnique({
+        where: {
+            id: req.body.id
+        }
+    });
 
     if(!familia){
         throw new CustomError('Família não encontrada!', 404);
     }
 
-    familia.tabelaEstrutural = req.body.obj;
-    await familia.save({validadeBeforeSave:false});
+    await prisma.family.update({
+        where: {
+            id: req.body.id
+        },
+        data: {
+            tabelaEstrutural: req.body.obj
+        }
+    });
 
     res.status(200).json({
         status: 'success',
@@ -263,13 +328,25 @@ exports.insereNovaImagem = asyncErrorHandler(async (req, res, next) => {
     const descricao = req.body.descricao;
     const imagePath = `/imagens/${req.file.filename}`;
 
-    const family = await Family.findById(familyId);
+    const family = await prisma.family.findUnique({
+        where: {
+            id: familyId
+        }
+    });
     if(!family){
         throw new CustomError('Família não encontrada!', 404);
     }
-    
-    family.imagens.push({caminho: imagePath, descricao});
-    await family.save();
+
+    await prisma.family.update({
+        where: {
+            id: familyId
+        },
+        data: {
+            imagens: {
+                push: { caminho: imagePath, descricao }
+            }
+        }
+    });
 
     res.status(200).json({
         status: 'success',
@@ -282,14 +359,25 @@ exports.deletaImagem = asyncErrorHandler(async (req, res, next) => {
     const familyId = req.params.id;
     const caminhoArquivo = req.body.caminhoArquivo;
 
-    const family = await Family.findById(familyId);
+    const family = await prisma.family.findUnique({
+        where: {
+            id: familyId
+        }
+    });
     if(!family){
         throw new CustomError('Família não encontrada!', 404);
     }
 
     const idx = family.imagens.findIndex(imagem => imagem.caminho === caminhoArquivo);
     family.imagens.splice(idx, 1);
-    await family.save();
+    await prisma.family.update({
+        where: {
+            id: familyId
+        },
+        data: {
+            imagens: family.imagens
+        }
+    });
 
     fs.rm(`.${caminhoArquivo}`, (error) => {
         if(error){
@@ -309,14 +397,25 @@ exports.editaDescricaoImagem = asyncErrorHandler(async (req, res, next) => {
     const caminhoArquivo = req.body.caminhoArquivo;
     const novaDescricao = req.body.novaDescricao;
 
-    const family = await Family.findById(familyId);
+    const family = await prisma.family.findUnique({
+        where: {
+            id: familyId
+        }
+    });
     if(!family){
         throw new CustomError('Família não encontrada!', 404);
     }
 
     const idx = family.imagens.findIndex(imagem => imagem.caminho === caminhoArquivo);
     family.imagens[idx].descricao = novaDescricao;
-    await family.save();
+    await prisma.family.update({
+        where: {
+            id: familyId
+        },
+        data: {
+            imagens: family.imagens
+        }
+    });
 
     res.status(200).json({
         status: 'success',
@@ -344,13 +443,25 @@ exports.insereNovoArquivo = asyncErrorHandler(async (req, res, next) => {
     const descricao = req.body.descricao;
     const arquivoPath = `/arquivos/${req.file.filename}`
 
-    const family = await Family.findById(familyId);
+    const family = await prisma.family.findUnique({
+        where: {
+            id: familyId
+        }
+    });
     if(!family){
         throw new CustomError("Família não encontrada!", 404);
     }
 
-    family.arquivos.push({caminho: arquivoPath, descricao});
-    await family.save();
+    await prisma.family.update({
+        where: {
+            id: familyId
+        },
+        data: {
+            arquivos: {
+                push: { caminho: arquivoPath, descricao }
+            }
+        }
+    });
 
     res.status(200).json({
         status: 'success',
@@ -363,14 +474,25 @@ exports.deletaArquivo = asyncErrorHandler(async (req, res, next) => {
     const familyId = req.params.id;
     const caminhoArquivo = req.body.caminhoArquivo;
 
-    const family = await Family.findById(familyId);
+    const family = await prisma.family.findUnique({
+        where: {
+            id: familyId
+        }
+    });
     if(!family){
         throw new CustomError('Família não encontrada!', 404);
     }
 
     const idx = family.arquivos.findIndex(arquivo => arquivo.caminho === caminhoArquivo);
     family.arquivos.splice(idx, 1);
-    await family.save();
+    await prisma.family.update({
+        where: {
+            id: familyId
+        },
+        data: {
+            arquivos: family.arquivos
+        }
+    });
 
     fs.rm(`.${caminhoArquivo}`, (error) => {
         if(error){
@@ -390,14 +512,25 @@ exports.editaDescricaoArquivo = asyncErrorHandler(async (req, res, next) => {
     const caminhoArquivo = req.body.caminhoArquivo;
     const novaDescricao = req.body.novaDescricao;
 
-    const family = await Family.findById(familyId);
+    const family = await prisma.family.findUnique({
+        where: {
+            id: familyId
+        }
+    });
     if(!family){
         throw new CustomError('Família não encontrada!', 404);
     }
 
     const idx = family.arquivos.findIndex(arquivo => arquivo.caminho === caminhoArquivo);
     family.arquivos[idx].descricao = novaDescricao;
-    await family.save();
+    await prisma.family.update({
+        where: {
+            id: familyId
+        },
+        data: {
+            arquivos: family.arquivos
+        }
+    });
 
     res.status(200).json({
         status: 'success',
