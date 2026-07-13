@@ -1,318 +1,373 @@
-const Family = require("../Models/familyModel");
-const User = require("../Models/userModel");
+const prisma = require("../Utils/prisma");
 const asyncErrorHandler = require('../Utils/asyncErrorHandler');
 const CustomError = require('../Utils/customError');
 const multer = require('multer');
 const path = require('node:path');
 const fs = require('node:fs');
 
-
-const criaNovoMorador = (dadosFamilia, id) => {
-
-    //geração de login
-    const nomeMorador = dadosFamilia.nomeMorador.split(' ')[0].toLowerCase();
-    const documento = dadosFamilia.documentoResponsavel.slice(-4);
-    const login = `${nomeMorador}${documento}`;
-
-    //geração da senha
-    const numAleatorio = Math.random().toString(36).slice(-4);
-    const senha = `${nomeMorador}${numAleatorio}`;
-
-    const obj = {
-        login,
-        senha,
-        confirmarSenha: senha,
-        tipoUsuario: 'Morador',
-        nome: dadosFamilia.nomeMorador,
-        familiasAssociadas: [id],
-        perguntaSeguranca: "Qual é o nome do seu animal de estimação?",
-        respostaSeguranca: "gato"
-    }
-    
-    return obj;
-}
+const { hashSenha, hashRespostaSeguranca } = require("../Utils/userHelpers");
+const { formatFamily } = require("../Utils/mapper");
 
 exports.criaFamilia = asyncErrorHandler(async (req, res, next) => {
+    const dadosPessoais = req.body.dadosPessoais;
+    const localizacao = req.body.localizacao;
 
-    const newFamily = await Family.create({
-        dadosFamilia: req.body.dadosPessoais,
-        localizacaoFamilia: req.body.localizacao
-    });
-
-    //cria um usuário para o morador
-    const novoMorador = criaNovoMorador(req.body.dadosPessoais, newFamily._id);
-    const morador = await User.create(novoMorador);
-
-    //salvando o id da familia no entrevistador que criou ela
-    if(req.user.tipoUsuario === 'Entrevistador'){
-        req.user.familiasAssociadas.push(newFamily._id);
-        await req.user.save({validateBeforeSave: false});
-        newFamily.usuariosAssociados.push(req.user._id);
+    if (!dadosPessoais || !dadosPessoais.nomeMorador) {
+        throw new CustomError('Nome do morador é um campo obrigatório!', 400);
     }
 
-    newFamily.usuariosAssociados.push(morador._id);
-    await newFamily.save({validateBeforeSave:false});
+    // Usando transação do Prisma para garantir que todas as inserções ocorram atomicamente
+    const { family } = await prisma.$transaction(async (tx) => {
+        // 1. Cria a família com os dados pessoais e localização iniciais
+        const newFamily = await tx.family.create({
+            data: {
+                dadosPessoais: {
+                    create: {
+                        nomeMorador: dadosPessoais.nomeMorador,
+                        documentoResponsavel: dadosPessoais.documentoResponsavel || null,
+                        opcaoSelecionada: dadosPessoais.opcaoSelecionada || null,
+                        endereco: dadosPessoais.endereco || null,
+                        numeroCasa: dadosPessoais.numeroCasa || null,
+                        cidade: dadosPessoais.cidade || null,
+                        regiao: dadosPessoais.regiao || null,
+                        telefone: dadosPessoais.telefone || null,
+                        donoTelefone: dadosPessoais.donoTelefone || null
+                    }
+                },
+                localizacao: {
+                    create: {
+                        latitude: localizacao?.latitude || null,
+                        longitude: localizacao?.longitude || null
+                    }
+                }
+            }
+        });
+
+        // 2. Se o criador for Entrevistador, associa ele à família
+        if (req.user.tipoUsuario === 'Entrevistador') {
+            await tx.familyMembership.create({
+                data: {
+                    userId: req.user._id,
+                    familyId: newFamily.id
+                }
+            });
+        }
+
+        return { family: newFamily };
+    });
 
     res.status(201).json({
         status: 'success',
         data: {
-            newFamily: newFamily.dadosFamilia,
-            loginUsuario: novoMorador.login,
-            senhaUsuario: novoMorador.senha
+            newFamily: dadosPessoais
         }
     });
 });
 
-
 exports.listarFamilias = asyncErrorHandler(async (req, res, next) => {
+    let queryUser = req.user;
 
-    let familias = [];
-
-    if(req.query.user){
-        //a consulta agora sera em postgres
-        if(req.query.user.tipoUsuario === "Administrador"){
-            familias = await prisma.family.findMany();
-        }
-        else{
-            familias = await prisma.family.findMany({
-                where: {
-                    id: {
-                        in: req.query.user.familiasAssociadas
-                    }
-                }
-            });
+    if (req.query.user) {
+        try {
+            queryUser = typeof req.query.user === 'string' ? JSON.parse(req.query.user) : req.query.user;
+        } catch (e) {
+            queryUser = req.user;
         }
     }
-    else{
-        //verificando qual o tipo de usuário e listando as familias
-        if(req.user.tipoUsuario === 'Administrador'){
-            //retorna todas as familias
-            familias = await prisma.family.findMany();
-        }
-        else{
-            //retorna as familias associadas a ele
-            familias = await prisma.family.findMany({
-                where: {
-                    id: { in: req.user.familiasAssociadas }
+
+    let familiesList = [];
+
+    if (queryUser.tipoUsuario === 'Administrador') {
+        familiesList = await prisma.family.findMany({
+            include: {
+                dadosPessoais: true,
+                localizacao: true,
+                socioeconomica: true,
+                estrutural: true,
+                imagens: true,
+                arquivos: true,
+                memberships: true
+            }
+        });
+    } else {
+        const userId = queryUser._id || queryUser.id;
+        familiesList = await prisma.family.findMany({
+            where: {
+                memberships: {
+                    some: {
+                        userId: userId
+                    }
                 }
-            });
-        }
+            },
+            include: {
+                dadosPessoais: true,
+                localizacao: true,
+                socioeconomica: true,
+                estrutural: true,
+                imagens: true,
+                arquivos: true,
+                memberships: true
+            }
+        });
     }
 
     res.status(200).json({
         status: 'success',
-        length: familias.length,
-        familias
+        length: familiesList.length,
+        familias: familiesList.map(family => formatFamily(family))
     });
 });
 
 exports.getFamilia = asyncErrorHandler(async (req, res, next) => {
-
-    //const familia = await Family.findById(req.params.id);   
-    const familia = await prisma.family.findUnique({
-        where: {
-            id: req.params.id
+    const family = await prisma.family.findUnique({
+        where: { id: req.params.id },
+        include: {
+            dadosPessoais: true,
+            localizacao: true,
+            socioeconomica: true,
+            estrutural: true,
+            imagens: true,
+            arquivos: true,
+            memberships: true
         }
     });
 
-    if(!familia){
+    if (!family) {
         throw new CustomError('Familia não existe!', 404);
     }
 
     res.status(200).json({
         status: 'success',
-        familia
-    })
+        familia: formatFamily(family)
+    });
 });
 
-
-exports.associaFamilia = asyncErrorHandler(async(req, res, next) => {
-
-    const user = await User.findById(req.body.userId);
-    const familia = await prisma.family.findUnique({
-        where: {
-            id: req.params.id
-        }
+exports.associaFamilia = asyncErrorHandler(async (req, res, next) => {
+    const user = await prisma.user.findUnique({
+        where: { id: req.body.userId },
+        include: { memberships: true }
     });
 
-    if(!user){
+    const family = await prisma.family.findUnique({
+        where: { id: req.params.id }
+    });
+
+    if (!user) {
         throw new CustomError('Usuário não existe!', 404);
     }
+    if (!family) {
+        throw new CustomError('Família não existe!', 404);
+    }
 
-    if(user.familiasAssociadas.includes(req.params.id)){
+    const alreadyAssociated = user.memberships.some(m => m.familyId === req.params.id);
+    if (alreadyAssociated) {
         throw new CustomError('Usuário já está associado a essa familia!', 400);
     }
 
-    user.familiasAssociadas.push(req.params.id);
-    familia.usuariosAssociados.push(user._id);
-    await user.save({validateBeforeSave:false});
-    await familia.save({validateBeforeSave:false});
+    await prisma.familyMembership.create({
+        data: {
+            userId: req.body.userId,
+            familyId: req.params.id
+        }
+    });
 
     res.status(200).json({
         status: 'success',
-    })
+    });
 });
 
-
 exports.deletaFamilia = asyncErrorHandler(async (req, res, next) => {
-        
-    if(req.body.userRole !== "Administrador" && req.body.userRole !== "Entrevistador"){
+    if (req.body.userRole !== "Administrador" && req.body.userRole !== "Entrevistador") {
         throw new CustomError('Você não tem permissão para essa ação!', 400);
     }
 
-    const familia = await prisma.family.findUnique({
-        where: {
-            id: req.params.id
-        }
+    // Busca os membros para identificar e deletar o morador associado
+    const memberships = await prisma.familyMembership.findMany({
+        where: { familyId: req.params.id },
+        include: { user: true }
     });
-    const users = await prisma.user.findMany({
-        where: {
-            id: {
-                in: familia.usuariosAssociados
+
+    const moradorUserIds = memberships
+        .filter(m => m.user.tipoUsuario === 'Morador')
+        .map(m => m.userId);
+
+    await prisma.$transaction([
+        // Deleta os usuários que são "Moradores" vinculados à família
+        prisma.user.deleteMany({
+            where: {
+                id: { in: moradorUserIds }
             }
-        }
-    });
-
-    users.forEach(async (user) => {
-        if(user.tipoUsuario === "Morador"){
-            await prisma.user.delete({
-                where: {
-                    id: user._id
-                }
-            });
-        }
-        else{
-            const idx = user.familiasAssociadas.indexOf(req.params.id);
-            user.familiasAssociadas.splice(idx, 1);
-            await user.save({validateBeforeSave:false});
-        }
-    });
-
-    await prisma.family.delete({
-        where: {
-            id: req.params.id
-        }
-    });
+        }),
+        // Deleta a família. O cascateamento no banco limpa dadosPessoais, localizacao, arquivos, imagens, etc.
+        prisma.family.delete({
+            where: { id: req.params.id }
+        })
+    ]);
 
     res.status(200).json({
         status: 'success',
         message: 'familia deletada com sucesso'
-    })
+    });
 });
 
-
 exports.getUsuariosAssociados = asyncErrorHandler(async (req, res, next) => {
+    let ids = req.query.usuariosAssociadosId;
 
+    if (!ids) {
+        res.status(200).json({
+            status: "success",
+            users: []
+        });
+        return;
+    }
+
+    if (!Array.isArray(ids)) {
+        ids = [ids];
+    }
 
     const users = await prisma.user.findMany({
         where: {
-            id: {
-                in: req.query.usuariosAssociadosId
-            }
+            id: { in: ids }
+        },
+        include: {
+            memberships: true
         }
     });
 
-    if(!users) {
-        throw new CustomError("Nao tem usuarios associados");
-    }
-
     res.status(200).json({
         status: "success",
-        users
+        users: users.map(user => formatFamily(user) ? formatFamily(user) : user) // Adaptador genérico ou retorna objeto mapeado
     });
 });
 
-
 exports.editaFamilia = asyncErrorHandler(async (req, res, next) => {
-
-    if(req.query.userRole !== "Administrador" && req.query.userRole !== "Entrevistador"){
+    if (req.query.userRole !== "Administrador" && req.query.userRole !== "Entrevistador") {
         throw new CustomError('Você não tem permissão para essa ação!', 400);
     }
 
-    const newFamily = await prisma.family.update({
-        where: {
-            id: req.params.id
-        },
+    const { nomeMorador, documentoResponsavel, opcaoSelecionada, endereco, numeroCasa, cidade, regiao, telefone, donoTelefone } = req.body.familiaEditada;
+
+    const updatedDados = await prisma.familyDadosPessoais.update({
+        where: { familyId: req.params.id },
         data: {
-            dadosFamilia: req.body.familiaEditada
+            nomeMorador,
+            documentoResponsavel: documentoResponsavel || null,
+            opcaoSelecionada: opcaoSelecionada || null,
+            endereco: endereco || null,
+            numeroCasa: numeroCasa || null,
+            cidade: cidade || null,
+            regiao: regiao || null,
+            telefone: telefone || null,
+            donoTelefone: donoTelefone || null
         }
     });
 
-    if(!newFamily) {
-        throw new CustomError("Não foi possível editar os dados");
-    }
-
     res.status(200).json({
         status: "success",
-        newFamily: newFamily.dadosFamilia
+        newFamily: updatedDados
     });
 });
-
 
 exports.enviaFormularioFacilities = asyncErrorHandler(async (req, res, next) => {
-
-    if(!req.body.id){
+    if (!req.body.id) {
         throw new CustomError('Id da família não enviado!', 400);
     }
 
-    const familia = await prisma.family.findUnique({
-        where: {
-            id: req.body.id
-        }
-    });
-
-    if(!familia){
+    const family = await prisma.family.findUnique({ where: { id: req.body.id } });
+    if (!family) {
         throw new CustomError('Família não encontrada!', 404);
     }
 
-    await prisma.family.update({
-        where: {
-            id: req.body.id
+    const data = { ...req.body.obj };
+    delete data.familyId;
+
+    const floatFields = ['numMoradores', 'rendaMensalTotal', 'numCriancas', 'qualValorAluguel'];
+    floatFields.forEach(field => {
+        if (data[field] !== undefined && data[field] !== null && data[field] !== "") {
+            const parsed = parseFloat(data[field]);
+            data[field] = isNaN(parsed) ? null : parsed;
+        } else {
+            data[field] = null;
+        }
+    });
+
+    if (data.dataPrimeiraVisita) {
+        data.dataPrimeiraVisita = new Date(data.dataPrimeiraVisita);
+    } else {
+        data.dataPrimeiraVisita = null;
+    }
+
+    const userId = req.user._id;
+
+    const socio = await prisma.familySocioeconomica.upsert({
+        where: { familyId: req.body.id },
+        update: {
+            ...data,
+            userId: userId
         },
-        data: {
-            tabelaSocioeconomica: req.body.obj
+        create: {
+            familyId: req.body.id,
+            ...data,
+            userId: userId
         }
     });
 
     res.status(200).json({
         status: 'success',
-        tabela: familia.tabelaSocioeconomica
-    })
+        tabela: socio
+    });
 });
-
 
 exports.enviaFormularioEstrutural = asyncErrorHandler(async (req, res, next) => {
-
-    if(!req.body.id){
+    if (!req.body.id) {
         throw new CustomError('Id da família não enviado!', 400);
     }
-    
-    const familia = await prisma.family.findUnique({
-        where: {
-            id: req.body.id
-        }
-    });
 
-    if(!familia){
+    const family = await prisma.family.findUnique({ where: { id: req.body.id } });
+    if (!family) {
         throw new CustomError('Família não encontrada!', 404);
     }
 
-    await prisma.family.update({
-        where: {
-            id: req.body.id
+    const data = { ...req.body.obj };
+    delete data.familyId;
+
+    const floatFields = [
+        'numQuartos', 'insercaoLote', 'fundacoes', 'estrutura', 'paredes',
+        'cobertura', 'esquadrias', 'hidrossanitario', 'eletrico', 'banheiros',
+        'cozinhaAreaDeServico', 'conforto', 'avaliacaoInfraestruturaUrbana',
+        'opiniaoGeralDaCasa'
+    ];
+    floatFields.forEach(field => {
+        if (data[field] !== undefined && data[field] !== null && data[field] !== "") {
+            const parsed = parseFloat(data[field]);
+            data[field] = isNaN(parsed) ? null : parsed;
+        } else {
+            data[field] = null;
+        }
+    });
+
+    const userId = req.user._id;
+
+    const estrutural = await prisma.familyEstrutural.upsert({
+        where: { familyId: req.body.id },
+        update: {
+            ...data,
+            userId: userId
         },
-        data: {
-            tabelaEstrutural: req.body.obj
+        create: {
+            familyId: req.body.id,
+            ...data,
+            userId: userId
         }
     });
 
     res.status(200).json({
         status: 'success',
-        tabela: familia.tabelaEstrutural
-    })
+        tabela: estrutural
+    });
 });
 
-//FUNÇÕES DE UPLOAD DE IMAGEM
+// FUNÇÕES DE UPLOAD DE IMAGEM
 const storageImagem = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, "imagens/");
@@ -323,111 +378,99 @@ const storageImagem = multer.diskStorage({
 });
 
 const uploadImagem = multer({ storage: storageImagem });
-
 exports.fazUploadImagem = uploadImagem;
 
 exports.insereNovaImagem = asyncErrorHandler(async (req, res, next) => {
-
-    const familyId = req.params.id
-    const descricao = req.body.descricao;
+    const familyId = req.params.id;
+    const descricao = req.body.descricao || null;
     const imagePath = `/imagens/${req.file.filename}`;
 
-    const family = await prisma.family.findUnique({
-        where: {
-            id: familyId
-        }
-    });
-    if(!family){
+    const family = await prisma.family.findUnique({ where: { id: familyId } });
+    if (!family) {
         throw new CustomError('Família não encontrada!', 404);
     }
 
-    await prisma.family.update({
-        where: {
-            id: familyId
-        },
+    await prisma.familyImage.create({
         data: {
-            imagens: {
-                push: { caminho: imagePath, descricao }
-            }
+            familyId,
+            caminho: imagePath,
+            descricao
         }
+    });
+
+    const updatedImagens = await prisma.familyImage.findMany({
+        where: { familyId }
     });
 
     res.status(200).json({
         status: 'success',
-        imagens: family.imagens
+        imagens: updatedImagens
     });
 });
 
 exports.deletaImagem = asyncErrorHandler(async (req, res, next) => {
-
     const familyId = req.params.id;
     const caminhoArquivo = req.body.caminhoArquivo;
 
-    const family = await prisma.family.findUnique({
-        where: {
-            id: familyId
-        }
-    });
-    if(!family){
+    const family = await prisma.family.findUnique({ where: { id: familyId } });
+    if (!family) {
         throw new CustomError('Família não encontrada!', 404);
     }
 
-    const idx = family.imagens.findIndex(imagem => imagem.caminho === caminhoArquivo);
-    family.imagens.splice(idx, 1);
-    await prisma.family.update({
+    await prisma.familyImage.deleteMany({
         where: {
-            id: familyId
-        },
-        data: {
-            imagens: family.imagens
+            familyId,
+            caminho: caminhoArquivo
         }
     });
 
     fs.rm(`.${caminhoArquivo}`, (error) => {
-        if(error){
+        if (error) {
             throw new CustomError('Erro ao remover a imagem do servidor', 400);
         }
     });
 
+    const updatedImagens = await prisma.familyImage.findMany({
+        where: { familyId }
+    });
+
     res.status(200).json({
         status: 'success',
-        imagens: family.imagens
+        imagens: updatedImagens
     });
 });
 
 exports.editaDescricaoImagem = asyncErrorHandler(async (req, res, next) => {
-
     const familyId = req.params.id;
     const caminhoArquivo = req.body.caminhoArquivo;
     const novaDescricao = req.body.novaDescricao;
 
-    const family = await prisma.family.findUnique({
-        where: {
-            id: familyId
-        }
-    });
-    if(!family){
+    const family = await prisma.family.findUnique({ where: { id: familyId } });
+    if (!family) {
         throw new CustomError('Família não encontrada!', 404);
     }
 
-    const idx = family.imagens.findIndex(imagem => imagem.caminho === caminhoArquivo);
-    family.imagens[idx].descricao = novaDescricao;
-    await prisma.family.update({
+    await prisma.familyImage.updateMany({
         where: {
-            id: familyId
+            familyId,
+            caminho: caminhoArquivo
         },
         data: {
-            imagens: family.imagens
+            descricao: novaDescricao
         }
+    });
+
+    const updatedImagens = await prisma.familyImage.findMany({
+        where: { familyId }
     });
 
     res.status(200).json({
         status: 'success',
-        imagens: family.imagens
-    })
+        imagens: updatedImagens
+    });
 });
 
-//FUNÇÕES DE UPLOAD DE ARQUIVOS GERAIS
+// FUNÇÕES DE UPLOAD DE ARQUIVOS GERAIS
 const storageArquivos = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, "arquivos/");
@@ -438,106 +481,94 @@ const storageArquivos = multer.diskStorage({
 });
 
 const uploadArquivo = multer({ storage: storageArquivos });
-
 exports.fazUploadArquivo = uploadArquivo;
 
 exports.insereNovoArquivo = asyncErrorHandler(async (req, res, next) => {
-
     const familyId = req.params.id;
-    const descricao = req.body.descricao;
-    const arquivoPath = `/arquivos/${req.file.filename}`
+    const descricao = req.body.descricao || null;
+    const arquivoPath = `/arquivos/${req.file.filename}`;
 
-    const family = await prisma.family.findUnique({
-        where: {
-            id: familyId
-        }
-    });
-    if(!family){
+    const family = await prisma.family.findUnique({ where: { id: familyId } });
+    if (!family) {
         throw new CustomError("Família não encontrada!", 404);
     }
 
-    await prisma.family.update({
-        where: {
-            id: familyId
-        },
+    await prisma.familyFile.create({
         data: {
-            arquivos: {
-                push: { caminho: arquivoPath, descricao }
-            }
+            familyId,
+            caminho: arquivoPath,
+            descricao
         }
+    });
+
+    const updatedArquivos = await prisma.familyFile.findMany({
+        where: { familyId }
     });
 
     res.status(200).json({
         status: 'success',
-        arquivos: family.arquivos
-    })
+        arquivos: updatedArquivos
+    });
 });
 
 exports.deletaArquivo = asyncErrorHandler(async (req, res, next) => {
-
     const familyId = req.params.id;
     const caminhoArquivo = req.body.caminhoArquivo;
 
-    const family = await prisma.family.findUnique({
-        where: {
-            id: familyId
-        }
-    });
-    if(!family){
+    const family = await prisma.family.findUnique({ where: { id: familyId } });
+    if (!family) {
         throw new CustomError('Família não encontrada!', 404);
     }
 
-    const idx = family.arquivos.findIndex(arquivo => arquivo.caminho === caminhoArquivo);
-    family.arquivos.splice(idx, 1);
-    await prisma.family.update({
+    await prisma.familyFile.deleteMany({
         where: {
-            id: familyId
-        },
-        data: {
-            arquivos: family.arquivos
+            familyId,
+            caminho: caminhoArquivo
         }
     });
 
     fs.rm(`.${caminhoArquivo}`, (error) => {
-        if(error){
+        if (error) {
             throw new CustomError('Erro ao remover o arquivo do servidor', 400);
         }
     });
 
+    const updatedArquivos = await prisma.familyFile.findMany({
+        where: { familyId }
+    });
+
     res.status(200).json({
         status: 'success',
-        arquivos: family.arquivos
+        arquivos: updatedArquivos
     });
 });
 
 exports.editaDescricaoArquivo = asyncErrorHandler(async (req, res, next) => {
-
     const familyId = req.params.id;
     const caminhoArquivo = req.body.caminhoArquivo;
     const novaDescricao = req.body.novaDescricao;
 
-    const family = await prisma.family.findUnique({
-        where: {
-            id: familyId
-        }
-    });
-    if(!family){
+    const family = await prisma.family.findUnique({ where: { id: familyId } });
+    if (!family) {
         throw new CustomError('Família não encontrada!', 404);
     }
 
-    const idx = family.arquivos.findIndex(arquivo => arquivo.caminho === caminhoArquivo);
-    family.arquivos[idx].descricao = novaDescricao;
-    await prisma.family.update({
+    await prisma.familyFile.updateMany({
         where: {
-            id: familyId
+            familyId,
+            caminho: caminhoArquivo
         },
         data: {
-            arquivos: family.arquivos
+            descricao: novaDescricao
         }
+    });
+
+    const updatedArquivos = await prisma.familyFile.findMany({
+        where: { familyId }
     });
 
     res.status(200).json({
         status: 'success',
-        arquivos: family.arquivos
+        arquivos: updatedArquivos
     });
 });

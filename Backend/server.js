@@ -1,18 +1,17 @@
-const mongoose = require('mongoose');
+const prisma = require('./Utils/prisma');
 const dotenv = require('dotenv');
 dotenv.config({path: './config.env'});
 
 const app = require('./app');
 
-
-mongoose.connect(process.env.CONN_STR)
+// Test connection to PostgreSQL via Prisma
+prisma.$connect()
 .then(() => {
-    console.log('DB connection successful!');
+    console.log('PostgreSQL database connection via Prisma successful!');
 })
 .catch((error) => {
-    console.log(error.message);
+    console.error('Error connecting to database via Prisma:', error.message);
 });
-
 
 const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {

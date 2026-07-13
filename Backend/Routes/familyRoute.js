@@ -18,9 +18,9 @@ router.route('/:id')
     .delete(familyController.deletaFamilia)
     .patch(familyController.editaFamilia);
 
-router.post('/entrevista/facilities', familyController.enviaFormularioFacilities);
+router.post('/entrevista/facilities', authController.verificaAcesso, familyController.enviaFormularioFacilities);
 
-router.post('/entrevista/estrutural', familyController.enviaFormularioEstrutural);
+router.post('/entrevista/estrutural', authController.verificaAcesso, familyController.enviaFormularioEstrutural);
 
 router.route('/upload/imagem/:id')
     .post(familyController.fazUploadImagem.single('image'), familyController.insereNovaImagem)

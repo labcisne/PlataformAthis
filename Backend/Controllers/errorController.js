@@ -30,6 +30,16 @@ const handleJwtError = (error) => {
 }
 
 
+const handlePrismaUniqueConstraintError = (error) => {
+    const target = error.meta?.target || [];
+    const fields = target.join(', ');
+    return new CustomError(`O valor para o(s) campo(s) [${fields}] já existe.`, 400);
+}
+
+const handlePrismaRecordNotFoundError = (error) => {
+    return new CustomError(`Registro não encontrado.`, 404);
+}
+
 module.exports = (error, req, res, next) => {
     error.status = error.status || 'error';
     error.statusCode = error.statusCode || 500;
@@ -40,6 +50,12 @@ module.exports = (error, req, res, next) => {
     else if(error.code === 11000){
         error = handleDuplicatedKey(error);
     }
+    else if(error.code === 'P2002'){
+        error = handlePrismaUniqueConstraintError(error);
+    }
+    else if(error.code === 'P2025'){
+        error = handlePrismaRecordNotFoundError(error);
+    }
     else if(error.name === 'ValidationError'){
         error = handleValidationError(error);
     }
@@ -49,6 +65,7 @@ module.exports = (error, req, res, next) => {
     else if(error.name === 'JsonWebTokenError'){
         error = handleJwtError(error);
     }
+
 
 
     if(error.isOperational){
