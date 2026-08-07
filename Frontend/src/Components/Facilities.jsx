@@ -1,500 +1,352 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import Select from "./Select";
 import BotoesSelecionaveis from "./BotoesSelecionaveis";
-
 import { FaArrowLeft } from "react-icons/fa6";
-
 import { IconContext } from "react-icons";
 
-function Entrevista(){
+function BotoesMultiplosSelecionaveis({ arrayDeOpcoes, selecionados = [], onChange }) {
+    const handleToggle = (opcao) => {
+        let novos;
+        if (selecionados.includes(opcao)) {
+            novos = selecionados.filter(item => item !== opcao);
+        } else {
+            novos = [...selecionados, opcao];
+        }
+        onChange(novos);
+    };
 
-    const getCurrentDate = () => {
-        const today = new Date();
-        return today.toISOString().split("T")[0]; // Pega apenas a parte da data
-    }
+    return (
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            {arrayDeOpcoes.map((opcao, idx) => {
+                const isSelected = selecionados.includes(opcao);
+                return (
+                    <button
+                        type="button"
+                        key={idx}
+                        onClick={() => handleToggle(opcao)}
+                        className={isSelected ? "botaoSelecionado" : "botaoNaoSelecionado"}
+                    >
+                        {opcao}
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
 
+function Entrevista() {
     const location = useLocation();
     const navigate = useNavigate();
 
     const familiaId = location.state?.id;
     const role = location.state?.role;
 
-    const [tipoLevantamento, setTipoLevantamento] = useState("");
-    const [numMoradores, setNumMoradores] = useState("0");
-    const [idadeResidentes, setIdadeResidentes] = useState("");
-    const [adultosEmpregados, setAdultosEmpregados] = useState("");
-    const [rendaMensalTotal, setRendaMensalTotal] = useState("");
-    const [mulherChefeFamilia, setMulherChefeFamilia] = useState("");
-    const [idosoChefeFamilia, setIdosoChefeFamilia] = useState("");
-    const [numCriancas, setNumCriancas] = useState("0");
-    const [autoDeclaracaoFamilia, setAutoDeclaracaoFamilia] = useState("");
-    const [cadastradaBolsaFamilia, setCadastradaBolsaFamilia] = useState("");
-    const [comorbidadeNaFamilia, setComorbidadeNaFamilia] = useState("");
-    const [apresentaDoencaRespiratoria, setApresentaDoencaRespiratoria] = useState("");
-    const [formaAquisicaoImovel, setFormaAquisicaoImovel] = useState("");
-    const [anoDeConstrucaoTempoResidindo, setAnoDeConstrucaoTempoResidindo] = useState("");
-    const [possuiOutroImovel, setPossuiOutroImovel] = useState("");
-    const [resideNoImovelLevantado, setResideNoImovelLevantado] = useState("");
-    const [qualValorAluguel, setQualValorAluguel] = useState("");
-    const [relacaoAluguelRenda, setRelacaoAluguelRenda] = useState("");
-    const [imovelTeveAcaoAnterior, setImovelTeveAcaoAnterior] = useState("");
-    const [boaVivenciaVizinhos, setBoaVivenciaVizinhos] = useState("");
-    const [participaReuniaoAcaoComunidade, setParticipaReuniaoAcaoComunidade] = useState("");
-    const [utilizaBancoComunitario, setUtilizaBancoComunitario] = useState("");
-    const [indicacaoDeProfissionais, setIndicacaoDeProfissionais] = useState("");
-    const [pontoProximoEntrega, setPontoProximoEntrega] = useState("");
-    const [recebeBoletoAguaEnergia, setRecebeBoletoAguaEnergia] = useState("");
-    const [possuiReservatorioAgua, setPossuiReservatorioAgua] = useState("");
-    const [estadoReservatorioAgua, setEstadoReservatorioAgua] = useState("");
-    const [espacoParaHortasCanteiro, setEspacoParaHortasCanteiro] = useState("");
-    const [possuiBanheiro, setPossuiBanheiro] = useState("");
-    const [possuiCozinha, setPossuiCozinha] = useState("");
-    const [dataPrimeiraVisita, setDataPrimeiraVisita] = useState(getCurrentDate());
-    const [nomeResponsavelFormulario, setNomeResponsavelFormulario] = useState("");
-    const [nomeResponsavelFotografico, setNomeResponsavelFotografico] = useState("");
-    const [nomeResponsavelArquitetonico, setNomeResponsavelArquitetonico] = useState("");
-    const [nomeAgenteComunitario, setNomeAgenteComunitario] = useState("");
-    const [outrosProfissionaisEnvolvidos, setOutrosProfissionaisEnvolvidos] = useState("");
-    const [demandaDaFamilia, setDemandaDaFamilia] = useState("");
-    const [descricaoPendencias, setDescricaoPendencias] = useState("");
-    
+    const [perguntas, setPerguntas] = useState([]);
+    const [respostas, setRespostas] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [erro, setErro] = useState("");
+
+    // Minimum wage for rent relation calculation
+    const MINIMUM_WAGE = 1412.00;
+
+    // Pure function — receives values explicitly, no closure dependency on `respostas`
+    const getRendaNumericValue = (rendaBrackets) => {
+        if (!rendaBrackets) return 0;
+        if (rendaBrackets.includes("1/2 s.m.")) return 0.5 * MINIMUM_WAGE;
+        if (rendaBrackets.includes("1/2 a 1")) return 0.75 * MINIMUM_WAGE;
+        if (rendaBrackets.includes("1 a 2")) return 1.5 * MINIMUM_WAGE;
+        if (rendaBrackets.includes("2 a 3")) return 2.5 * MINIMUM_WAGE;
+        if (rendaBrackets.includes("3 a 5")) return 4.0 * MINIMUM_WAGE;
+        if (rendaBrackets.includes("5 a 10")) return 7.5 * MINIMUM_WAGE;
+        if (rendaBrackets.includes("Acima de 10")) return 10.0 * MINIMUM_WAGE;
+        return 0;
+    };
+
+    // Pure function — receives both values as parameters to avoid stale closure
+    const calcRelacao = (renda, aluguel) => {
+        const rendaVal = getRendaNumericValue(renda);
+        const aluguelVal = parseFloat(aluguel) || 0;
+        if (aluguelVal === 0) return "0,00%";
+        if (rendaVal === 0) return "Indefinido (preencha a renda)";
+        return ((aluguelVal / rendaVal) * 100).toFixed(2).replace(".", ",") + "%";
+    };
+
+    useEffect(() => {
+        if (!familiaId) {
+            setErro("Família não especificada.");
+            setLoading(false);
+            return;
+        }
+
+        // Fetch questions and family info in parallel
+        Promise.all([
+            axios.get("http://localhost:3000/entrevista/perguntas?formulario=Facilities", { withCredentials: true }),
+            axios.get(`http://localhost:3000/familia/${familiaId}`, { withCredentials: true })
+        ])
+        .then(([perguntasRes, familiaRes]) => {
+            const listPerguntas = perguntasRes.data.perguntas || [];
+            setPerguntas(listPerguntas);
+
+            const family = familiaRes.data.familia;
+            const socio = family?.tabelaSocioeconomica || {};
+
+            // Initialize responses state
+            const initialRespostas = {};
+            listPerguntas.forEach(q => {
+                // Determine default value based on type
+                let defaultVal = "";
+                if (q.tipo === "number") {
+                    defaultVal = 0;
+                } else if (q.tipo === "resposta_multipla") {
+                    defaultVal = [];
+                }
+                initialRespostas[q.codigo] = defaultVal;
+            });
+
+            // Map saved responses
+            Object.keys(initialRespostas).forEach(code => {
+                if (socio[code] !== undefined && socio[code] !== null) {
+                    initialRespostas[code] = socio[code];
+                }
+            });
+
+            // Pre-populate Identificação from Family's personal data if not filled
+            if (family?.dadosFamilia) {
+                const dados = family.dadosFamilia;
+                if (!initialRespostas.nome_morador && dados.nomeMorador) {
+                    initialRespostas.nome_morador = dados.nomeMorador;
+                }
+                if (!initialRespostas.endereco && dados.endereco) {
+                    let endStr = dados.endereco;
+                    if (dados.numeroCasa) endStr += `, Nº ${dados.numeroCasa}`;
+                    initialRespostas.endereco = endStr;
+                }
+                if (!initialRespostas.telefone_contato && dados.telefone) {
+                    initialRespostas.telefone_contato = dados.telefone;
+                }
+                if (!initialRespostas.dono_telefone && dados.donoTelefone) {
+                    initialRespostas.dono_telefone = dados.donoTelefone;
+                }
+            }
+
+            setRespostas(initialRespostas);
+            setLoading(false);
+        })
+        .catch(err => {
+            console.error("Erro ao carregar dados:", err);
+            setErro("Erro ao carregar perguntas ou dados da família.");
+            setLoading(false);
+        });
+    }, [familiaId]);
+
+    // Update rent-to-income relation; values passed explicitly to avoid stale closure
+    useEffect(() => {
+        const renda = respostas.renda_mensal_total;
+        const aluguel = respostas.valor_aluguel;
+        const rel = calcRelacao(renda, aluguel);
+        setRespostas(prev => {
+            if (prev.relacao_aluguel_renda === rel) return prev; // avoid unnecessary re-render
+            return { ...prev, relacao_aluguel_renda: rel };
+        });
+    }, [respostas.renda_mensal_total, respostas.valor_aluguel]);
+
+    const handleValueChange = (codigo, valor) => {
+        setRespostas(prev => ({ ...prev, [codigo]: valor }));
+    };
+
     const handleSubmit = (event) => {
         event.preventDefault();
-        const obj = {
-            tipoLevantamento,
-            numMoradores,
-            idadeResidentes,
-            adultosEmpregados,
-            rendaMensalTotal,
-            mulherChefeFamilia,
-            idosoChefeFamilia,
-            numCriancas,
-            autoDeclaracaoFamilia,
-            cadastradaBolsaFamilia,
-            comorbidadeNaFamilia,
-            apresentaDoencaRespiratoria,
-            formaAquisicaoImovel,
-            anoDeConstrucaoTempoResidindo,
-            possuiOutroImovel,
-            resideNoImovelLevantado,
-            qualValorAluguel,
-            relacaoAluguelRenda,
-            imovelTeveAcaoAnterior,
-            boaVivenciaVizinhos,
-            participaReuniaoAcaoComunidade,
-            utilizaBancoComunitario,
-            indicacaoDeProfissionais,
-            pontoProximoEntrega,
-            recebeBoletoAguaEnergia,
-            possuiReservatorioAgua,
-            estadoReservatorioAgua,
-            espacoParaHortasCanteiro,
-            possuiBanheiro,
-            possuiCozinha,
-            dataPrimeiraVisita,
-            nomeResponsavelFormulario,
-            nomeResponsavelFotografico,
-            nomeResponsavelArquitetonico,
-            nomeAgenteComunitario,
-            outrosProfissionaisEnvolvidos,
-            demandaDaFamilia,
-            descricaoPendencias
-        }
 
-        axios.post("http://localhost:3000/familia/entrevista/facilities", {id: familiaId, obj}, {withCredentials: true})
-        .then((response) => {
-            console.log(response.data);
-            alert("Relatório enviado com sucesso!");
-            navigate("/familia/entrevista", {state: {id: familiaId, role}})
-        })
-        .catch((error) => {
-            console.log(error);
+        // Validate mandatory questions
+        const missing = [];
+        perguntas.forEach(q => {
+            if (q.obrigatoria) {
+                const val = respostas[q.codigo];
+                if (val === undefined || val === null || val === "" || (Array.isArray(val) && val.length === 0)) {
+                    missing.push(q.texto);
+                }
+            }
         });
-    }
 
-    const converteParaFloat = (valor) => {
-        if(!valor){
-            return 0
+        if (missing.length > 0) {
+            alert(`Por favor, preencha as seguintes perguntas obrigatórias:\n- ${missing.join("\n- ")}`);
+            return;
         }
-        return parseFloat(valor.replace(/\./g, "").replace(",", "."));
+
+        // Send submission request
+        axios.post("http://localhost:3000/familia/entrevista/facilities", { id: familiaId, obj: respostas }, { withCredentials: true })
+        .then(() => {
+            alert("Formulário de Facilities enviado com sucesso!");
+            navigate("/familia/entrevista", { state: { id: familiaId, role } });
+        })
+        .catch(error => {
+            console.error("Erro ao enviar formulário:", error);
+            alert("Erro ao enviar o formulário.");
+        });
+    };
+
+    if (loading) {
+        return (
+            <div className="container" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px" }}>
+                <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Carregando perguntas...</p>
+            </div>
+        );
     }
 
-    const calculaRelacaoAluguelRenda = (renda, aluguel) => {
-        const rendaConvertida = converteParaFloat(renda);
-        const aluguelConvertido = converteParaFloat(aluguel);
+    if (erro) {
+        return (
+            <div className="container" style={{ color: "red", padding: "20px" }}>
+                <p>{erro}</p>
+                <button onClick={() => navigate("/familia/entrevista", { state: { id: familiaId, role } })} className="detailsBtn" style={{ marginTop: "16px" }}>Voltar</button>
+            </div>
+        );
+    }
 
-        if(aluguelConvertido === 0){
-            setRelacaoAluguelRenda("0,00%");
+    // Group questions by category
+    const categorias = {};
+    perguntas.forEach(q => {
+        const cat = q.categoria || "Outros";
+        if (!categorias[cat]) {
+            categorias[cat] = [];
         }
-        setRelacaoAluguelRenda(((aluguelConvertido / rendaConvertida) * 100).toFixed(2).replace(".", ",") + "%");
-    }
+        categorias[cat].push(q);
+    });
 
     return (
-
-        <div className="container">
-            <button className="returnBtn" onClick={() => navigate("/familia/entrevista", {state: {id: familiaId, role}})}>
-                <IconContext.Provider value={{size: "2rem"}}>
+        <div className="container" style={{ maxWidth: "600px", width: "100%", margin: "0 auto", backgroundColor: "#f9f9f9", borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "24px" }}>
+            <button className="returnBtn" onClick={() => navigate("/familia/entrevista", { state: { id: familiaId, role } })}>
+                <IconContext.Provider value={{ size: "2rem" }}>
                     <FaArrowLeft />
                 </IconContext.Provider>
             </button>
-            <form action="#" onSubmit={handleSubmit}>
 
-                <div className="celula">
-                    <label>Esse levantamento se enquadra:</label>
-                    <BotoesSelecionaveis 
-                        arrayDeOpcoes = {["Levantamento Projeto", "Levantamento PMV - Identificação", "Levantemento PMV - Demolição"]}
-                        selecionado={tipoLevantamento}
-                        setSelecionado={setTipoLevantamento}
-                    />
-                </div>
+            <h2 style={{ marginBottom: "24px", color: "#333", fontSize: "1.6rem", borderBottom: "3px solid #F0A22E", paddingBottom: "8px", textAlign: "left" }}>
+                Entrevista de Facilities
+            </h2>
 
-                <div className="celula">
-                    <label>Nº de moradores:</label>
-                    <input 
-                        type="number" 
-                        min={0}
-                        value={numMoradores}
-                        onChange={(event) => setNumMoradores(event.target.value)}
-                    />
-                </div>
+            <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
+                {Object.keys(categorias).map((catName, catIdx) => (
+                    <div key={catIdx} style={{ marginBottom: "32px", backgroundColor: "#fff", padding: "20px", borderRadius: "8px", borderLeft: "4px solid #F0A22E", boxShadow: "0 2px 6px rgba(0,0,0,0.05)" }}>
+                        <h3 style={{ marginBottom: "20px", color: "#F0A22E", fontSize: "1.3rem" }}>{catName}</h3>
+                        
+                        {categorias[catName].map((q) => {
+                            const val = respostas[q.codigo];
+                            return (
+                                <div key={q.id} className="celula" style={{ marginBottom: "20px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                                    <label style={{ fontWeight: "600", fontSize: "1.05rem", color: "#444" }}>
+                                        {q.texto} {q.obrigatoria && <span style={{ color: "red" }}>*</span>}
+                                    </label>
 
-                <div className="celula">
-                    <label>Idade dos Residentes(ex: 3 moradores - 12, 20, 35):</label>
-                    <input 
-                        type="text"
-                        value={idadeResidentes}
-                        onChange={(event) => setIdadeResidentes(event.target.value)}
-                        placeholder={numMoradores === "0" ? "12, 20, 30" : `Insira as ${numMoradores} idades!`}
-                    />
-                </div>
+                                    {/* Handle text type */}
+                                    {q.tipo === "texto" && (
+                                        <input
+                                            type="text"
+                                            value={val || ""}
+                                            onChange={(e) => handleValueChange(q.codigo, e.target.value)}
+                                            style={{ width: "100%", padding: "12px", border: "1px solid #ccc", borderRadius: "5px", fontSize: "1rem" }}
+                                            readOnly={q.codigo === "relacao_aluguel_renda"}
+                                        />
+                                    )}
 
-                <div className="celula">
-                    <label>Os adultos da família estão empregados?</label>
-                    <input 
-                        type="text"
-                        value={adultosEmpregados}
-                        onChange={(event) => setAdultosEmpregados(event.target.value)}
-                    />
-                </div>
-                
-                <div className="celula">
-                    <label>Qual a Renda mensal familiar total?</label>
-                    <input 
-                        type="text"
-                        value={rendaMensalTotal}
-                        onChange={(event) => setRendaMensalTotal(event.target.value)}
-                        placeholder="R$ 0,00"
-                    />
-                </div>
+                                    {/* Handle number type */}
+                                    {q.tipo === "number" && (
+                                        <input
+                                            type="number"
+                                            value={val === undefined || val === null ? "" : val}
+                                            onChange={(e) => handleValueChange(q.codigo, e.target.value === "" ? "" : Number(e.target.value))}
+                                            style={{ width: "100%", padding: "12px", border: "1px solid #ccc", borderRadius: "5px", fontSize: "1rem" }}
+                                        />
+                                    )}
 
-                <div className="celula">
-                    <label>Possui uma mulher como chefe de família?</label>
-                    <BotoesSelecionaveis
-                        arrayDeOpcoes = {["Sim", "Não"]}
-                        selecionado={mulherChefeFamilia}
-                        setSelecionado={setMulherChefeFamilia}
-                    />
-                </div>
+                                    {/* Handle single choice (resposta_unica) */}
+                                    {q.tipo === "resposta_unica" && (() => {
+                                        // Always guarantee opcoes is an array to prevent .map / .includes crashes
+                                        const opcoes = Array.isArray(q.opcoes) ? q.opcoes : [];
+                                        const valorAtual = typeof val === "string" ? val : "";
 
-                <div className="celula">
-                    <label>A familia é chefiada por pessoa idosa?</label>
-                    <BotoesSelecionaveis 
-                        arrayDeOpcoes = {["Sim", "Não"]}
-                        selecionado={idosoChefeFamilia}
-                        setSelecionado={setIdosoChefeFamilia}
-                    />
-                </div>
+                                        if (!q.allowOther) {
+                                            return (
+                                                <BotoesSelecionaveis
+                                                    arrayDeOpcoes={opcoes}
+                                                    selecionado={valorAtual}
+                                                    setSelecionado={(opt) => handleValueChange(q.codigo, opt)}
+                                                />
+                                            );
+                                        }
 
-                <div className="celula">
-                    <label>Qual o número de crianças morando na casa?</label>
-                    <input 
-                        type="number" 
-                        min={0}
-                        value={numCriancas}
-                        onChange={(event) => setNumCriancas(event.target.value)}
-                    />
-                </div>
-                
-                <div className="celula">
-                    <label>A família se autodeclara:</label>
-                    <Select 
-                        callback={setAutoDeclaracaoFamilia} 
-                        name="autoDeclaracaoFamilia"
-                    />
-                </div>
+                                        // allowOther: dropdown + optional free-text input
+                                        const isOutro = valorAtual !== "" && !opcoes.includes(valorAtual);
+                                        return (
+                                            <div>
+                                                <select
+                                                    value={isOutro ? "outro" : valorAtual}
+                                                    onChange={(e) => {
+                                                        if (e.target.value === "outro") {
+                                                            handleValueChange(q.codigo, "");
+                                                        } else {
+                                                            handleValueChange(q.codigo, e.target.value);
+                                                        }
+                                                    }}
+                                                    style={{ width: "100%", padding: "12px", border: "1px solid #ccc", borderRadius: "5px", fontSize: "1rem" }}
+                                                >
+                                                    <option value="" disabled>Escolha uma opção</option>
+                                                    {opcoes.map((opt, oIdx) => (
+                                                        <option value={opt} key={oIdx}>{opt}</option>
+                                                    ))}
+                                                    <option value="outro">Outro...</option>
+                                                </select>
+                                                {isOutro && (
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Especifique outro valor"
+                                                        value={valorAtual}
+                                                        onChange={(e) => handleValueChange(q.codigo, e.target.value)}
+                                                        style={{ width: "100%", marginTop: "8px", padding: "12px", border: "1px solid #ccc", borderRadius: "5px", fontSize: "1rem" }}
+                                                    />
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
 
-                <div className="celula">
-                    <label>A família está cadastrada no Bolsa Família? Qual o número do NIS?</label>
-                    <input 
-                        type="text"
-                        value={cadastradaBolsaFamilia}
-                        onChange={(event) => setCadastradaBolsaFamilia(event.target.value)}
-                    />
-                </div>
+                                    {/* Handle multiple choice (resposta_multipla) */}
+                                    {q.tipo === "resposta_multipla" && (
+                                        <BotoesMultiplosSelecionaveis
+                                            arrayDeOpcoes={Array.isArray(q.opcoes) ? q.opcoes : []}
+                                            selecionados={Array.isArray(val) ? val : []}
+                                            onChange={(selectedList) => handleValueChange(q.codigo, selectedList)}
+                                        />
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                ))}
 
-                <div className="celula">
-                    <label>Algum membro da família apresenta alguma comorbidade ou Doença incapacitante? Alguém recebe algum Benefício de Prestação Continuada(BPC)?</label>
-                    <input 
-                        type="text"
-                        value={comorbidadeNaFamilia}
-                        onChange={(event) => setComorbidadeNaFamilia(event.target.value)}
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Alguém apresenta doenças respiratórias crônicas?</label>
-                    <input 
-                        type="text"
-                        value={apresentaDoencaRespiratoria}
-                        onChange={(event) => setApresentaDoencaRespiratoria(event.target.value)}
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Qual a forma de aquisição do imóvel?</label>
-                    <Select 
-                        callback={setFormaAquisicaoImovel} 
-                        name="formaAquisicaoImovel"
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Sabem dizer em que ano a casa foi construída? Há quanto tempo residem neste imóvel?</label>
-                    <input 
-                        type="text"
-                        value={anoDeConstrucaoTempoResidindo}
-                        onChange={(event) => setAnoDeConstrucaoTempoResidindo(event.target.value)}
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>A família possui algum outro imóvel?</label>
-                    <input 
-                        type="text"
-                        value={possuiOutroImovel}
-                        onChange={(event) => setPossuiOutroImovel(event.target.value)}
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>A família está residindo no imóvel levantado?</label>
-                    <BotoesSelecionaveis 
-                        arrayDeOpcoes = {["Sim", "Não"]}
-                        selecionado={resideNoImovelLevantado}
-                        setSelecionado={setResideNoImovelLevantado}
-                    />
-                </div>
-                
-                <div className="celula">
-                    <label>Se a família está morando de aluguel, qual o valor? (caso a família não more de aluguel, coloque 0)</label>
-                    <input 
-                        type="text"
-                        value={qualValorAluguel}
-                        onChange={(event) => {
-                            setQualValorAluguel(event.target.value);
-                            calculaRelacaoAluguelRenda(rendaMensalTotal, event.target.value);
-                        }}
-                        placeholder="R$ 0,00"
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>O aluguel em relação a renda familiar mensal:</label>
+                <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}>
                     <input
-                        type="text"
-                        value={relacaoAluguelRenda}
-                        readOnly
+                        id="acessar"
+                        type="submit"
+                        value="Enviar relatório"
+                        style={{
+                            backgroundColor: "#F0A22E",
+                            color: "white",
+                            padding: "14px 28px",
+                            border: "none",
+                            borderRadius: "5px",
+                            fontSize: "1.1rem",
+                            fontWeight: "bold",
+                            cursor: "pointer",
+                            transition: "background-color 0.2s"
+                        }}
+                        onMouseOver={(e) => e.target.style.backgroundColor = "#e0901e"}
+                        onMouseOut={(e) => e.target.style.backgroundColor = "#F0A22E"}
                     />
-                </div>
-
-                <div className="celula">
-                    <label>O imóvel já foi alvo de alguma ação anterior? (Quando / Como / Quem) </label>
-                    <input 
-                        type="text"
-                        value={imovelTeveAcaoAnterior}
-                        onChange={(event) => setImovelTeveAcaoAnterior(event.target.value)}
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Boa convivência com a vizinhança?</label>
-                    <BotoesSelecionaveis 
-                        arrayDeOpcoes = {["Sim", "Não"]}
-                        selecionado={boaVivenciaVizinhos}
-                        setSelecionado={setBoaVivenciaVizinhos}
-                    />
-                </div>
-                
-                <div className="celula">
-                    <label>Participa das reuniões do Fórum Bem Maior e/ou das ações da comunidade?</label>
-                    <input 
-                        type="text"
-                        value={participaReuniaoAcaoComunidade}
-                        onChange={(event) => setParticipaReuniaoAcaoComunidade(event.target.value)}
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Utilização dos serviços do Banco Comunitário?</label>
-                    <Select 
-                        callback={setUtilizaBancoComunitario} 
-                        name="utilizaBancoComunitario"
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Profissionais e lojas indicadas pela família:</label>
-                    <input 
-                        type="text"
-                        value={indicacaoDeProfissionais}
-                        onChange={(event) => setIndicacaoDeProfissionais(event.target.value)}
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Qual o ponto mais próximo de entrega de materiais?</label>
-                    <input 
-                        type="text"
-                        value={pontoProximoEntrega}
-                        onChange={(event) => setPontoProximoEntrega(event.target.value)}
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Estão recebendo boleto de cobrança (talão) de água e energia?</label>
-                    <input 
-                        type="text"
-                        value={recebeBoletoAguaEnergia}
-                        onChange={(event) => setRecebeBoletoAguaEnergia(event.target.value)}
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Possui reservatório de água na residência?</label>
-                    <Select 
-                        callback={setPossuiReservatorioAgua} 
-                        name="possuiReservatorioAgua"
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Qual o estado do reservatório de água?</label>
-                    <Select 
-                        callback={setEstadoReservatorioAgua} 
-                        name="estadoReservatorioAgua"
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>Possui espaço para criação de hortas / canteiros?</label>
-                    <Select 
-                        callback={setEspacoParaHortasCanteiro} 
-                        name="espacoParaHortasCanteiro"
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>A unidade tem banheiro?</label>
-                    <Select 
-                        callback={setPossuiBanheiro} 
-                        name="possuiBanheiro"
-                    />
-                </div>
-
-                <div className="celula">
-                    <label>A unidade tem cozinha?</label>
-                    <Select 
-                        callback={setPossuiCozinha} 
-                        name="possuiCozinha"
-                    />
-                </div>
-                
-                <div className="celula">
-                    <label>Data 1° visita:</label>
-                        <input //DESCOBRIR UMA MANEIRA MELHOR PARA ESSE CAMPO
-                            type="date"
-                            value={dataPrimeiraVisita}
-                            onChange={(event) => setDataPrimeiraVisita(event.target.value)}
-                        />
-                </div>
-
-                <div className="celula">
-                    <label>Nome do responsável pelo formulário:</label>
-                        <input 
-                            type="text"
-                            value={nomeResponsavelFormulario}
-                            onChange={(event) => setNomeResponsavelFormulario(event.target.value)}
-                        />
-                </div>
-
-                <div className="celula">
-                    <label>Nome do responsável pelo relatório fotográfico:</label>
-                        <input 
-                            type="text"
-                            value={nomeResponsavelFotografico}
-                            onChange={(event) => setNomeResponsavelFotografico(event.target.value)}
-                        />
-                </div>
-                
-                <div className="celula">
-                    <label>Nome do responsável pelo levantamento arquitetônico:</label>
-                        <input 
-                            type="text"
-                            value={nomeResponsavelArquitetonico}
-                            onChange={(event) => setNomeResponsavelArquitetonico(event.target.value)}
-                        />
-                </div>
-
-                <div className="celula">
-                    <label>Nome do agente comunitário:</label>
-                        <input 
-                            type="text"
-                            value={nomeAgenteComunitario}
-                            onChange={(event) => setNomeAgenteComunitario(event.target.value)}
-                        />
-                </div>
-
-                <div className="celula">
-                    <label>Outros profissionais envolvidos(nomes e funções desempenhadas):</label>
-                        <input 
-                            type="text"
-                            value={outrosProfissionaisEnvolvidos}
-                            onChange={(event) => setOutrosProfissionaisEnvolvidos(event.target.value)}
-                        />
-                </div>
-
-                <div className="celula">
-                    <label>Demanda apresentada pela família:</label>
-                        <input 
-                            type="text"
-                            value={demandaDaFamilia}
-                            onChange={(event) => setDemandaDaFamilia(event.target.value)}
-                        />
-                </div>
-
-                <div className="celula">
-                    <label>Descrição das pendências:</label>
-                        <input 
-                            type="text"
-                            value={descricaoPendencias}
-                            onChange={(event) => setDescricaoPendencias(event.target.value)}
-                        />
-                </div>
-
-                <div className="celula">
-                        <input
-                            id="acessar"
-                            type="submit"
-                            value="Enviar relatório"
-                        />
                 </div>
             </form>
         </div>
-    )
+    );
 }
-
 
 export default Entrevista;

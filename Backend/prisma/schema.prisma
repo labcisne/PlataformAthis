@@ -37,6 +37,7 @@ model User {
   memberships           FamilyMembership[]
   socioeconomicas       FamilySocioeconomica[]
   estruturais           FamilyEstrutural[]
+  answers               FacilitiesAnswer[]
 
   @@map("users")
 }
@@ -50,6 +51,7 @@ model Family {
   imagens        FamilyImage[]
   arquivos       FamilyFile[]
   memberships    FamilyMembership[]
+  answers        FacilitiesAnswer[]
 
   @@map("families")
 }
@@ -214,4 +216,38 @@ model OptionValue {
   @@unique([optionGroupId, valor])
   @@index([optionGroupId])
   @@map("option_values")
+}
+
+model FacilitiesQuestion {
+  id          String             @id @default(uuid()) @db.Uuid
+  formulario  String             // "Facilities" ou "Edificacoes"
+  codigo      String             @unique
+  texto       String
+  tipo        String             // "resposta_unica", "resposta_multipla", "texto", "number"
+  ordem       Int
+  obrigatoria Boolean            @default(false)
+  ativa       Boolean            @default(true)
+  opcoes      String[]           // Opções pré-definidas da pergunta
+  allowOther  Boolean            @default(false) // Permite valores livres ("Outro")
+  categoria   String?            // dados da família, moradores, renda, saúde, imóvel, comunidade, etc.
+  respostas   FacilitiesAnswer[]
+
+  @@map("facilities_questions")
+}
+
+model FacilitiesAnswer {
+  id           String             @id @default(uuid()) @db.Uuid
+  familyId     String             @db.Uuid
+  family       Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  perguntaId   String             @db.Uuid
+  pergunta     FacilitiesQuestion @relation(fields: [perguntaId], references: [id], onDelete: Cascade)
+  resposta     String             // Resposta final (se múltipla, JSON array de strings)
+  dataResposta DateTime           @default(now())
+  userId       String?            @db.Uuid
+  user         User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([familyId, perguntaId])
+  @@index([familyId])
+  @@index([perguntaId])
+  @@map("facilities_answers")
 }

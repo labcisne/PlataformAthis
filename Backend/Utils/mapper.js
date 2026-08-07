@@ -78,14 +78,71 @@ function formatUser(user) {
 /**
  * Formata um objeto de Família do Prisma para o formato esperado pelo Frontend (Mongoose-like).
  */
+function castAnswerValue(value, type) {
+    if (value === null || value === undefined || value === "") return null;
+    if (type === 'number') {
+        const num = parseFloat(value);
+        return isNaN(num) ? null : num;
+    }
+    if (type === 'resposta_multipla') {
+        try {
+            if (value.startsWith('[') && value.endsWith(']')) {
+                return JSON.parse(value);
+            }
+        } catch (e) {
+            // Not JSON
+        }
+        if (value.includes(',')) {
+            return value.split(',').map(s => s.trim());
+        }
+        return [value];
+    }
+    return value;
+}
+
+/**
+ * Formata um objeto de Família do Prisma para o formato esperado pelo Frontend (Mongoose-like).
+ */
 function formatFamily(family) {
     if (!family) return null;
+
+    const tabelaSocioeconomica = {};
+    const tabelaEstrutural = {};
+    let socioeconomicaUserId = null;
+    let estruturalUserId = null;
+
+    if (family.answers) {
+        family.answers.forEach(answer => {
+            const question = answer.pergunta;
+            if (question) {
+                if (question.formulario === 'Facilities') {
+                    tabelaSocioeconomica[question.codigo] = castAnswerValue(answer.resposta, question.tipo);
+                    if (answer.userId) socioeconomicaUserId = answer.userId;
+                } else if (question.formulario === 'Edificacoes') {
+                    tabelaEstrutural[question.codigo] = castAnswerValue(answer.resposta, question.tipo);
+                    if (answer.userId) estruturalUserId = answer.userId;
+                }
+            }
+        });
+    }
+
+    if (Object.keys(tabelaSocioeconomica).length > 0) {
+        tabelaSocioeconomica.userId = socioeconomicaUserId;
+        tabelaSocioeconomica.familyId = family.id;
+        tabelaSocioeconomica._id = family.id;
+    }
+    if (Object.keys(tabelaEstrutural).length > 0) {
+        tabelaEstrutural.userId = estruturalUserId;
+        tabelaEstrutural.familyId = family.id;
+        tabelaEstrutural._id = family.id;
+    }
+
     return {
         _id: family.id,
         dadosFamilia: family.dadosPessoais || null,
         localizacaoFamilia: family.localizacao || null,
-        tabelaSocioeconomica: family.socioeconomica || null,
-        tabelaEstrutural: family.estrutural || null,
+        tabelaSocioeconomica: Object.keys(tabelaSocioeconomica).length > 0 ? tabelaSocioeconomica : (family.socioeconomica || null),
+        tabelaEstrutural: Object.keys(tabelaEstrutural).length > 0 ? tabelaEstrutural : (family.estrutural || null),
         imagens: family.imagens || [],
         arquivos: family.arquivos || [],
         usuariosAssociados: family.memberships ? family.memberships.map(m => m.userId) : []

@@ -1,94 +1,46 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-
 import { FaArrowLeft } from "react-icons/fa6";
-
 import { IconContext } from "react-icons";
 
-function DadosEstrutural(){
-
-    const [estrutural, setEstrutural] = useState(null);
-
+function DadosEstrutural() {
     const navigate = useNavigate();
     const location = useLocation();
-
     const familiaId = location.state?.id;
     const role = location.state?.role;
+    const [perguntas, setPerguntas] = useState([]);
+    const [respostas, setRespostas] = useState({});
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        Promise.all([
+            axios.get("http://localhost:3000/entrevista/perguntas?formulario=Edificacoes", { withCredentials: true }),
+            axios.get(`http://localhost:3000/familia/${familiaId}`, { withCredentials: true })
+        ]).then(([perguntasRes, familiaRes]) => {
+            setPerguntas(perguntasRes.data.perguntas || []);
+            setRespostas(familiaRes.data.familia?.tabelaEstrutural || {});
+            setLoading(false);
+        }).catch(() => setLoading(false));
+    }, [familiaId]);
 
-        axios.get(`http://localhost:3000/familia/${familiaId}`, {withCredentials:true})
-        .then((response) => setEstrutural(response.data.familia.tabelaEstrutural))
-        .catch((error) => console.log(error))
-    }, [])
+    const formatar = valor => {
+        if (valor === undefined || valor === null || valor === "") return "Não informado";
+        return Array.isArray(valor) ? valor.join(", ") : String(valor);
+    };
 
-    return (
-        <div className="container">
-            <button className="returnBtn" onClick={() => navigate("/familia/dadosFamilia", {state: {id: familiaId, role}})}>
-                <IconContext.Provider value={{size: "2rem"}}>
-                    <FaArrowLeft />
-                </IconContext.Provider>
-            </button>
-            <div className="detailsContainer">
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>ID Levantamento: </span>
-                <p className="detailsData">{estrutural ? estrutural._id : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Problemas de Insalubridade: </span>
-                <p className="detailsData">{estrutural ? estrutural.problemasInsalubridade : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Necessita de Reparos Estrutural: </span>
-                <p className="detailsData">{estrutural ? estrutural.necessitaReparosEstrutural : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Resolve o Problema no Próprio Terreno: </span>
-                <p className="detailsData">{estrutural ? estrutural.resolveProblemaNoProprioTerreno : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Edificação em Área de Risco: </span>
-                <p className="detailsData">{estrutural ? estrutural.edificacaoEmAreaDeRisco : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Número de Quartos: </span>
-                <p className="detailsData">{estrutural ? estrutural.numQuartos : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Coabitação: </span>
-                <p className="detailsData">{estrutural ? estrutural.coabitacao : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Inserção do Lote: </span>
-                <p className="detailsData">{estrutural ? estrutural.insercaoLote : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Fundações: </span>
-                <p className="detailsData">{estrutural ? estrutural.fundacoes : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Estrutura: </span>
-                <p className="detailsData">{estrutural ? estrutural.estrutura : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Paredes: </span>
-                <p className="detailsData">{estrutural ? estrutural.paredes : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Cobertura: </span>
-                <p className="detailsData">{estrutural ? estrutural.cobertura : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Esquadrias: </span>
-                <p className="detailsData">{estrutural ? estrutural.esquadrias : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Hidrossanitário: </span>
-                <p className="detailsData">{estrutural ? estrutural.hidrossanitario : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Elétrico: </span>
-                <p className="detailsData">{estrutural ? estrutural.eletrico : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Banheiros: </span>
-                <p className="detailsData">{estrutural ? estrutural.banheiros : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Cozinha / Área de Serviço: </span>
-                <p className="detailsData">{estrutural ? estrutural.cozinhaAreaDeServico: "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Conforto: </span>
-                <p className="detailsData">{estrutural ? estrutural.conforto : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Avaliação da Residência: </span>
-                <p className="detailsData">{estrutural ? estrutural.avaliacaoResidencia : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Necessita de Acompanhamento Psicossocial: </span>
-                <p className="detailsData">{estrutural ? estrutural.acompanhamentoPsicossocial : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Circulacao Interna é Segura: </span>
-                <p className="detailsData">{estrutural ? estrutural.circulacaoInternaSegura : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Avaliação da Infraestrutura Urbana: </span>
-                <p className="detailsData">{estrutural ? estrutural.avaliacaoInfraestruturaUrbana : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Avaliação Acessibilidade, Transporte, Lazer e Saneamento Básico: </span>
-                <p className="detailsData">{estrutural ? estrutural.avaliacaoAcessibilidadeTransporteLazerSaneamento : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Opinião Geral da Casa: </span>
-                <p className="detailsData">{estrutural ? estrutural.opiniaoGeralDaCasa : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Diagnóstico Preliminar: </span>
-                <p className="detailsData">{estrutural ? estrutural.diagnosticoPreliminar : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Pontos Positivos da Casa: </span>
-                <p className="detailsData">{estrutural ? estrutural.situacaoPositiva : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Observações Gerais: </span>
-                <p className="detailsData">{estrutural ? estrutural.observacoesGerais : "No data"}</p>
-            </div>
+    return <div className="container">
+        <button className="returnBtn" onClick={() => navigate("/familia/dadosFamilia", { state: { id: familiaId, role } })}>
+            <IconContext.Provider value={{ size: "2rem" }}><FaArrowLeft /></IconContext.Provider>
+        </button>
+        <h2>Dados do Formulário Estrutural</h2>
+        <div className="detailsContainer">
+            {loading ? <p>Carregando dados...</p> : perguntas.map(pergunta => <div key={pergunta.id}>
+                <span style={{ fontWeight: "bold", fontSize: "1.2rem" }}>{pergunta.texto}</span>
+                <p className="detailsData">{formatar(respostas[pergunta.codigo])}</p>
+            </div>)}
         </div>
-    )
+    </div>;
 }
-
 
 export default DadosEstrutural;

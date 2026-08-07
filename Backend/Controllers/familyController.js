@@ -86,7 +86,12 @@ exports.listarFamilias = asyncErrorHandler(async (req, res, next) => {
                 estrutural: true,
                 imagens: true,
                 arquivos: true,
-                memberships: true
+                memberships: true,
+                answers: {
+                    include: {
+                        pergunta: true
+                    }
+                }
             }
         });
     } else {
@@ -106,7 +111,12 @@ exports.listarFamilias = asyncErrorHandler(async (req, res, next) => {
                 estrutural: true,
                 imagens: true,
                 arquivos: true,
-                memberships: true
+                memberships: true,
+                answers: {
+                    include: {
+                        pergunta: true
+                    }
+                }
             }
         });
     }
@@ -128,7 +138,12 @@ exports.getFamilia = asyncErrorHandler(async (req, res, next) => {
             estrutural: true,
             imagens: true,
             arquivos: true,
-            memberships: true
+            memberships: true,
+            answers: {
+                include: {
+                    pergunta: true
+                }
+            }
         }
     });
 
@@ -281,40 +296,59 @@ exports.enviaFormularioFacilities = asyncErrorHandler(async (req, res, next) => 
     const data = { ...req.body.obj };
     delete data.familyId;
 
-    const floatFields = ['numMoradores', 'rendaMensalTotal', 'numCriancas', 'qualValorAluguel'];
-    floatFields.forEach(field => {
-        if (data[field] !== undefined && data[field] !== null && data[field] !== "") {
-            const parsed = parseFloat(data[field]);
-            data[field] = isNaN(parsed) ? null : parsed;
-        } else {
-            data[field] = null;
+    const userId = req.user._id || req.user.id;
+    const questions = await prisma.facilitiesQuestion.findMany({
+        where: { formulario: "Facilities", ativa: true }
+    });
+
+    await prisma.$transaction(async (tx) => {
+        for (const q of questions) {
+            if (data[q.codigo] !== undefined) {
+                const val = data[q.codigo];
+                if (val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0)) {
+                    await tx.facilitiesAnswer.deleteMany({
+                        where: { familyId: req.body.id, perguntaId: q.id }
+                    });
+                } else {
+                    const stringVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
+                    await tx.facilitiesAnswer.upsert({
+                        where: {
+                            familyId_perguntaId: {
+                                familyId: req.body.id,
+                                perguntaId: q.id
+                            }
+                        },
+                        update: {
+                            resposta: stringVal,
+                            userId: userId
+                        },
+                        create: {
+                            familyId: req.body.id,
+                            perguntaId: q.id,
+                            resposta: stringVal,
+                            userId: userId
+                        }
+                    });
+                }
+            }
         }
     });
 
-    if (data.dataPrimeiraVisita) {
-        data.dataPrimeiraVisita = new Date(data.dataPrimeiraVisita);
-    } else {
-        data.dataPrimeiraVisita = null;
-    }
-
-    const userId = req.user._id;
-
-    const socio = await prisma.familySocioeconomica.upsert({
-        where: { familyId: req.body.id },
-        update: {
-            ...data,
-            userId: userId
-        },
-        create: {
-            familyId: req.body.id,
-            ...data,
-            userId: userId
+    const updatedFamily = await prisma.family.findUnique({
+        where: { id: req.body.id },
+        include: {
+            answers: {
+                include: {
+                    pergunta: true
+                }
+            }
         }
     });
+    const formatted = formatFamily(updatedFamily);
 
     res.status(200).json({
         status: 'success',
-        tabela: socio
+        tabela: formatted.tabelaSocioeconomica
     });
 });
 
@@ -331,39 +365,67 @@ exports.enviaFormularioEstrutural = asyncErrorHandler(async (req, res, next) => 
     const data = { ...req.body.obj };
     delete data.familyId;
 
-    const floatFields = [
-        'numQuartos', 'insercaoLote', 'fundacoes', 'estrutura', 'paredes',
-        'cobertura', 'esquadrias', 'hidrossanitario', 'eletrico', 'banheiros',
-        'cozinhaAreaDeServico', 'conforto', 'avaliacaoInfraestruturaUrbana',
-        'opiniaoGeralDaCasa'
-    ];
-    floatFields.forEach(field => {
-        if (data[field] !== undefined && data[field] !== null && data[field] !== "") {
-            const parsed = parseFloat(data[field]);
-            data[field] = isNaN(parsed) ? null : parsed;
-        } else {
-            data[field] = null;
+    const userId = req.user._id || req.user.id;
+    const questions = await prisma.facilitiesQuestion.findMany({
+        where: { formulario: "Edificacoes", ativa: true }
+    });
+    const answersByQuestionId = new Map(
+        Array.isArray(req.body.answers)
+            ? req.body.answers
+                .filter(answer => answer && answer.questionId)
+                .map(answer => [answer.questionId, answer.value])
+            : []
+    );
+
+    await prisma.$transaction(async (tx) => {
+        for (const q of questions) {
+            const hasDirectAnswer = answersByQuestionId.has(q.id);
+            if (hasDirectAnswer || data[q.codigo] !== undefined) {
+                const val = hasDirectAnswer ? answersByQuestionId.get(q.id) : data[q.codigo];
+                if (val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0)) {
+                    await tx.facilitiesAnswer.deleteMany({
+                        where: { familyId: req.body.id, perguntaId: q.id }
+                    });
+                } else {
+                    const stringVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
+                    await tx.facilitiesAnswer.upsert({
+                        where: {
+                            familyId_perguntaId: {
+                                familyId: req.body.id,
+                                perguntaId: q.id
+                            }
+                        },
+                        update: {
+                            resposta: stringVal,
+                            userId: userId
+                        },
+                        create: {
+                            familyId: req.body.id,
+                            perguntaId: q.id,
+                            resposta: stringVal,
+                            userId: userId
+                        }
+                    });
+                }
+            }
         }
     });
 
-    const userId = req.user._id;
-
-    const estrutural = await prisma.familyEstrutural.upsert({
-        where: { familyId: req.body.id },
-        update: {
-            ...data,
-            userId: userId
-        },
-        create: {
-            familyId: req.body.id,
-            ...data,
-            userId: userId
+    const updatedFamily = await prisma.family.findUnique({
+        where: { id: req.body.id },
+        include: {
+            answers: {
+                include: {
+                    pergunta: true
+                }
+            }
         }
     });
+    const formatted = formatFamily(updatedFamily);
 
     res.status(200).json({
         status: 'success',
-        tabela: estrutural
+        tabela: formatted.tabelaEstrutural
     });
 });
 

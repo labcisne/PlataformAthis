@@ -3,117 +3,118 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 import { FaArrowLeft } from "react-icons/fa6";
-
 import { IconContext } from "react-icons";
 
-
-function DadosFacilities(){
-
-    const [facilities, setFacilities] = useState(null);
-
+function DadosFacilities() {
     const navigate = useNavigate();
     const location = useLocation();
 
     const familiaId = location.state?.id;
     const role = location.state?.role;
 
-    useEffect(() => {
+    const [perguntas, setPerguntas] = useState([]);
+    const [facilities, setFacilities] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [erro, setErro] = useState("");
 
-        axios.get(`http://localhost:3000/familia/${familiaId}`, {withCredentials:true})
-        .then((response) => setFacilities(response.data.familia.tabelaSocioeconomica))
-        .catch((error) => console.log(error))
-    }, [])
+    useEffect(() => {
+        if (!familiaId) {
+            setErro("Família não especificada.");
+            setLoading(false);
+            return;
+        }
+
+        // Fetch questions and family info
+        Promise.all([
+            axios.get("http://localhost:3000/entrevista/perguntas?formulario=Facilities", { withCredentials: true }),
+            axios.get(`http://localhost:3000/familia/${familiaId}`, { withCredentials: true })
+        ])
+        .then(([perguntasRes, familiaRes]) => {
+            setPerguntas(perguntasRes.data.perguntas || []);
+            setFacilities(familiaRes.data.familia?.tabelaSocioeconomica || null);
+            setLoading(false);
+        })
+        .catch(err => {
+            console.error("Erro ao carregar dados:", err);
+            setErro("Erro ao carregar respostas ou perguntas.");
+            setLoading(false);
+        });
+    }, [familiaId]);
+
+    const formatAnswerValue = (val, type, codigo) => {
+        if (val === undefined || val === null || val === "") {
+            return "Não informado";
+        }
+        if (type === "resposta_multipla" && Array.isArray(val)) {
+            return val.join(", ");
+        }
+        if (codigo === "valor_aluguel") {
+            const num = parseFloat(val);
+            return isNaN(num) ? val : `R$ ${num.toFixed(2).replace(".", ",")}`;
+        }
+        return String(val);
+    };
+
+    if (loading) {
+        return (
+            <div className="container" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "200px" }}>
+                <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Carregando dados...</p>
+            </div>
+        );
+    }
+
+    if (erro) {
+        return (
+            <div className="container" style={{ color: "red", padding: "20px" }}>
+                <p>{erro}</p>
+                <button onClick={() => navigate("/familia/dadosFamilia", { state: { id: familiaId, role } })} className="detailsBtn" style={{ marginTop: "16px" }}>Voltar</button>
+            </div>
+        );
+    }
+
+    // Group questions by category
+    const categorias = {};
+    perguntas.forEach(q => {
+        const cat = q.categoria || "Outros";
+        if (!categorias[cat]) {
+            categorias[cat] = [];
+        }
+        categorias[cat].push(q);
+    });
 
     return (
-        <div className="container">
-            <button className="returnBtn" onClick={() => navigate("/familia/dadosFamilia", {state: {id: familiaId, role}})}>
-                <IconContext.Provider value={{size: "2rem"}}>
+        <div className="container" style={{ maxWidth: "600px", width: "100%", margin: "0 auto", backgroundColor: "#f9f9f9", borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", padding: "24px" }}>
+            <button className="returnBtn" onClick={() => navigate("/familia/dadosFamilia", { state: { id: familiaId, role } })}>
+                <IconContext.Provider value={{ size: "2rem" }}>
                     <FaArrowLeft />
                 </IconContext.Provider>
             </button>
-            <div className="detailsContainer">
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>ID Levantamento: </span>
-                <p className="detailsData">{facilities ? facilities._id : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Tipo de Levantamento: </span>
-                <p className="detailsData">{facilities ? facilities.tipoLevantamento : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Número de Moradores: </span>
-                <p className="detailsData">{facilities ? facilities.numMoradores : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Idade dos Residentes: </span>
-                <p className="detailsData">{facilities ? facilities.idadeResidentes : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Adultos Empregados: </span>
-                <p className="detailsData">{facilities ? facilities.adultosEmpregados : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Renda Mensal Total: </span>
-                <p className="detailsData">{facilities ? `R$ ${facilities.rendaMensalTotal}` : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Mulher Como Chefe de Família: </span>
-                <p className="detailsData">{facilities ? facilities.mulherChefeFamilia : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Idoso Como Chefe de Família: </span>
-                <p className="detailsData">{facilities ? facilities.idosoChefeFamilia : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Número de Crianças: </span>
-                <p className="detailsData">{facilities ? facilities.numCriancas : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Auto Declaração da Família: </span>
-                <p className="detailsData">{facilities ? facilities.autoDeclaracaoFamilia : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Familia Cadastrada no Bolsa Familia: </span>
-                <p className="detailsData">{facilities ? facilities.cadastradaBolsaFamilia : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Familia Apresenta Alguma Comorbidade: </span>
-                <p className="detailsData">{facilities ? facilities.comorbidadeNaFamilia : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Familia Apresenta Doença Respiratória: </span>
-                <p className="detailsData">{facilities ? facilities.apresentaDoencaRespiratoria : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Forma de Aquisição do Imóvel: </span>
-                <p className="detailsData">{facilities ? facilities.formaAquisicaoImovel : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Ano de Construção ou Tempo Residindo: </span>
-                <p className="detailsData">{facilities ? facilities.anoDeConstrucaoTempoResidindo : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Família Possui Outro Imóvel: </span>
-                <p className="detailsData">{facilities ? facilities.possuiOutroImovel : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Família Reside no Imóvel Levantado: </span>
-                <p className="detailsData">{facilities ? facilities.resideNoImovelLevantado : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Qual o Valor do Aluguel: </span>
-                <p className="detailsData">{facilities?.qualValorAluguel ? `R$ ${facilities.qualValorAluguel}` : "Família não mora de Aluguel"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Relação Aluguel / Renda: </span>
-                <p className="detailsData">{facilities ? facilities.relacaoAluguelRenda : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Imóvel Teve Ação Anterior: </span>
-                <p className="detailsData">{facilities ? facilities.imovelTeveAcaoAnterior : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Possui Boa Vivencia com Vizinhos: </span>
-                <p className="detailsData">{facilities ? facilities.boaVivenciaVizinhos : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Participa de Reuniões e Ações da Comunidade: </span>
-                <p className="detailsData">{facilities ? facilities.participaReuniaoAcaoComunidade : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Família Utiliza Banco Comunitário: </span>
-                <p className="detailsData">{facilities ? facilities.utilizaBancoComunitario: "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Indicação de Profissionais: </span>
-                <p className="detailsData">{facilities ? facilities.indicacaoDeProfissionais : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Ponto Próximo Para Entrega de Materiais: </span>
-                <p className="detailsData">{facilities ? facilities.pontoProximoEntrega : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Família Recebe Boleto Água e Energia: </span>
-                <p className="detailsData">{facilities ? facilities.recebeBoletoAguaEnergia : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Família Possui Reservatório de Água: </span>
-                <p className="detailsData">{facilities ? facilities.possuiReservatorioAgua: "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Estado do Reservatório de Água: </span>
-                <p className="detailsData">{facilities ? facilities.estadoReservatorioAgua : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Casa Possui Espaço de Hortas e Canteiros: </span>
-                <p className="detailsData">{facilities ? facilities.espacoParaHortasCanteiro : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Casa Possui Banheiro: </span>
-                <p className="detailsData">{facilities ? facilities.possuiBanheiro : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Casa Possui Cozinha: </span>
-                <p className="detailsData">{facilities ? facilities.possuiCozinha : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Data da Primeira Visita: </span>
-                <p className="detailsData">{facilities ? `${facilities.dataPrimeiraVisita.slice(8, 10)}/${facilities.dataPrimeiraVisita.slice(5, 7)}/${facilities.dataPrimeiraVisita.slice(0, 4)}` : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Responsável Pelo Formulário: </span>
-                <p className="detailsData">{facilities ? facilities.nomeResponsavelFormulario : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Responsável Fotográfico: </span>
-                <p className="detailsData">{facilities ? facilities.nomeResponsavelFotografico : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Responsável Arquitetônico: </span>
-                <p className="detailsData">{facilities ? facilities.nomeResponsavelArquitetonico : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Agente Comunitário: </span>
-                <p className="detailsData">{facilities ? facilities.nomeAgenteComunitario : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Outros Profissionais Envolvidos: </span>
-                <p className="detailsData">{facilities ? facilities.outrosProfissionaisEnvolvidos : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Demanda da Família: </span>
-                <p className="detailsData">{facilities ? facilities.demandaDaFamilia : "No data"}</p>
-                <span style={{fontWeight: "bold", fontSize: "1.2rem"}}>Descrição das Pendências: </span>
-                <p className="detailsData">{facilities ? facilities.descricaoPendencias : "No data"}</p>
+
+            <h2 style={{ marginBottom: "24px", color: "#333", fontSize: "1.6rem", borderBottom: "3px solid #F0A22E", paddingBottom: "8px", textAlign: "left" }}>
+                Dados do Formulário Facilities
+            </h2>
+
+            <div className="detailsContainer" style={{ textAlign: "left" }}>
+                {Object.keys(categorias).map((catName, catIdx) => (
+                    <div key={catIdx} style={{ marginBottom: "24px", backgroundColor: "#fff", padding: "16px", borderRadius: "8px", boxShadow: "0 2px 6px rgba(0,0,0,0.05)", borderLeft: "4px solid #F0A22E" }}>
+                        <h3 style={{ marginBottom: "16px", color: "#F0A22E", fontSize: "1.2rem", borderBottom: "1px solid #eee", paddingBottom: "6px" }}>{catName}</h3>
+                        
+                        {categorias[catName].map((q) => {
+                            const val = facilities ? facilities[q.codigo] : null;
+                            return (
+                                <div key={q.id} style={{ marginBottom: "12px" }}>
+                                    <span style={{ fontWeight: "bold", fontSize: "1.05rem", color: "#555", display: "block" }}>{q.texto}</span>
+                                    <p className="detailsData" style={{ fontSize: "1rem", color: "#333", marginTop: "4px", paddingLeft: "8px" }}>
+                                        {formatAnswerValue(val, q.tipo, q.codigo)}
+                                    </p>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ))}
             </div>
         </div>
-    )
+    );
 }
-
 
 export default DadosFacilities;
