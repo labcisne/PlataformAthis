@@ -271,7 +271,7 @@ function Entrevista() {
                                                 <BotoesSelecionaveis
                                                     arrayDeOpcoes={opcoes}
                                                     selecionado={valorAtual}
-                                                    setSelecionado={(opt) => handleValueChange(q.codigo, opt)}
+                                                    setSelecionado={(opt) => handleValueChange(q.codigo, typeof opt === "function" ? opt(valorAtual) : opt)}
                                                 />
                                             );
                                         }

@@ -5,6 +5,36 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IconContext } from "react-icons";
 import BotoesSelecionaveis from "./BotoesSelecionaveis";
 
+function BotoesMultiplosSelecionaveis({ arrayDeOpcoes, selecionados = [], onChange }) {
+    const handleToggle = (opcao) => {
+        let novos;
+        if (selecionados.includes(opcao)) {
+            novos = selecionados.filter(item => item !== opcao);
+        } else {
+            novos = [...selecionados, opcao];
+        }
+        onChange(novos);
+    };
+
+    return (
+        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            {arrayDeOpcoes.map((opcao, idx) => {
+                const isSelected = selecionados.includes(opcao);
+                return (
+                    <button
+                        type="button"
+                        key={idx}
+                        onClick={() => handleToggle(opcao)}
+                        className={isSelected ? "botaoSelecionado" : "botaoNaoSelecionado"}
+                    >
+                        {opcao}
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
+
 function Estrutural() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -80,11 +110,11 @@ function Estrutural() {
         }
         if (pergunta.tipo === "resposta_multipla") {
             const selecionadas = Array.isArray(valor) ? valor : [];
-            return <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                {(pergunta.opcoes || []).map(opcao => <label key={opcao} style={{ fontWeight: "normal" }}>
-                    <input type="checkbox" checked={selecionadas.includes(opcao)} onChange={() => alterarResposta(pergunta.codigo, selecionadas.includes(opcao) ? selecionadas.filter(item => item !== opcao) : [...selecionadas, opcao])} /> {opcao}
-                </label>)}
-            </div>;
+            return <BotoesMultiplosSelecionaveis
+                arrayDeOpcoes={pergunta.opcoes || []}
+                selecionados={selecionadas}
+                onChange={novos => alterarResposta(pergunta.codigo, novos)}
+            />;
         }
         return <input type={pergunta.tipo === "number" ? "number" : pergunta.tipo === "data" ? "date" : "text"} value={valor ?? ""} onChange={e => alterarResposta(pergunta.codigo, e.target.value)} />;
     };

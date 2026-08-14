@@ -1,7 +1,7 @@
 function BotoesSelecionaveis( { arrayDeOpcoes, selecionado, setSelecionado } ){
 
     const handleClick = (valorBotao) => {
-        setSelecionado((prev) => (prev ===  valorBotao ? "" : valorBotao))
+        setSelecionado(selecionado ===  valorBotao ? "" : valorBotao)
     }
 
     return (
