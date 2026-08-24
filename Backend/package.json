@@ -6,7 +6,12 @@
     "dev": "npx nodemon server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "migrate:dry-run": "node scripts/migrate-appsheet.js --dry-run",
+    "migrate:execute": "node scripts/migrate-appsheet.js --execute",
+    "migrate:overwrite": "node scripts/migrate-appsheet.js --execute --overwrite",
+    "questions:sync": "node Utils/seedQuestions.js",
+    "db:validate": "node scripts/validate-db-schema.js"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +29,7 @@
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "prisma": "^6.19.3"
+    "prisma": "^6.19.3",
+    "xlsx": "^0.18.5"
   }
 }

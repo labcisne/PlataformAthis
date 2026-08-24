@@ -87,15 +87,30 @@ function castAnswerValue(value, type) {
     if (type === 'resposta_multipla') {
         try {
             if (value.startsWith('[') && value.endsWith(']')) {
-                return JSON.parse(value);
+                const parsed = JSON.parse(value);
+                if (Array.isArray(parsed)) return parsed;
             }
         } catch (e) {
-            // Not JSON
+            // Mantém o fallback textual abaixo.
         }
-        if (value.includes(',')) {
-            return value.split(',').map(s => s.trim());
+        if (value.includes(',') || value.includes(';')) {
+            return value.split(/[,;]/).map(s => s.trim()).filter(Boolean);
         }
         return [value];
+    }
+    if (type === 'data') {
+        // Inputs HTML do tipo date esperam YYYY-MM-DD.
+        return value.length >= 10 ? value.slice(0, 10) : value;
+    }
+    // Se uma pergunta mudou de múltipla para outro tipo, não expõe o JSON
+    // bruto ao formulário: converte o histórico para uma representação textual.
+    try {
+        if (value.startsWith('[') && value.endsWith(']')) {
+            const parsed = JSON.parse(value);
+            if (Array.isArray(parsed)) return parsed.join(', ');
+        }
+    } catch (e) {
+        // Não é JSON; retorna o valor original.
     }
     return value;
 }
