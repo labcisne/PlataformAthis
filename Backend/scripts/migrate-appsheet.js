@@ -202,19 +202,30 @@ function familyDataFromFacilitiesRow(row) {
   };
 }
 
-function addFamilyToIndexes(family, bySourceId) {
-  if (family.appsheetSourceId) bySourceId.set(String(family.appsheetSourceId), family);
+function addFamilyToIndexes(family, bySurveyNumber, surveyNumber) {
+  if (surveyNumber) {
+    if (!bySurveyNumber.has(surveyNumber)) bySurveyNumber.set(surveyNumber, []);
+    bySurveyNumber.get(surveyNumber).push(family);
+  }
 }
 
-async function prepareFamilies(facilitiesRows, report, tx = null) {
+async function prepareFamilies(facilitiesRows, surveyQuestion, report, tx = null) {
   const client = tx ?? prisma;
   const families = await client.family.findMany({
-     include: { dadosPessoais: true }
+    include: {
+      dadosPessoais: true,
+      answers: { where: { perguntaId: surveyQuestion.id }, select: { resposta: true } }
+    }
   });
-  const bySourceId = new Map();
-  for (const family of families) addFamilyToIndexes(family, bySourceId);
+  const bySurveyNumber = new Map();
+  const storedSourceIds = new Set(families.map(family => family.appsheetSourceId).filter(Boolean).map(String));
+  for (const family of families) {
+    const answer = family.answers[0];
+    addFamilyToIndexes(family, bySurveyNumber, answer ? String(answer.resposta).trim() : null);
+  }
 
   const familyMatches = new Map();
+  const familyBySurveyNumber = new Map();
   const newFamilies = [];
   const seenSourceIds = new Set();
   const sourceIdsByRowId = new Map(
@@ -242,27 +253,39 @@ async function prepareFamilies(facilitiesRows, report, tx = null) {
       continue;
     }
 
-    // The AppSheet ID is the authoritative stable key. If it already exists,
-    // reuse that Family even if its name/phone changed since the previous import.
-    let family = bySourceId.get(sourceId);
+    const existingFamilies = bySurveyNumber.get(sourceId) || [];
+    if (existingFamilies.length > 1) {
+      report.issues.push({
+        type: 'family_survey_number_duplicated_in_database',
+        surveyNumber: sourceId,
+        familyIds: existingFamilies.map(existingFamily => existingFamily.id)
+      });
+      continue;
+    }
+
+    // The survey number is the only logical identity of a Family.
+    let family = existingFamilies[0];
     if (family) {
       familyMatches.set(sourceId, family);
-      report.familiesExistingBySourceId++;
+      familyBySurveyNumber.set(sourceId, family);
+      report.familiesExistingBySurveyNumber++;
       continue;
     }
 
     // This is an intentionally NEW family from the XLSX.
     const virtualId = crypto.randomUUID();
+    const rowSourceId = familyRowId(row);
+    const appsheetSourceId = rowSourceId && !storedSourceIds.has(rowSourceId) ? rowSourceId : null;
     family = {
       id: virtualId,
-      appsheetSourceId: sourceId,
+      appsheetSourceId,
       dadosPessoais: { familyId: virtualId, ...data },
     };
 
     if (tx) {
       family = await client.family.create({
         data: {
-          appsheetSourceId: sourceId,
+          ...(appsheetSourceId ? { appsheetSourceId } : {}),
           dadosPessoais: { create: data }
         },
         include: { dadosPessoais: true }
@@ -274,10 +297,12 @@ async function prepareFamilies(facilitiesRows, report, tx = null) {
 
     newFamilies.push(family);
     familyMatches.set(sourceId, family);
-    addFamilyToIndexes(family, bySourceId);
+    familyBySurveyNumber.set(sourceId, family);
+    addFamilyToIndexes(family, bySurveyNumber, sourceId);
+    if (appsheetSourceId) storedSourceIds.add(appsheetSourceId);
   }
 
-  return { result: familyMatches, bySourceId, sourceIdsByRowId, newFamilies };
+  return { result: familyMatches, bySurveyNumber: familyBySurveyNumber, sourceIdsByRowId, newFamilies };
 }
 
 function resolveEstrutural(row, bySourceId, sourceIdsByRowId, issues) {
@@ -358,14 +383,16 @@ async function main() {
   await validatePhysicalSchema();
   const wb = XLSX.readFile(workbookPath, { cellDates: true });
   const questions = await prisma.facilitiesQuestion.findMany({ orderBy: [{ formulario: 'asc' }, { ordem: 'asc' }] });
-  const report = { mode: DRY_RUN ? 'dry-run' : 'execute', overwrite: OVERWRITE, workbook: workbookPath, timestamp: new Date().toISOString(), summary: {}, mapping: {}, issues: [], existingAnswers: 0, toCreate: 0, toUpdate: 0, rowsProcessed: 0, familiesToCreate: 0, familiesCreated: 0, familiesExistingBySourceId: 0, familiesReusedByLegacyMatch: 0 };
+  const report = { mode: DRY_RUN ? 'dry-run' : 'execute', overwrite: OVERWRITE, workbook: workbookPath, timestamp: new Date().toISOString(), summary: {}, mapping: {}, issues: [], existingAnswers: 0, toCreate: 0, toUpdate: 0, rowsProcessed: 0, familiesToCreate: 0, familiesCreated: 0, familiesExistingBySurveyNumber: 0, familiesReusedByLegacyMatch: 0 };
   const mappings = buildMappings(wb, questions, report);
   for (const [form, info] of Object.entries(mappings)) {
     report.mapping[form] = [...info.columns.entries()].map(([column, r]) => ({ column, code: r.code, method: r.method, active: r.question.ativa, question: r.question.texto }));
   }
 
-  const familyPreparation = await prepareFamilies(mappings.Facilities.rows, report);
-  const { result: familyMatches, sourceIdsByRowId, bySourceId: familyBySourceId } = familyPreparation;
+  const surveyQuestion = mappings.Facilities.columns.get('Numeração do levantamento:')?.question;
+  if (!surveyQuestion) throw new Error('A pergunta "Numeração do levantamento:" não foi mapeada.');
+  const familyPreparation = await prepareFamilies(mappings.Facilities.rows, surveyQuestion, report);
+  const { result: familyMatches, sourceIdsByRowId, bySurveyNumber: familyBySourceId } = familyPreparation;
 
   await processRows(mappings, familyMatches, sourceIdsByRowId, familyBySourceId, report);
   report.summary = {
@@ -376,7 +403,7 @@ async function main() {
     familiesMatched: familyMatches.size,
     familiesToCreate: report.familiesToCreate,
     familiesCreated: report.familiesCreated,
-    familiesExistingBySourceId: report.familiesExistingBySourceId,
+    familiesExistingBySurveyNumber: report.familiesExistingBySurveyNumber,
     familiesReusedByLegacyMatch: report.familiesReusedByLegacyMatch,
     mappedFacilitiesColumns: mappings.Facilities.columns.size,
     mappedStructuralColumns: mappings.Edificacoes.columns.size,
@@ -393,9 +420,12 @@ async function main() {
     report.toCreate = 0; report.toUpdate = 0; report.existingAnswers = 0; report.rowsProcessed = 0;
     report.familiesCreated = 0;
     await prisma.$transaction(async tx => {
-      const prepared = await prepareFamilies(mappings.Facilities.rows, report, tx);
-      await processRows(mappings, prepared.result, prepared.sourceIdsByRowId, prepared.bySourceId, report, tx);
-    });
+      const prepared = await prepareFamilies(mappings.Facilities.rows, surveyQuestion, report, tx);
+      await processRows(mappings, prepared.result, prepared.sourceIdsByRowId, prepared.bySurveyNumber, report, tx);
+    },
+  {
+    timeout: 60000
+  });
     report.summary.answersCreated = report.toCreate;
     report.summary.answersUpdated = report.toUpdate;
   }
