@@ -1062,7 +1062,11 @@ const facilitiesQuestions = [
     categoria: "Histórico"
   },
 
-  // SECTION: EDIFICAÇÕES (STRUCTURAL) QUESTIONS
+];
+
+// Perguntas substituídas pelos códigos EST001–EST039. Permanecem no banco
+// somente como histórico, sem aparecer no formulário atual.
+const legacyEdificacoesQuestions = [
   {
     formulario: "Edificacoes",
     codigo: "problemasInsalubridade",
@@ -1349,7 +1353,13 @@ const facilitiesQuestions = [
     opcoes: [],
     categoria: "Opinião Geral"
   }
-];
+].map(q => ({
+  ...q,
+  codigo: `legacy_${q.codigo}`,
+  ordem: 9100 + q.ordem,
+  ativa: false,
+  categoria: "Histórico AppSheet"
+}));
 
 const estruturalQuestions = [
   { formulario: "Edificacoes", codigo: "EST001", texto: "Possui reservatório de água na residência?", tipo: "resposta_unica", ordem: 1, obrigatoria: false, ativa: true, opcoes: ["Caixa d'água", "Água encanada", "Não sabe informar"], categoria: "Edificação" },
@@ -1577,6 +1587,7 @@ const ignoredSourceColumns = {
 };
 
 const legacySourceQuestions = [
+  ...legacyEdificacoesQuestions,
   {"formulario": "Facilities", "codigo": "legacy_idade_dos_residentes_ex_12_13_25", "texto": "Idade dos residentes (ex: 12, 13, 25):", "tipo": "texto", "ordem": 9001, "obrigatoria": false, "ativa": false, "opcoes": [], "categoria": "Histórico AppSheet"},
   {"formulario": "Facilities", "codigo": "legacy_a_familia_esta_cadastrada_no_bolsa_familia", "texto": "A família está cadastrada no Bolsa Família?", "tipo": "texto", "ordem": 9002, "obrigatoria": false, "ativa": false, "opcoes": [], "categoria": "Histórico AppSheet"},
   {"formulario": "Facilities", "codigo": "legacy_caso_a_familia_esteja_cadastrada_no_bolsa_familia_qual_o_numero_do_nis", "texto": "Caso a família esteja cadastrada no Bolsa Família, qual o número do NIS?", "tipo": "texto", "ordem": 9003, "obrigatoria": false, "ativa": false, "opcoes": [], "categoria": "Histórico AppSheet"},
@@ -1593,6 +1604,12 @@ const legacySourceQuestions = [
   {"formulario": "Edificacoes", "codigo": "legacy_e_necessario_acompanhamento_psicossocial", "texto": "É necessário acompanhamento psicossocial?", "tipo": "texto", "ordem": 9015, "obrigatoria": false, "ativa": false, "opcoes": [], "categoria": "Histórico AppSheet"},
 ];
 
-for (const q of legacySourceQuestions) legacyColumnAliases[q.formulario][q.texto] = q.codigo;
+for (const q of legacySourceQuestions) {
+  // Em Edificações, os aliases declarados acima são o destino da migração para
+  // EST001–EST039 e não devem ser substituídos por perguntas de histórico.
+  if (q.formulario !== "Edificacoes") {
+    legacyColumnAliases[q.formulario][q.texto] = q.codigo;
+  }
+}
 
 module.exports = { facilitiesQuestions, estruturalQuestions, legacyColumnAliases, ignoredSourceColumns, legacySourceQuestions };
