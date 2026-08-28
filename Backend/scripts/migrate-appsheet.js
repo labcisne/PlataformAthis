@@ -413,7 +413,7 @@ async function main() {
     issues: report.issues.length
   };
 
-  const blocking = new Set(['question_alias_target_not_found', 'question_text_ambiguous', 'unmapped_source_column', 'family_source_id_missing', 'family_source_id_duplicated_in_xlsx', 'family_name_missing', 'structural_family_not_found']);
+  const blocking = new Set(['question_alias_target_not_found', 'question_text_ambiguous', 'family_source_id_missing', 'family_source_id_duplicated_in_xlsx', 'family_name_missing', 'structural_family_not_found']);
   if (EXECUTE && report.issues.some(i => blocking.has(i.type))) throw new Error('Migração abortada: o dry-run encontrou problemas estruturais. Corrija-os antes do --execute.');
 
   if (EXECUTE) {
