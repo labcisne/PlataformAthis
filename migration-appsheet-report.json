@@ -1,0 +1,1044 @@
+{
+  "mode": "execute",
+  "overwrite": false,
+  "workbook": "E:\\semestres\\Athis\\PlataformAthis\\Dados para serem migrados.xlsx",
+  "timestamp": "2026-08-31T14:05:26.131Z",
+  "summary": {
+    "facilitiesRows": 39,
+    "structuralRows": 31,
+    "structuralRowsWithFamilyId": 30,
+    "familiesInXlsx": 39,
+    "familiesMatched": 39,
+    "familiesToCreate": 39,
+    "familiesCreated": 0,
+    "familiesExistingBySurveyNumber": 0,
+    "familiesReusedByLegacyMatch": 0,
+    "mappedFacilitiesColumns": 88,
+    "mappedStructuralColumns": 39,
+    "answersToCreate": 3127,
+    "answersToUpdate": 0,
+    "answersAlreadyExisting": 0,
+    "issues": 23,
+    "answersCreated": 3127,
+    "answersUpdated": 0
+  },
+  "mapping": {
+    "Facilities": [
+      {
+        "column": "Numeração do levantamento:",
+        "code": "num_levantamento",
+        "method": "alias",
+        "active": true,
+        "question": "Numeração do levantamento:"
+      },
+      {
+        "column": "Nome do Morador:",
+        "code": "nome_morador",
+        "method": "alias",
+        "active": true,
+        "question": "Nome do Morador:"
+      },
+      {
+        "column": "Localização:",
+        "code": "localizacao",
+        "method": "alias",
+        "active": true,
+        "question": "Localização:"
+      },
+      {
+        "column": "Endereço:",
+        "code": "endereco",
+        "method": "alias",
+        "active": true,
+        "question": "Endereço:"
+      },
+      {
+        "column": "Idade dos residentes (ex: 12, 13, 25):",
+        "code": "legacy_idade_dos_residentes_ex_12_13_25",
+        "method": "alias",
+        "active": false,
+        "question": "Idade dos residentes (ex: 12, 13, 25):"
+      },
+      {
+        "column": "Telefone:",
+        "code": "telefone_contato",
+        "method": "alias",
+        "active": true,
+        "question": "Telefone de contato (com DDD):"
+      },
+      {
+        "column": "Dono do Telefone:",
+        "code": "dono_telefone",
+        "method": "alias",
+        "active": true,
+        "question": "Dono do Telefone:"
+      },
+      {
+        "column": "Qual a Renda mensal familiar total?",
+        "code": "renda_mensal_total",
+        "method": "text_active",
+        "active": true,
+        "question": "Qual a Renda mensal familiar total?"
+      },
+      {
+        "column": "A família se autodeclara:",
+        "code": "auto_declaracao",
+        "method": "alias",
+        "active": true,
+        "question": "A família se autodeclara:"
+      },
+      {
+        "column": "A família está cadastrada no Bolsa Família?",
+        "code": "legacy_a_familia_esta_cadastrada_no_bolsa_familia",
+        "method": "alias",
+        "active": false,
+        "question": "A família está cadastrada no Bolsa Família?"
+      },
+      {
+        "column": "Caso a família esteja cadastrada no Bolsa Família, qual o número do NIS?",
+        "code": "legacy_caso_a_familia_esteja_cadastrada_no_bolsa_familia_qual_o_numero_do_nis",
+        "method": "alias",
+        "active": false,
+        "question": "Caso a família esteja cadastrada no Bolsa Família, qual o número do NIS?"
+      },
+      {
+        "column": "Qual a forma de aquisição do imóvel?",
+        "code": "forma_aquisicao_imovel",
+        "method": "text_active",
+        "active": true,
+        "question": "Qual a forma de aquisição do imóvel?"
+      },
+      {
+        "column": "Condição do imóvel",
+        "code": "legacy_condicao_do_imovel",
+        "method": "alias",
+        "active": false,
+        "question": "Condição do imóvel"
+      },
+      {
+        "column": "Se a família está morando de aluguel, qual o valor?",
+        "code": "valor_aluguel",
+        "method": "text_active",
+        "active": true,
+        "question": "Se a família está morando de aluguel, qual o valor?"
+      },
+      {
+        "column": "O aluguel é em relação a renda familiar mensal:",
+        "code": "relacao_aluguel_renda",
+        "method": "alias",
+        "active": true,
+        "question": "O aluguel em relação a renda familiar mensal:"
+      },
+      {
+        "column": "Boa convivência com a vizinhança?",
+        "code": "boa_vivencia_vizinhos",
+        "method": "alias",
+        "active": true,
+        "question": "Convivência com os vizinhos"
+      },
+      {
+        "column": "Profissionais e lojas indicadas pela família:",
+        "code": "indicacao_profissionais",
+        "method": "alias",
+        "active": true,
+        "question": "Profissionais e lojas indicadas pela família:"
+      },
+      {
+        "column": "Estão recebendo boleto de cobrança (talão) de água e energia?",
+        "code": "recebe_boleto_agua_energia",
+        "method": "alias",
+        "active": true,
+        "question": "Estão recebendo boleto de cobrança (talão) de água e energia?"
+      },
+      {
+        "column": "Possui reservatório de água na residência?",
+        "code": "EST001",
+        "method": "text_active",
+        "active": true,
+        "question": "Possui reservatório de água na residência?"
+      },
+      {
+        "column": "A unidade tem banheiro?",
+        "code": "EST002",
+        "method": "text_active",
+        "active": true,
+        "question": "A unidade tem banheiro?"
+      },
+      {
+        "column": "A unidade tem cozinha?",
+        "code": "EST003",
+        "method": "text_active",
+        "active": true,
+        "question": "A unidade tem cozinha?"
+      },
+      {
+        "column": "Data da 1ª visita:",
+        "code": "legacy_data_da_1_visita",
+        "method": "alias",
+        "active": false,
+        "question": "Data da 1ª visita:"
+      },
+      {
+        "column": "Nome do responsável pelo formulário:",
+        "code": "EST005",
+        "method": "text_active",
+        "active": true,
+        "question": "Nome do responsável pelo formulário:"
+      },
+      {
+        "column": "Nome do responsável pelo relatório fotográfico:",
+        "code": "EST006",
+        "method": "text_active",
+        "active": true,
+        "question": "Nome do responsável pelo relatório fotográfico:"
+      },
+      {
+        "column": "Nome do responsável pelo levantamento arquitetônico:",
+        "code": "EST007",
+        "method": "text_active",
+        "active": true,
+        "question": "Nome do responsável pelo levantamento arquitetônico:"
+      },
+      {
+        "column": "Nome do agente comunitário:",
+        "code": "EST008",
+        "method": "text_active",
+        "active": true,
+        "question": "Nome do agente comunitário:"
+      },
+      {
+        "column": "Outros profissionais envolvidos (nomes e funções desempenhadas):",
+        "code": "EST009",
+        "method": "text_active",
+        "active": true,
+        "question": "Outros profissionais envolvidos (nomes e funções desempenhadas):"
+      },
+      {
+        "column": "Demanda apresentada pela família:",
+        "code": "EST010",
+        "method": "text_active",
+        "active": true,
+        "question": "Demanda apresentada pela família:"
+      },
+      {
+        "column": "Observações",
+        "code": "observacoes",
+        "method": "alias",
+        "active": true,
+        "question": "Observações"
+      },
+      {
+        "column": "Qual a Renda mensal familiar?",
+        "code": "renda_mensal_total",
+        "method": "alias",
+        "active": true,
+        "question": "Qual a Renda mensal familiar total?"
+      },
+      {
+        "column": "Qual o modelo de chefia da família?",
+        "code": "chefe_familia",
+        "method": "alias",
+        "active": true,
+        "question": "Chefe de família:"
+      },
+      {
+        "column": "Quantidade de crianças na 1º infância(1 a 5 anos)",
+        "code": "criancas_1_a_5",
+        "method": "alias",
+        "active": true,
+        "question": "Quantidade de crianças na 1º infância(1 a 5 anos)"
+      },
+      {
+        "column": "Quantidade de crianças (6 a 9 anos)",
+        "code": "criancas_6_a_9",
+        "method": "alias",
+        "active": true,
+        "question": "Quantidade de crianças (6 a 9 anos)"
+      },
+      {
+        "column": "Quantidade de pré-adolescentes (10 a 14 anos)",
+        "code": "pre_adolescentes_10_a_14",
+        "method": "alias",
+        "active": true,
+        "question": "Quantidade de pré-adolescentes (10 a 14 anos)"
+      },
+      {
+        "column": "Quantidade de Adolescentes (15 a 19 anos)",
+        "code": "adolescentes_15_a_19",
+        "method": "alias",
+        "active": true,
+        "question": "Quantidade de Adolescentes (15 a 19 anos)"
+      },
+      {
+        "column": "Relação de parentesco na casa:",
+        "code": "parentesco_casa",
+        "method": "alias",
+        "active": true,
+        "question": "Relação de parentesco na casa"
+      },
+      {
+        "column": "Relação de parentesco no lote:",
+        "code": "parentesco_lote",
+        "method": "alias",
+        "active": true,
+        "question": "Relação de parentesco no lote"
+      },
+      {
+        "column": "Saberes adquiridos:",
+        "code": "saberes_adquiridos",
+        "method": "alias",
+        "active": true,
+        "question": "Saberes adquiridos"
+      },
+      {
+        "column": "Idade do morador:",
+        "code": "idade",
+        "method": "alias",
+        "active": true,
+        "question": "Idade:"
+      },
+      {
+        "column": "Quantidade de moradores no lote:",
+        "code": "num_moradores",
+        "method": "alias",
+        "active": true,
+        "question": "Quantidade de moradores no lote"
+      },
+      {
+        "column": "Quantidade de casas no lote:",
+        "code": "casas_no_lote",
+        "method": "alias",
+        "active": true,
+        "question": "Quantidade de casas no lote"
+      },
+      {
+        "column": "Quantidade de famílias no lote:",
+        "code": "familias_no_lote",
+        "method": "alias",
+        "active": true,
+        "question": "Quantidade de famílias no lote"
+      },
+      {
+        "column": "Ocupação do responsável 1:",
+        "code": "ocupacao_responsavel_1",
+        "method": "alias",
+        "active": true,
+        "question": "Ocupação do responsável 1"
+      },
+      {
+        "column": "Ocupação do responsável 2:",
+        "code": "ocupacao_responsavel_2",
+        "method": "alias",
+        "active": true,
+        "question": "Ocupação do responsável 2"
+      },
+      {
+        "column": "Ocupação do respondente não responsável:",
+        "code": "ocupacao_respondente_nao_responsavel",
+        "method": "alias",
+        "active": true,
+        "question": "Ocupação do respondente não responsável"
+      },
+      {
+        "column": "Escolaridade:",
+        "code": "escolaridade",
+        "method": "alias",
+        "active": true,
+        "question": "Escolaridade"
+      },
+      {
+        "column": "Se for estudante, onde estuda?",
+        "code": "onde_estuda",
+        "method": "alias",
+        "active": true,
+        "question": "Se for estudante, onde estuda?"
+      },
+      {
+        "column": "Empregabilidade do responsável 1:",
+        "code": "empregabilidade_responsavel_1",
+        "method": "alias",
+        "active": true,
+        "question": "Empregabilidade do responsável 1"
+      },
+      {
+        "column": "Empregabilidade do responsável 2:",
+        "code": "empregabilidade_responsavel_2",
+        "method": "alias",
+        "active": true,
+        "question": "Empregabilidade do responsável 2"
+      },
+      {
+        "column": "A família se considera quilombola?",
+        "code": "considera_quilombola",
+        "method": "alias",
+        "active": true,
+        "question": "A família se considera quilombola?"
+      },
+      {
+        "column": "Pratica de artesanato:",
+        "code": "pratica_artesanato",
+        "method": "alias",
+        "active": true,
+        "question": "Prática de artesanato"
+      },
+      {
+        "column": "Comorbidades na família (membro 1):",
+        "code": "comorbidades_membro_1",
+        "method": "alias",
+        "active": true,
+        "question": "Comorbidades na família (membro 1)"
+      },
+      {
+        "column": "Comorbidades na família (membro 2):",
+        "code": "comorbidades_membro_2",
+        "method": "alias",
+        "active": true,
+        "question": "Comorbidades na família (membro 2)"
+      },
+      {
+        "column": "Comorbidades na família (membro 3):",
+        "code": "comorbidades_membro_3",
+        "method": "alias",
+        "active": true,
+        "question": "Comorbidades na família (membro 3)"
+      },
+      {
+        "column": "Comorbidades na família (membro 4):",
+        "code": "comorbidades_membro_4",
+        "method": "alias",
+        "active": true,
+        "question": "Comorbidades na família (membro 4)"
+      },
+      {
+        "column": "Pessoas com deficiência na família (membro 1):",
+        "code": "deficiencia_membro_1",
+        "method": "alias",
+        "active": true,
+        "question": "Pessoas com deficiência na família (membro 1)"
+      },
+      {
+        "column": "Pessoas com deficiência na família (membro 2):",
+        "code": "deficiencia_membro_2",
+        "method": "alias",
+        "active": true,
+        "question": "Pessoas com deficiência na família (membro 2)"
+      },
+      {
+        "column": "Pessoas com deficiência na família (membro 3):",
+        "code": "deficiencia_membro_3",
+        "method": "alias",
+        "active": true,
+        "question": "Pessoas com deficiência na família (membro 3)"
+      },
+      {
+        "column": "Pessoas com deficiência na família (membro 4):",
+        "code": "deficiencia_membro_4",
+        "method": "alias",
+        "active": true,
+        "question": "Pessoas com deficiência na família (membro 4)"
+      },
+      {
+        "column": "Medicamento de uso contínuo:",
+        "code": "medicamento_uso_continuo",
+        "method": "alias",
+        "active": true,
+        "question": "Medicamento de uso contínuo"
+      },
+      {
+        "column": "Finalidade do medicamento:",
+        "code": "finalidade_medicamento",
+        "method": "alias",
+        "active": true,
+        "question": "Finalidade do medicamento"
+      },
+      {
+        "column": "Pessoas com deficiência respiratória crônica (membro 1):",
+        "code": "doenca_respiratoria_membro_1",
+        "method": "alias",
+        "active": true,
+        "question": "Pessoas com deficiência respiratória crônica (membro 1)"
+      },
+      {
+        "column": "Pessoas com deficiência respiratória crônica (membro 2):",
+        "code": "doenca_respiratoria_membro_2",
+        "method": "alias",
+        "active": true,
+        "question": "Pessoas com deficiência respiratória crônica (membro 2)"
+      },
+      {
+        "column": "Pessoas com deficiência respiratória crônica (membro 3):",
+        "code": "doenca_respiratoria_membro_3",
+        "method": "alias",
+        "active": true,
+        "question": "Pessoas com deficiência respiratória crônica (membro 3)"
+      },
+      {
+        "column": "Pessoas com deficiência respiratória crônica (membro 4):",
+        "code": "legacy_pessoas_com_deficiencia_respiratoria_cronica_membro_4",
+        "method": "alias",
+        "active": false,
+        "question": "Pessoas com deficiência respiratória crônica (membro 4):"
+      },
+      {
+        "column": "Sabem dizer em que ano a casa foi construída? ",
+        "code": "ano_construcao_casa",
+        "method": "alias",
+        "active": true,
+        "question": "Sabem dizer em que ano a casa foi construída?"
+      },
+      {
+        "column": " Há quanto tempo residem neste imóvel?",
+        "code": "tempo_residencia_imovel",
+        "method": "alias",
+        "active": true,
+        "question": "Há quanto tempo residem neste imóvel?"
+      },
+      {
+        "column": "Quem executou a casa?",
+        "code": "quem_executou_casa",
+        "method": "alias",
+        "active": true,
+        "question": "Quem executou a casa?"
+      },
+      {
+        "column": "Quantas gerações moram na casa:",
+        "code": "geracoes_na_casa",
+        "method": "alias",
+        "active": true,
+        "question": "Quantas gerações moram na casa"
+      },
+      {
+        "column": "Quantas gerações moram no lote:",
+        "code": "geracoes_no_lote",
+        "method": "alias",
+        "active": true,
+        "question": "Quantas gerações moram no lote"
+      },
+      {
+        "column": "Origem - cidade e bairro de origem:",
+        "code": "origem_cidade_bairro",
+        "method": "alias",
+        "active": true,
+        "question": "Origem - cidade e bairro de origem"
+      },
+      {
+        "column": "Em caso de moradia em outro bairro cidade,  informe aqui:",
+        "code": "outros_bairros_cidade_detalhes",
+        "method": "alias",
+        "active": true,
+        "question": "Em caso de moradia em outro bairro cidade, informe aqui"
+      },
+      {
+        "column": "Há quantos anos a família reside em Araçatiba:",
+        "code": "anos_residencia_aracatiba",
+        "method": "alias",
+        "active": true,
+        "question": "Há quantos anos a família reside em Araçatiba"
+      },
+      {
+        "column": "A família possui algum outro imóvel ou terreno?",
+        "code": "possui_outro_imovel",
+        "method": "alias",
+        "active": true,
+        "question": "A família possui algum outro imóvel ou terreno?"
+      },
+      {
+        "column": "O imóvel já recebeu algum tipo de reforma ou ampliação:",
+        "code": "imovel_teve_reforma",
+        "method": "alias",
+        "active": true,
+        "question": "O imóvel já recebeu algum tipo de reforma ou ampliação"
+      },
+      {
+        "column": "Que tipo de reforma foi executada",
+        "code": "tipo_reforma_executada",
+        "method": "alias",
+        "active": true,
+        "question": "Que tipo de reforma foi executada"
+      },
+      {
+        "column": "Quem executou a reforma:",
+        "code": "quem_executou_reforma",
+        "method": "alias",
+        "active": true,
+        "question": "Quem executou a reforma"
+      },
+      {
+        "column": "Quem custeou a reforma:",
+        "code": "quem_custeou_reforma",
+        "method": "alias",
+        "active": true,
+        "question": "Quem custeou a reforma"
+      },
+      {
+        "column": "Formas de uso do quintal:",
+        "code": "formas_uso_quintal",
+        "method": "alias",
+        "active": true,
+        "question": "Formas de uso do quintal"
+      },
+      {
+        "column": "Hábitos alimentares:",
+        "code": "habitos_alimentares",
+        "method": "alias",
+        "active": true,
+        "question": "Hábitos alimentares"
+      },
+      {
+        "column": "Representação na comunidade:",
+        "code": "representacao_comunidade",
+        "method": "alias",
+        "active": true,
+        "question": "Representação na comunidade"
+      },
+      {
+        "column": "Observações sobre a pergunta anterior (A família se considera qulombola?)",
+        "code": "legacy_observacoes_sobre_a_pergunta_anterior_a_familia_se_considera_qulombola",
+        "method": "alias",
+        "active": false,
+        "question": "Observações sobre a pergunta anterior (A família se considera qulombola?)"
+      },
+      {
+        "column": "Caso não saiba, escreva observações sobre a idade aproximada da construção",
+        "code": "legacy_caso_nao_saiba_escreva_observacoes_sobre_a_idade_aproximada_da_constru",
+        "method": "alias",
+        "active": false,
+        "question": "Caso não saiba, escreva observações sobre a idade aproximada da construção"
+      },
+      {
+        "column": "Caso não saiba, escreva observações sobre há quanto tempo residem no imóvel",
+        "code": "legacy_caso_nao_saiba_escreva_observacoes_sobre_ha_quanto_tempo_residem_no_im",
+        "method": "alias",
+        "active": false,
+        "question": "Caso não saiba, escreva observações sobre há quanto tempo residem no imóvel"
+      },
+      {
+        "column": "Caso não saiba, escreva observações sobre há quanto tempo residem em Araçatiba",
+        "code": "legacy_caso_nao_saiba_escreva_observacoes_sobre_ha_quanto_tempo_residem_em_ar",
+        "method": "alias",
+        "active": false,
+        "question": "Caso não saiba, escreva observações sobre há quanto tempo residem em Araçatiba"
+      },
+      {
+        "column": "Observações sobre comorbidades",
+        "code": "legacy_observacoes_sobre_comorbidades",
+        "method": "alias",
+        "active": false,
+        "question": "Observações sobre comorbidades"
+      },
+      {
+        "column": "Observações sobre deficiências ",
+        "code": "legacy_observacoes_sobre_deficiencias",
+        "method": "alias",
+        "active": false,
+        "question": "Observações sobre deficiências "
+      },
+      {
+        "column": "Observações sobre doenças respiratórias",
+        "code": "legacy_observacoes_sobre_doencas_respiratorias",
+        "method": "alias",
+        "active": false,
+        "question": "Observações sobre doenças respiratórias"
+      }
+    ],
+    "Edificacoes": [
+      {
+        "column": "Nome do Morador:",
+        "code": "EST012",
+        "method": "alias",
+        "active": true,
+        "question": "Nome do Morador:"
+      },
+      {
+        "column": "Há problemas de insalubridade com:",
+        "code": "EST013",
+        "method": "alias",
+        "active": true,
+        "question": "Há problemas de insalubridade com:"
+      },
+      {
+        "column": "Existe a necessidade de realização de reparos estruturais?",
+        "code": "EST014",
+        "method": "alias",
+        "active": true,
+        "question": "Existe a necessidade de realização de reparos estruturais?"
+      },
+      {
+        "column": "Fotos para verificação do engenheiro:",
+        "code": "EST015",
+        "method": "text_active",
+        "active": true,
+        "question": "Fotos para verificação do engenheiro:"
+      },
+      {
+        "column": "Existe a possibilidade de resolver os problemas dentro do próprio terreno (a partir da\nestrutura existente)?",
+        "code": "EST016",
+        "method": "alias",
+        "active": true,
+        "question": "Existe a possibilidade de resolver os problemas dentro do próprio terreno (a partir da estrutura existente)?"
+      },
+      {
+        "column": "De acordo com a documentação da Defesa Civil, a edificação encontra-se em área de risco?",
+        "code": "EST017",
+        "method": "alias",
+        "active": true,
+        "question": "De acordo com a defesa civil? A edificação encontra-se em área de risco?"
+      },
+      {
+        "column": "Número de quartos:",
+        "code": "EST018",
+        "method": "alias",
+        "active": true,
+        "question": "Número de quartos:"
+      },
+      {
+        "column": "Superpopulação:",
+        "code": "EST019",
+        "method": "alias",
+        "active": true,
+        "question": "Superpopulação:"
+      },
+      {
+        "column": "Coabitação:",
+        "code": "EST020",
+        "method": "alias",
+        "active": true,
+        "question": "Coabitação:"
+      },
+      {
+        "column": "Inserção no lote:",
+        "code": "EST021",
+        "method": "alias",
+        "active": true,
+        "question": "Inserção no lote:"
+      },
+      {
+        "column": "Fundações:",
+        "code": "EST022",
+        "method": "alias",
+        "active": true,
+        "question": "Fundações:"
+      },
+      {
+        "column": "Estrutura:",
+        "code": "EST023",
+        "method": "alias",
+        "active": true,
+        "question": "Estrutura:"
+      },
+      {
+        "column": "Paredes:",
+        "code": "EST024",
+        "method": "alias",
+        "active": true,
+        "question": "Paredes:"
+      },
+      {
+        "column": "Cobertura:",
+        "code": "EST025",
+        "method": "alias",
+        "active": true,
+        "question": "Cobertura:"
+      },
+      {
+        "column": "Esquadrias:",
+        "code": "EST026",
+        "method": "alias",
+        "active": true,
+        "question": "Esquadrias:"
+      },
+      {
+        "column": "Hidrossanitário:",
+        "code": "EST027",
+        "method": "alias",
+        "active": true,
+        "question": "Hidrossanitário:"
+      },
+      {
+        "column": "Elétrico:",
+        "code": "EST028",
+        "method": "alias",
+        "active": true,
+        "question": "Elétrico:"
+      },
+      {
+        "column": "Banheiro(s):",
+        "code": "EST029",
+        "method": "alias",
+        "active": true,
+        "question": "Banheiro(s):"
+      },
+      {
+        "column": "Cozinha/área de serviço:",
+        "code": "EST030",
+        "method": "alias",
+        "active": true,
+        "question": "Cozinha/área de serviço:"
+      },
+      {
+        "column": "Conforto:",
+        "code": "EST031",
+        "method": "alias",
+        "active": true,
+        "question": "Conforto:"
+      },
+      {
+        "column": "Avaliação da residência:",
+        "code": "EST032",
+        "method": "alias",
+        "active": true,
+        "question": "Avaliação da residência:"
+      },
+      {
+        "column": "É necessário acompanhamento psicossocial?",
+        "code": "legacy_e_necessario_acompanhamento_psicossocial",
+        "method": "text_inactive",
+        "active": false,
+        "question": "É necessário acompanhamento psicossocial?"
+      },
+      {
+        "column": "A circulação interna na unidade é segura e adequada para todos os membros da família?",
+        "code": "EST033",
+        "method": "alias",
+        "active": true,
+        "question": "A circulação interna na unidade é segura e adequada para todos os membros da família?"
+      },
+      {
+        "column": "Como você avaliaria a infraestrutura urbana no entorno da residência?",
+        "code": "EST034",
+        "method": "alias",
+        "active": true,
+        "question": "Como você avaliaria a infraestrutura urbana no entorno da residência?"
+      },
+      {
+        "column": "Como você avaliaria a acessibilidade, transporte, lazer, saneamento básico e serviços?",
+        "code": "EST035",
+        "method": "alias",
+        "active": true,
+        "question": "Como você avaliaria a acessibilidade, transporte, lazer, saneamento básico e serviços?"
+      },
+      {
+        "column": "Na sua opinião, qual a situação geral da casa?",
+        "code": "EST036",
+        "method": "alias",
+        "active": true,
+        "question": "Na sua opinião, qual a situação geral da casa?"
+      },
+      {
+        "column": "Diagnóstico preliminar:",
+        "code": "EST037",
+        "method": "alias",
+        "active": true,
+        "question": "Diagnóstico preliminar:"
+      },
+      {
+        "column": "Aponte pelo menos uma situação positiva da edificação que você observou.",
+        "code": "EST038",
+        "method": "alias",
+        "active": true,
+        "question": "Aponte pelo menos uma situação positiva da edificação que você observou."
+      },
+      {
+        "column": "Observações gerais:",
+        "code": "EST039",
+        "method": "alias",
+        "active": true,
+        "question": "Observações gerais:"
+      },
+      {
+        "column": "Possui reservatório de água na residência?",
+        "code": "EST001",
+        "method": "alias",
+        "active": true,
+        "question": "Possui reservatório de água na residência?"
+      },
+      {
+        "column": "A unidade tem banheiro?",
+        "code": "EST002",
+        "method": "alias",
+        "active": true,
+        "question": "A unidade tem banheiro?"
+      },
+      {
+        "column": "A unidade tem cozinha?",
+        "code": "EST003",
+        "method": "alias",
+        "active": true,
+        "question": "A unidade tem cozinha?"
+      },
+      {
+        "column": "Data da visita:",
+        "code": "EST004",
+        "method": "alias",
+        "active": true,
+        "question": "Data da 1ª visita:"
+      },
+      {
+        "column": "Nome do responsável pelo formulário:",
+        "code": "EST005",
+        "method": "alias",
+        "active": true,
+        "question": "Nome do responsável pelo formulário:"
+      },
+      {
+        "column": "Nome do responsável pelo relatório fotográfico:",
+        "code": "EST006",
+        "method": "alias",
+        "active": true,
+        "question": "Nome do responsável pelo relatório fotográfico:"
+      },
+      {
+        "column": "Nome do responsável pelo levantamento arquitetônico:",
+        "code": "EST007",
+        "method": "alias",
+        "active": true,
+        "question": "Nome do responsável pelo levantamento arquitetônico:"
+      },
+      {
+        "column": "Nome do agente comunitário:",
+        "code": "EST008",
+        "method": "alias",
+        "active": true,
+        "question": "Nome do agente comunitário:"
+      },
+      {
+        "column": "Outros profissionais envolvidos (nomes e funções desempenhadas):",
+        "code": "EST009",
+        "method": "alias",
+        "active": true,
+        "question": "Outros profissionais envolvidos (nomes e funções desempenhadas):"
+      },
+      {
+        "column": "Demanda apresentada pela família:",
+        "code": "EST010",
+        "method": "alias",
+        "active": true,
+        "question": "Demanda apresentada pela família:"
+      }
+    ]
+  },
+  "issues": [
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Nº de moradores:"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Os adultos da família estão empregados?\r"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Informações adicionais (Os adultos da família estão empregados?)"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Possui uma mulher como chefe de família?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "A família é chefiada por uma mãe solo?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "A família é chefiada por pessoa idosa?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Qual o número de crianças morando na casa?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Algum membro da família apresenta alguma comorbidade ou Doença incapacitante?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Alguém recebe algum Benefício de Prestação Continuada (BPC)?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Se sim, qual comorbidade/doença incapacitante?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Alguém apresenta doenças respiratórias crônicas? "
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Caso afirmativo, quais doenças respiratórias crônicas?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Sabem dizer em que ano a casa foi construída? Há quanto tempo residem neste imóvel?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "A família possui algum outro imóvel?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "A família está residindo no imóvel levantado?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "O imóvel já foi alvo de alguma ação anterior? (Quando / Como / Quem)"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Participa das reuniões do Fórum Bem Maior e/ou das ações da comunidade? "
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Utilização dos serviços do Banco Comunitário?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Qual o ponto mais próximo de entrega de materiais?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Qual o estado do reservatório de água?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Possui espaço para criação de hortas / canteiros?"
+    },
+    {
+      "type": "unmapped_source_column",
+      "formulario": "Facilities",
+      "column": "Esse levantamento se enquadra:"
+    },
+    {
+      "type": "structural_without_family",
+      "structuralId": "(sem ID)"
+    }
+  ],
+  "existingAnswers": 0,
+  "toCreate": 3127,
+  "toUpdate": 0,
+  "rowsProcessed": 3127,
+  "familiesToCreate": 39,
+  "familiesCreated": 39,
+  "familiesExistingBySurveyNumber": 0,
+  "familiesReusedByLegacyMatch": 0
+}

@@ -1,0 +1,189 @@
+=== PARAGRAPHS ===
+0: Possui reservatório de água na residência?
+1: TRUE
+2: Edificação
+3: Possui reservatório de água na residência?
+4: 2026
+5: Resp única: Caixa d'água / Agua encanada / Não sabe informar
+6: A unidade tem banheiro?
+7: TRUE
+8: Edificação
+9: A unidade tem banheiro?
+10: Criada em 2024
+11: 2026
+12: Resp múltipla: Sim, dentro da casa / Sim, fora da casa / Não / Duchas no quintal
+13: A unidade tem cozinha?
+14: TRUE
+15: Edificação
+16: A unidade tem cozinha?
+17: Criada em 2024
+18: 2026
+19: Resp múltipla: Sim, dentro de casa / Sim, fora de casa / Sim, dentro e fora de casa / Possui apenas fogão à gás/elétrico / Possui apenas fogão a lenha / Possui ambos
+20: Data da 1ª visita:
+21: TRUE
+22: Edificação
+23: Data da visita:
+24: Nome do responsável pelo formulário:
+25: TRUE
+26: Edificação
+27: Nome do responsável pelo formulário:
+28: Nome do responsável pelo relatório fotográfico:
+29: TRUE
+30: Edificação
+31: Nome do responsável pelo relatório fotográfico:
+32: Nome do responsável pelo levantamento arquitetônico:
+33: TRUE
+34: Edificação
+35: Nome do responsável pelo levantamento arquitetônico:
+36: Nome do agente comunitário:
+37: TRUE
+38: Edificação
+39: Nome do agente comunitário:
+40: Outros profissionais envolvidos (nomes e funções desempenhadas):
+41: TRUE
+42: Edificação
+43: Outros profissionais envolvidos (nomes e funções desempenhadas):
+44: Demanda apresentada pela família:
+45: TRUE
+46: Edificação
+47: Demanda apresentada pela família:
+48: ID
+49: TRUE
+50: Edificação
+51: Id único da instância na tabela &quot;edificação&quot;
+52: Nome do Morador:
+53: TRUE
+54: Edificação
+55: Referência entre as duas tabelas
+56: Há problemas de insalubridade com:
+57: TRUE
+58: Edificação
+59: Existe a necessidade de realização de reparos estruturais?
+60: TRUE
+61: Edificação
+62: Fotos para verificação do engenheiro:
+63: TRUE
+64: Edificação
+65: Existe a possibilidade de resolver os problemas dentro do próprio terreno (a partir da
+66: estrutura existente)?
+67: TRUE
+68: Edificação
+69: De acordo com a defesa civil? A edificação encontra-se em área de risco?
+70: TRUE
+71: Edificação
+72: Mensagem do Juninho: &quot;pelos documentos oficiais que a gente procurou, Araçatiba não tá em área de risco. Então seria melhor a gente colocar a pergunta direcionada ao morador: &quot;pergunte ao morador se já houve alagamento por conta da chuva&quot; ou alguma coisa assim...&quot;
+73: Precisamos definir o texto. Mas acho que o tipo um &quot;EnumList&quot; com possibilidade de novos valores
+74: Número de quartos:
+75: TRUE
+76: Edificação
+77: Superpopulação:
+78: TRUE
+79: Edificação
+80: Coabitação:
+81: TRUE
+82: Edificação
+83: Inserção no lote:
+84: TRUE
+85: Edificação
+86: Existea possibilidade de mudar a definição dessas 'notas' (hoje é de 1 a 3, sendo 1: não precisa de alteração e 3: precisa de alteração urgente)
+87: Adicionar explicação dos scores
+88: Fundações:
+89: TRUE
+90: Edificação
+91: Estrutura:
+92: TRUE
+93: Edificação
+94: Paredes:
+95: TRUE
+96: Edificação
+97: Cobertura:
+98: TRUE
+99: Edificação
+100: Esquadrias:
+101: TRUE
+102: Edificação
+103: Hidrossanitário:
+104: TRUE
+105: Edificação
+106: Elétrico:
+107: TRUE
+108: Edificação
+109: Banheiro(s):
+110: TRUE
+111: Edificação
+112: Cozinha/área de serviço:
+113: TRUE
+114: Edificação
+115: Conforto:
+116: TRUE
+117: Edificação
+118: Avaliação da residência:
+119: TRUE
+120: Edificação
+121: A circulação interna na unidade é segura e adequada para todos os membros da família?
+122: TRUE
+123: Edificação
+124: Como você avaliaria a infraestrutura urbana no entorno da residência?
+125: TRUE
+126: Edificação
+127: Como você avaliaria a acessibilidade, transporte, lazer, saneamento básico e serviços?
+128: TRUE
+129: Edificação
+130: Na sua opinião, qual a situação geral da casa?
+131: TRUE
+132: Edificação
+133: Diagnóstico preliminar:
+134: TRUE
+135: Edificação
+136: Aponte pelo menos uma situação positiva da edificação que você observou.
+137: TRUE
+138: Edificação
+139: Observações gerais:
+140: TRUE
+141: Edificação
+
+=== TABLES ===
+
+Table 0:
+["Possui reservatório de água na residência?","TRUE","Edificação","Possui reservatório de água na residência?","2026Resp única: Caixa d'água / Agua encanada / Não sabe informar"]
+["","","","",""]
+["","","","",""]
+["A unidade tem banheiro?","TRUE","Edificação","A unidade tem banheiro?","Criada em 20242026Resp múltipla: Sim, dentro da casa / Sim, fora da casa / Não / Duchas no quintal"]
+["A unidade tem cozinha?","TRUE","Edificação","A unidade tem cozinha?","Criada em 20242026Resp múltipla: Sim, dentro de casa / Sim, fora de casa / Sim, dentro e fora de casa / Possui apenas fogão à gás/elétrico / Possui apenas fogão a lenha / Possui ambos"]
+["Data da 1ª visita:","TRUE","Edificação","Data da visita:",""]
+["Nome do responsável pelo formulário:","TRUE","Edificação","Nome do responsável pelo formulário:",""]
+["Nome do responsável pelo relatório fotográfico:","TRUE","Edificação","Nome do responsável pelo relatório fotográfico:",""]
+["Nome do responsável pelo levantamento arquitetônico:","TRUE","Edificação","Nome do responsável pelo levantamento arquitetônico:",""]
+["Nome do agente comunitário:","TRUE","Edificação","Nome do agente comunitário:",""]
+["Outros profissionais envolvidos (nomes e funções desempenhadas):","TRUE","Edificação","Outros profissionais envolvidos (nomes e funções desempenhadas):",""]
+["Demanda apresentada pela família:","TRUE","Edificação","Demanda apresentada pela família:",""]
+["ID","TRUE","Edificação","","Id único da instância na tabela &quot;edificação&quot;"]
+["Nome do Morador:","TRUE","Edificação","","Referência entre as duas tabelas"]
+["Há problemas de insalubridade com:","TRUE","Edificação","",""]
+["Existe a necessidade de realização de reparos estruturais?","TRUE","Edificação","",""]
+["Fotos para verificação do engenheiro:","TRUE","Edificação","",""]
+["Existe a possibilidade de resolver os problemas dentro do próprio terreno (a partir daestrutura existente)?","TRUE","Edificação","",""]
+["De acordo com a defesa civil? A edificação encontra-se em área de risco?","TRUE","Edificação","","Mensagem do Juninho: &quot;pelos documentos oficiais que a gente procurou, Araçatiba não tá em área de risco. Então seria melhor a gente colocar a pergunta direcionada ao morador: &quot;pergunte ao morador se já houve alagamento por conta da chuva&quot; ou alguma coisa assim...&quot;Precisamos definir o texto. Mas acho que o tipo um &quot;EnumList&quot; com possibilidade de novos valores"]
+["Número de quartos:","TRUE","Edificação","",""]
+["Superpopulação:","TRUE","Edificação","",""]
+["Coabitação:","TRUE","Edificação","",""]
+["Inserção no lote:","TRUE","Edificação","","Existea possibilidade de mudar a definição dessas 'notas' (hoje é de 1 a 3, sendo 1: não precisa de alteração e 3: precisa de alteração urgente)Adicionar explicação dos scores"]
+["Fundações:","TRUE","Edificação","",""]
+["Estrutura:","TRUE","Edificação","",""]
+["Paredes:","TRUE","Edificação","",""]
+["Cobertura:","TRUE","Edificação","",""]
+["Esquadrias:","TRUE","Edificação","",""]
+["Hidrossanitário:","TRUE","Edificação","",""]
+["Elétrico:","TRUE","Edificação","",""]
+["Banheiro(s):","TRUE","Edificação","",""]
+["Cozinha/área de serviço:","TRUE","Edificação","",""]
+["Conforto:","TRUE","Edificação","",""]
+["Avaliação da residência:","TRUE","Edificação","",""]
+["","","","",""]
+["A circulação interna na unidade é segura e adequada para todos os membros da família?","TRUE","Edificação","",""]
+["Como você avaliaria a infraestrutura urbana no entorno da residência?","TRUE","Edificação","",""]
+["Como você avaliaria a acessibilidade, transporte, lazer, saneamento básico e serviços?","TRUE","Edificação","",""]
+["Na sua opinião, qual a situação geral da casa?","TRUE","Edificação","",""]
+["Diagnóstico preliminar:","TRUE","Edificação","",""]
+["Aponte pelo menos uma situação positiva da edificação que você observou.","TRUE","Edificação","",""]
+["Observações gerais:","TRUE","Edificação","",""]

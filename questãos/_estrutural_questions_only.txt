@@ -1,0 +1,142 @@
+Possui reservatório de água na residência?
+TRUE
+Edificação
+Possui reservatório de água na residência?
+2026
+Resp única: Caixa d'água / Agua encanada / Não sabe informar
+A unidade tem banheiro?
+TRUE
+Edificação
+A unidade tem banheiro?
+Criada em 2024
+2026
+Resp múltipla: Sim, dentro da casa / Sim, fora da casa / Não / Duchas no quintal
+A unidade tem cozinha?
+TRUE
+Edificação
+A unidade tem cozinha?
+Criada em 2024
+2026
+Resp múltipla: Sim, dentro de casa / Sim, fora de casa / Sim, dentro e fora de casa / Possui apenas fogão à gás/elétrico / Possui apenas fogão a lenha / Possui ambos
+Data da 1ª visita:
+TRUE
+Edificação
+Data da visita:
+Nome do responsável pelo formulário:
+TRUE
+Edificação
+Nome do responsável pelo formulário:
+Nome do responsável pelo relatório fotográfico:
+TRUE
+Edificação
+Nome do responsável pelo relatório fotográfico:
+Nome do responsável pelo levantamento arquitetônico:
+TRUE
+Edificação
+Nome do responsável pelo levantamento arquitetônico:
+Nome do agente comunitário:
+TRUE
+Edificação
+Nome do agente comunitário:
+Outros profissionais envolvidos (nomes e funções desempenhadas):
+TRUE
+Edificação
+Outros profissionais envolvidos (nomes e funções desempenhadas):
+Demanda apresentada pela família:
+TRUE
+Edificação
+Demanda apresentada pela família:
+ID
+TRUE
+Edificação
+Id único da instância na tabela "edificação"
+Nome do Morador:
+TRUE
+Edificação
+Referência entre as duas tabelas
+Há problemas de insalubridade com:
+TRUE
+Edificação
+Existe a necessidade de realização de reparos estruturais?
+TRUE
+Edificação
+Fotos para verificação do engenheiro:
+TRUE
+Edificação
+Existe a possibilidade de resolver os problemas dentro do próprio terreno (a partir da
+estrutura existente)?
+TRUE
+Edificação
+De acordo com a defesa civil? A edificação encontra-se em área de risco?
+TRUE
+Edificação
+Mensagem do Juninho: "pelos documentos oficiais que a gente procurou, Araçatiba não tá em área de risco. Então seria melhor a gente colocar a pergunta direcionada ao morador: "pergunte ao morador se já houve alagamento por conta da chuva" ou alguma coisa assim..."
+Precisamos definir o texto. Mas acho que o tipo um "EnumList" com possibilidade de novos valores
+Número de quartos:
+TRUE
+Edificação
+Superpopulação:
+TRUE
+Edificação
+Coabitação:
+TRUE
+Edificação
+Inserção no lote:
+TRUE
+Edificação
+Existea possibilidade de mudar a definição dessas 'notas' (hoje é de 1 a 3, sendo 1: não precisa de alteração e 3: precisa de alteração urgente)
+Adicionar explicação dos scores
+Fundações:
+TRUE
+Edificação
+Estrutura:
+TRUE
+Edificação
+Paredes:
+TRUE
+Edificação
+Cobertura:
+TRUE
+Edificação
+Esquadrias:
+TRUE
+Edificação
+Hidrossanitário:
+TRUE
+Edificação
+Elétrico:
+TRUE
+Edificação
+Banheiro(s):
+TRUE
+Edificação
+Cozinha/área de serviço:
+TRUE
+Edificação
+Conforto:
+TRUE
+Edificação
+Avaliação da residência:
+TRUE
+Edificação
+A circulação interna na unidade é segura e adequada para todos os membros da família?
+TRUE
+Edificação
+Como você avaliaria a infraestrutura urbana no entorno da residência?
+TRUE
+Edificação
+Como você avaliaria a acessibilidade, transporte, lazer, saneamento básico e serviços?
+TRUE
+Edificação
+Na sua opinião, qual a situação geral da casa?
+TRUE
+Edificação
+Diagnóstico preliminar:
+TRUE
+Edificação
+Aponte pelo menos uma situação positiva da edificação que você observou.
+TRUE
+Edificação
+Observações gerais:
+TRUE
+Edificação

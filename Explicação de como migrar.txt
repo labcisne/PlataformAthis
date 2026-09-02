@@ -1,0 +1,498 @@
+# Guia de Atualização das Perguntas e Migração AppSheet
+
+## 1. Visão geral
+
+O sistema utiliza três elementos diferentes no processo de perguntas e migração:
+
+```text
+Arquivo oficial de perguntas
+          │
+          ├──> questionCatalog.js
+          │         │
+          │         └──> seedQuestions
+          │
+          └──> AppSheet
+                    │
+                    └──> Tabela exportada
+                              │
+                              └──> migrate-appsheet.js
+```
+
+### Fonte de verdade
+
+O **arquivo oficial de perguntas** é a fonte de verdade sobre quais perguntas existem atualmente no formulário.
+
+O AppSheet não deve ser utilizado como fonte de verdade para decidir quais perguntas devem permanecer ativas.
+
+A tabela exportada do AppSheet é utilizada para **migrar os dados coletados anteriormente**.
+
+---
+
+# 2. Estrutura das perguntas
+
+As perguntas são organizadas no arquivo:
+
+```text
+Backend/Utils/questionCatalog.js
+```
+
+Existem três grupos principais:
+
+### `facilitiesQuestions`
+
+Contém somente as perguntas **atuais e oficiais** do formulário Facilities.
+
+Perguntas atuais devem possuir:
+
+```js
+ativa: true
+```
+
+### `estruturalQuestions`
+
+Contém somente as perguntas **atuais e oficiais** do formulário Edificações.
+
+Perguntas atuais devem possuir:
+
+```js
+ativa: true
+```
+
+### `legacySourceQuestions`
+
+Contém perguntas antigas que já existiram no AppSheet, mas não fazem mais parte do formulário atual.
+
+Essas perguntas devem permanecer para preservar o histórico:
+
+```js
+ativa: false
+```
+
+**Nunca apagar uma pergunta antiga somente porque ela deixou de fazer parte do formulário atual.**
+
+---
+
+# 3. Quando as perguntas oficiais mudarem
+
+Sempre que houver uma nova versão oficial do formulário, siga esta ordem:
+
+```text
+1. Atualizar arquivo oficial
+2. Comparar versão antiga x nova
+3. Atualizar questionCatalog.js
+4. Configurar perguntas removidas como legacy
+5. Atualizar AppSheet
+6. Publicar/coletar os novos dados
+7. Exportar tabela do AppSheet
+8. Executar seedQuestions
+9. Executar migração
+10. Validar banco
+```
+
+---
+
+# 4. Passo 1 — Atualizar o arquivo oficial
+
+Primeiro, faça a alteração no arquivo que contém as perguntas oficiais.
+
+Esse arquivo deve representar exatamente o formulário que deverá existir no sistema após a atualização.
+
+Verifique:
+
+* perguntas adicionadas;
+* perguntas removidas;
+* perguntas alteradas;
+* ordem;
+* opções;
+* tipo da pergunta;
+* obrigatoriedade;
+* formulário (`Facilities` ou `Edificacoes`).
+
+Não comece alterando diretamente o banco.
+
+---
+
+# 5. Passo 2 — Comparar a versão anterior com a nova
+
+Antes de alterar o catálogo, identifique:
+
+### Perguntas novas
+
+Devem ser adicionadas ao catálogo atual.
+
+Exemplo:
+
+```js
+{
+  formulario: "Edificacoes",
+  codigo: "EST040",
+  texto: "Nova pergunta...",
+  ativa: true
+}
+```
+
+### Perguntas removidas
+
+Não devem ser simplesmente excluídas do banco.
+
+Devem ser transformadas em perguntas legadas:
+
+```js
+{
+  formulario: "Edificacoes",
+  codigo: "legacy_nome_da_pergunta",
+  texto: "Pergunta antiga...",
+  ativa: false,
+  categoria: "Histórico AppSheet"
+}
+```
+
+### Perguntas apenas modificadas
+
+Cuidado com alterações de texto.
+
+Se uma pergunta apenas teve sua redação melhorada, avalie se ela continua representando a **mesma pergunta**.
+
+Se for a mesma pergunta, mantenha o mesmo código.
+
+Se for uma pergunta conceitualmente diferente, crie uma nova pergunta com novo código e transforme a anterior em legacy.
+
+---
+
+# 6. Passo 3 — Atualizar `questionCatalog.js`
+
+Arquivo:
+
+```text
+Backend/Utils/questionCatalog.js
+```
+
+A regra é:
+
+```text
+facilitiesQuestions
+    = perguntas atuais de Facilities
+
+estruturalQuestions
+    = perguntas atuais de Edificações
+
+legacySourceQuestions
+    = perguntas antigas preservadas
+```
+
+Por exemplo:
+
+```text
+Antes:
+
+facilitiesQuestions
+ ├── Pergunta A
+ ├── Pergunta B
+ └── Pergunta C
+
+Depois:
+
+facilitiesQuestions
+ ├── Pergunta A
+ ├── Pergunta B
+ └── Nova Pergunta D
+
+legacySourceQuestions
+ └── Pergunta C
+```
+
+A pergunta C continua no banco, mas fica:
+
+```js
+ativa: false
+```
+
+---
+
+# 7. Passo 4 — Manter os códigos estáveis
+
+Os códigos são importantes para a identificação das perguntas.
+
+Não altere um código sem necessidade.
+
+Por exemplo:
+
+```text
+EST022 → Fundações
+```
+
+Se o texto continuar representando a mesma pergunta, mantenha:
+
+```text
+EST022
+```
+
+Mesmo que a redação seja ajustada.
+
+Isso evita quebrar:
+
+* respostas existentes;
+* migração;
+* relacionamentos;
+* relatórios;
+* exportações;
+* histórico.
+
+---
+
+# 8. Passo 5 — Atualizar os aliases de migração
+
+O arquivo `questionCatalog.js` possui:
+
+```js
+legacyColumnAliases
+```
+
+Ele faz a ligação entre os nomes das colunas antigas do AppSheet e os códigos atuais.
+
+Exemplo:
+
+```js
+"Fundações:": "EST022"
+```
+
+Isso significa:
+
+```text
+Coluna antiga do AppSheet
+        ↓
+"Fundações:"
+        ↓
+EST022
+        ↓
+Pergunta atual
+```
+
+Sempre que uma coluna antiga precisar ser associada a uma pergunta atual, o alias deve ser mantido ou atualizado.
+
+**Não altere os aliases simplesmente porque o texto da pergunta mudou.**
+
+Verifique primeiro se a pergunta continua sendo conceitualmente a mesma.
+
+---
+
+# 9. Passo 6 — Atualizar o AppSheet
+
+Depois que o catálogo oficial estiver definido, atualize o formulário no AppSheet para refletir exatamente a nova versão.
+
+O AppSheet deve conter:
+
+* perguntas atuais;
+* textos atuais;
+* opções atuais;
+* ordem atual;
+* configurações atuais.
+
+Perguntas removidas do formulário atual não precisam continuar disponíveis para novas entrevistas.
+
+Entretanto, seus dados antigos devem permanecer na tabela exportada/histórica.
+
+---
+
+# 10. Passo 7 — Exportar a tabela do AppSheet
+
+Depois de atualizar o AppSheet, exporte a tabela utilizada para a migração.
+
+Por exemplo:
+
+```text
+Dados para serem migrados.xlsx
+```
+
+Essa tabela representa os **dados coletados**, não a definição oficial das perguntas.
+
+Portanto:
+
+```text
+Arquivo oficial
+    → define perguntas
+
+Excel exportado do AppSheet
+    → contém respostas históricas
+```
+
+Não utilize o Excel exportado para decidir quais perguntas devem estar ativas.
+
+---
+
+# 11. Passo 8 — Sincronizar as perguntas
+
+No Backend:
+
+```bash
+npm run questions:sync
+```
+
+Esse comando executa o `seedQuestions.js`.
+
+Ele:
+
+1. cria perguntas novas;
+2. atualiza perguntas existentes;
+3. define `ativa` conforme o catálogo;
+4. desativa perguntas que deixaram de fazer parte do catálogo;
+5. mantém perguntas antigas no banco.
+
+Depois disso, valide:
+
+```sql
+SELECT formulario, COUNT(*) AS quantidade
+FROM facilities_questions
+WHERE ativa = true
+GROUP BY formulario;
+```
+
+Para verificar todas:
+
+```sql
+SELECT codigo, formulario, texto, ativa
+FROM facilities_questions
+ORDER BY formulario, ordem;
+```
+
+---
+
+# 12. Passo 9 — Executar a migração
+
+Somente depois de sincronizar o catálogo execute a migração dos dados:
+
+```bash
+npm run migrate:dry-run
+```
+
+Primeiro utilize o modo `dry-run`.
+
+Verifique:
+
+* famílias encontradas;
+* perguntas identificadas;
+* colunas sem correspondência;
+* respostas que serão migradas;
+* erros de associação.
+
+Se estiver tudo correto, execute a migração real conforme o comando configurado no projeto.
+
+---
+
+# 13. Ordem obrigatória
+
+A ordem deve ser:
+
+```text
+┌───────────────────────────────┐
+│ 1. Alterar arquivo oficial    │
+└───────────────┬───────────────┘
+                ↓
+┌───────────────────────────────┐
+│ 2. Comparar perguntas         │
+└───────────────┬───────────────┘
+                ↓
+┌───────────────────────────────┐
+│ 3. Atualizar questionCatalog  │
+└───────────────┬───────────────┘
+                ↓
+┌───────────────────────────────┐
+│ 4. Atualizar aliases          │
+└───────────────┬───────────────┘
+                ↓
+┌───────────────────────────────┐
+│ 5. Atualizar AppSheet         │
+└───────────────┬───────────────┘
+                ↓
+┌───────────────────────────────┐
+│ 6. Exportar tabela AppSheet   │
+└───────────────┬───────────────┘
+                ↓
+┌───────────────────────────────┐
+│ 7. npm run questions:sync     │
+└───────────────┬───────────────┘
+                ↓
+┌───────────────────────────────┐
+│ 8. Validar perguntas ativas   │
+└───────────────┬───────────────┘
+                ↓
+┌───────────────────────────────┐
+│ 9. migrate:dry-run            │
+└───────────────┬───────────────┘
+                ↓
+┌───────────────────────────────┐
+│ 10. Migração definitiva       │
+└───────────────────────────────┘
+```
+
+---
+
+# 14. Checklist para cada nova versão
+
+Antes de finalizar uma atualização, confirme:
+
+### Perguntas
+
+* [ ] O arquivo oficial está atualizado.
+* [ ] Todas as perguntas atuais estão no `questionCatalog.js`.
+* [ ] Perguntas atuais estão com `ativa: true`.
+* [ ] Perguntas removidas foram movidas para `legacySourceQuestions`.
+* [ ] Perguntas legadas estão com `ativa: false`.
+* [ ] Nenhuma pergunta histórica foi apagada.
+* [ ] Os códigos existentes foram preservados quando a pergunta continua sendo a mesma.
+
+### Migração
+
+* [ ] `legacyColumnAliases` foi revisado.
+* [ ] A tabela exportada do AppSheet corresponde à versão que será migrada.
+* [ ] `npm run questions:sync` foi executado.
+* [ ] As perguntas ativas foram verificadas no banco.
+* [ ] `npm run migrate:dry-run` foi executado.
+* [ ] Não existem erros de associação relevantes.
+* [ ] A migração definitiva foi executada somente após a validação do dry-run.
+
+---
+
+# 15. Regra fundamental
+
+O sistema deve sempre seguir esta separação:
+
+```text
+                 FONTE DE VERDADE
+                       │
+                       ▼
+             Arquivo oficial
+                       │
+                       ▼
+             questionCatalog.js
+                       │
+             ┌─────────┴─────────┐
+             ▼                   ▼
+      Perguntas atuais       Perguntas antigas
+          ativa=true             ativa=false
+             │                   │
+             ▼                   ▼
+       Formulário atual      Histórico
+```
+
+O AppSheet **não define o estado atual das perguntas**.
+
+O Excel exportado do AppSheet **não define o estado atual das perguntas**.
+
+O banco também não deve ser editado manualmente para ativar/desativar perguntas.
+
+A definição correta deve estar sempre no:
+
+```text
+Backend/Utils/questionCatalog.js
+```
+
+e o:
+
+```bash
+npm run questions:sync
+```
+
+é responsável por sincronizar essa definição com o banco.
+
+Dessa forma, quando o formulário mudar novamente no futuro, basta repetir esse processo mantendo o histórico das versões anteriores.

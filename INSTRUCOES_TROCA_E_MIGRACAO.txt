@@ -1,0 +1,16 @@
+TROCA DE PERGUNTAS E MIGRACAO
+
+Arquivos/tabelas necessarios
+- Tabela das novas perguntas de Facilities e de Edificacoes, contendo: codigo, texto, tipo, opcoes, categoria, ordem e obrigatoria.
+- Planilha das respostas antigas, com as abas "Facilities" e "Edificacao". Deixar na raiz do projeto com o nome "Dados para serem migrados.xlsx".
+
+Destino
+- Cadastrar/alterar as perguntas em Backend/Utils/questionCatalog.js; esse arquivo alimenta o seedQuestions.
+- As respostas nao devem ser alteradas manualmente: o destino e a tabela facilities_answers, vinculada a familia e a pergunta.
+
+Processo
+1. Atualizar o questionCatalog.js, mantendo o mesmo codigo para perguntas equivalentes. Perguntas removidas devem ficar inativas/legadas, sem apagar historico.
+2. No diretorio Backend, executar: npm run questions:sync.
+3. Executar a migracao em modo de conferencia: node scripts/migrate-appsheet.js.
+4. Corrigir as pendencias apontadas no relatorio e, somente apos validar, executar: node scripts/migrate-appsheet.js --execute.
+
