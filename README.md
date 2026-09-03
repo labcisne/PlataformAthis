@@ -1,7 +1,11 @@
 npm run questions:sync
+
 npm run db:validate
+
 npm run migrate:dry-run
+
 npm run migrate:execute
+
 
 # Plataforma Athis
 
