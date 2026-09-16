@@ -32,3 +32,8 @@
     margin: 8px 0;
     text-align: left;
 }
+
+.tableScrollContainer {
+    max-height: 400px;
+    overflow-y: auto;
+}

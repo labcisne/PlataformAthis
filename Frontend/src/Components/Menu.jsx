@@ -83,6 +83,10 @@ function Menu(){
         return familia.dadosFamilia.documentoResponsavel;
     }
 
+    const getNumeroDoLevantamento = (familia) => {
+        return familia.tabelaSocioeconomica?.num_levantamento;
+    }
+
     const getNomeMorador = (familia) => {
         return familia.dadosFamilia.nomeMorador;
     }
@@ -127,9 +131,9 @@ function Menu(){
             <label className="tableTitle">Famílias cadastradas:</label>
             <Tabela 
                 dados={familias}
-                firstHeader={"Documento"}
+                firstHeader={"Numero do levantamento"}
                 secondHeader={"Nome"}
-                getFirstHeader={getDocumentoResponsavel}
+                getFirstHeader={getNumeroDoLevantamento}
                 getSecondHeader={getNomeMorador}
                 action={changePage}
             />
