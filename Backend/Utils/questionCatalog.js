@@ -10,17 +10,6 @@ const facilitiesQuestions = [
   // SECTION: Identificação e Localização
   {
     formulario: "Facilities",
-    codigo: "id_facilities",
-    texto: "ID",
-    tipo: "texto",
-    ordem: 1,
-    obrigatoria: false,
-    ativa: true,
-    opcoes: [],
-    categoria: "Identificação"
-  },
-  {
-    formulario: "Facilities",
     codigo: "num_levantamento",
     texto: "Numeração do levantamento:",
     tipo: "number",
@@ -457,7 +446,7 @@ const facilitiesQuestions = [
     ordem: 39,
     obrigatoria: false,
     ativa: true,
-    opcoes: [],
+    opcoes: ["Cardiovascular", "Respiratória", "Neurológica", "Diabetes", "Imunossupressão", "Não possui"],
     categoria: "Assistência Social e Saúde"
   },
   {
@@ -468,7 +457,7 @@ const facilitiesQuestions = [
     ordem: 40,
     obrigatoria: false,
     ativa: true,
-    opcoes: [],
+    opcoes: ["Cardiovascular", "Respiratória", "Neurológica", "Diabetes", "Imunossupressão", "Não possui"],
     categoria: "Assistência Social e Saúde"
   },
   {
@@ -479,7 +468,7 @@ const facilitiesQuestions = [
     ordem: 41,
     obrigatoria: false,
     ativa: true,
-    opcoes: [],
+    opcoes: ["Cardiovascular", "Respiratória", "Neurológica", "Diabetes", "Imunossupressão", "Não possui"],
     categoria: "Assistência Social e Saúde"
   },
   {
@@ -513,7 +502,7 @@ const facilitiesQuestions = [
     ordem: 44,
     obrigatoria: false,
     ativa: true,
-    opcoes: [],
+    opcoes: ["Física", "Auditiva", "Visual", "Intelectual", "Psicossocial", "Não possui"],
     categoria: "Assistência Social e Saúde"
   },
   {
@@ -524,7 +513,7 @@ const facilitiesQuestions = [
     ordem: 45,
     obrigatoria: false,
     ativa: true,
-    opcoes: [],
+    opcoes: ["Física", "Auditiva", "Visual", "Intelectual", "Psicossocial", "Não possui"],
     categoria: "Assistência Social e Saúde"
   },
   {
@@ -535,7 +524,7 @@ const facilitiesQuestions = [
     ordem: 46,
     obrigatoria: false,
     ativa: true,
-    opcoes: [],
+    opcoes: ["Física", "Auditiva", "Visual", "Intelectual", "Psicossocial", "Não possui"],
     categoria: "Assistência Social e Saúde"
   },
   {
@@ -591,7 +580,7 @@ const facilitiesQuestions = [
     ordem: 51,
     obrigatoria: false,
     ativa: true,
-    opcoes: [],
+    opcoes: ["Asma", "Bronquite", "Rinite", "Sinusite", "Fibrose cística", "DPOC", "Câncer", "Tuberculose"],
     categoria: "Assistência Social e Saúde"
   },
   {
@@ -602,7 +591,7 @@ const facilitiesQuestions = [
     ordem: 52,
     obrigatoria: false,
     ativa: true,
-    opcoes: [],
+    opcoes: ["Asma", "Bronquite", "Rinite", "Sinusite", "Fibrose cística", "DPOC", "Câncer", "Tuberculose"],
     categoria: "Assistência Social e Saúde"
   },
   {
@@ -949,8 +938,6 @@ const estruturalQuestions = [
   { formulario: "Edificacoes", codigo: "EST008", texto: "Nome do agente comunitário:", tipo: "texto", ordem: 8, obrigatoria: false, ativa: true, opcoes: [], categoria: "Gestão do Formulário" },
   { formulario: "Edificacoes", codigo: "EST009", texto: "Outros profissionais envolvidos (nomes e funções desempenhadas):", tipo: "texto", ordem: 9, obrigatoria: false, ativa: true, opcoes: [], categoria: "Gestão do Formulário" },
   { formulario: "Edificacoes", codigo: "EST010", texto: "Demanda apresentada pela família:", tipo: "texto", ordem: 10, obrigatoria: false, ativa: true, opcoes: [], categoria: "Diagnóstico e Demandas" },
-  { formulario: "Edificacoes", codigo: "EST011", texto: "ID", tipo: "texto", ordem: 11, obrigatoria: false, ativa: true, opcoes: [], categoria: "Identificação" },
-  { formulario: "Edificacoes", codigo: "EST012", texto: "Nome do Morador:", tipo: "texto", ordem: 12, obrigatoria: false, ativa: true, opcoes: [], categoria: "Identificação" },
   { formulario: "Edificacoes", codigo: "EST013", texto: "Há problemas de insalubridade com:", tipo: "resposta_multipla", ordem: 13, obrigatoria: false, ativa: true, opcoes: ["Áreas molhadas", "Aberturas", "Coberturas", "Revestimento", "Não se aplica", "Infiltração", "Umidade ascendente", "Problemas sanitários", "Conforto térmico"], allowOther: true, categoria: "Condições Habitacionais" },
   { formulario: "Edificacoes", codigo: "EST014", texto: "Existe a necessidade de realização de reparos estruturais?", tipo: "resposta_unica", ordem: 14, obrigatoria: false, ativa: true, opcoes: ["Sim", "Não", "Verificar com o Engenheiro"], categoria: "Condições Habitacionais" },
   { formulario: "Edificacoes", codigo: "EST016", texto: "Existe a possibilidade de resolver os problemas dentro do próprio terreno (a partir da\nestrutura existente)?", tipo: "resposta_unica", ordem: 15, obrigatoria: false, ativa: true, opcoes: ["Sim", "Não"], allowOther: true, categoria: "Condições Habitacionais" },

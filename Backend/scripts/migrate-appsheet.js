@@ -17,7 +17,7 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const XLSX = require('xlsx');
 const prisma = require('../Utils/prisma');
-const { legacyColumnAliases, ignoredSourceColumns } = require('../Utils/questionCatalog');
+const { legacyColumnAliases = {}, ignoredSourceColumns = {} } = require('../Utils/questionCatalog');
 
 const args = new Set(process.argv.slice(2));
 const EXECUTE = args.has('--execute');
@@ -75,7 +75,7 @@ function serialize(value, type, code) {
 }
 
 async function validatePhysicalSchema() {
-  const expected = ['families', 'family_dados_pessoais', 'facilities_questions', 'facilities_answers', 'users'];
+  const expected = ['families', 'family_dados_pessoais', 'facilities_questions', 'facilities_answers', 'users', 'edificacoes', 'edificacao_images'];
   const rows = await prisma.$queryRawUnsafe(`
     SELECT table_name
     FROM information_schema.tables
@@ -95,13 +95,25 @@ async function validatePhysicalSchema() {
   if (!familyColumns.length) {
     throw new Error('A coluna public.families.appsheet_source_id não existe. Aplique a migration de importação AppSheet antes de executar a migração.');
   }
+
+  const answerColumns = await prisma.$queryRawUnsafe(`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'facilities_answers'
+      AND column_name = 'edificacao_id'
+  `);
+  if (!answerColumns.length) {
+    throw new Error('A coluna public.facilities_answers.edificacao_id não existe. Aplique a migration de edificações antes de executar a migração.');
+  }
   return expected;
 }
 
-function buildQuestionIndexes(questions) {
-  const byCode = new Map(questions.map(q => [q.codigo, q]));
+function buildQuestionIndexes(questions, formulario) {
+  const formQuestions = questions.filter(q => q.formulario === formulario);
+  const byCode = new Map(formQuestions.map(q => [q.codigo, q]));
   const byText = new Map();
-  for (const q of questions) {
+  for (const q of formQuestions) {
     const key = norm(q.texto);
     if (!key) continue;
     if (!byText.has(key)) byText.set(key, []);
@@ -111,9 +123,9 @@ function buildQuestionIndexes(questions) {
 }
 
 function resolveColumn(formulario, header, indexes, report) {
-  const aliases = legacyColumnAliases[formulario] || {};
-  const ignored = ignoredSourceColumns[formulario] || new Set();
-  if (ignored.has(header)) return { ignored: true };
+  const aliases = legacyColumnAliases?.[formulario] || {};
+  const ignored = ignoredSourceColumns?.[formulario] || new Set();
+  if (ignored.has && ignored.has(header)) return { ignored: true };
 
   const aliasCode = aliases[header] ?? Object.entries(aliases).find(([h]) => norm(h) === norm(header))?.[1];
   if (aliasCode) {
@@ -149,9 +161,9 @@ function loadRows(wb, sheet) {
 }
 
 function buildMappings(wb, questions, report) {
-  const indexes = buildQuestionIndexes(questions);
   const mappings = {};
   for (const cfg of SHEETS) {
+    const indexes = buildQuestionIndexes(questions, cfg.formulario);
     const rows = loadRows(wb, cfg.sheet);
     const headers = rows.length ? Object.keys(rows[0]) : [];
     mappings[cfg.formulario] = { cfg, rows, columns: new Map() };
@@ -159,6 +171,12 @@ function buildMappings(wb, questions, report) {
       if (header === '__EMPTY' && rows.every(row => empty(row[header]))) {
         continue;
       }
+
+      if (cfg.formulario === 'Facilities' && header === 'ID') continue;
+      if (cfg.formulario === 'Edificacoes' && (
+        /^ID[_ ]edifica(?:ção|cao):?$/.test(header) ||
+        header === 'Nome do Morador:'
+      )) continue;
 
       const resolved = resolveColumn(cfg.formulario, header, indexes, report);
 
@@ -305,11 +323,16 @@ async function prepareFamilies(facilitiesRows, surveyQuestion, report, tx = null
   return { result: familyMatches, bySurveyNumber: familyBySurveyNumber, sourceIdsByRowId, newFamilies };
 }
 
+function edificacaoSourceId(row) {
+  const id = row['ID_edificação:'] ?? row['ID edificação:'] ?? row['ID:'] ?? row['ID'] ?? row['ID_edificacao'] ?? row['ID edificacao'];
+  return empty(id) ? null : String(id).trim();
+}
+
 function resolveEstrutural(row, bySourceId, sourceIdsByRowId, issues) {
   // Edificação references the Facilities row ID; translate it to the
   // authoritative Numeração do levantamento before resolving the Family.
   const rawRef = String(row['Nome do Morador:'] ?? '').trim();
-  const structuralId = row['ID_edificação:'] ?? row['ID edificação:'] ?? '(sem ID)';
+  const structuralId = edificacaoSourceId(row) ?? '(sem ID)';
   if (!rawRef) {
     issues.push({ type: 'structural_without_family', structuralId });
     return null;
@@ -328,24 +351,101 @@ function resolveEstrutural(row, bySourceId, sourceIdsByRowId, issues) {
   return null;
 }
 
-async function processAnswer({ familyId, perguntaId, resposta, dataResposta, userId }, report, tx) {
-  const where = { familyId_perguntaId: { familyId, perguntaId } };
+async function prepareEdificacoes(edificacoesRows, familyMatches, sourceIdsByRowId, familyBySourceId, report, tx = null) {
   const client = tx ?? prisma;
-  const existing = await client.facilitiesAnswer.findUnique({ where });
+  const existingEdificacoes = await client.edificacao.findMany();
+  const edificacaoBySourceId = new Map();
+  for (const edif of existingEdificacoes) {
+    if (edif.appsheetSourceId) {
+      edificacaoBySourceId.set(String(edif.appsheetSourceId).trim(), edif);
+    }
+  }
+
+  for (const row of edificacoesRows) {
+    const sourceIdEdif = edificacaoSourceId(row);
+    if (!sourceIdEdif) {
+      report.issues.push({ type: 'edificacao_source_id_missing', row });
+      continue;
+    }
+
+    const family = resolveEstrutural(row, familyBySourceId, sourceIdsByRowId, tx ? [] : report.issues);
+    if (!family) {
+      continue;
+    }
+
+    let edificacao = edificacaoBySourceId.get(sourceIdEdif);
+    if (edificacao) {
+      report.edificacoesExistingBySourceId++;
+      continue;
+    }
+
+    const virtualId = crypto.randomUUID();
+    edificacao = {
+      id: virtualId,
+      familyId: family.id,
+      appsheetSourceId: sourceIdEdif
+    };
+
+    if (tx) {
+      edificacao = await client.edificacao.create({
+        data: {
+          familyId: family.id,
+          appsheetSourceId: sourceIdEdif
+        }
+      });
+      report.edificacoesCreated++;
+    } else {
+      report.edificacoesToCreate++;
+    }
+
+    edificacaoBySourceId.set(sourceIdEdif, edificacao);
+  }
+
+  return edificacaoBySourceId;
+}
+
+async function processAnswer({ familyId, edificacaoId, perguntaId, resposta, dataResposta, userId }, report, tx) {
+  const client = tx ?? prisma;
+  let existing = null;
+  let where = null;
+
+  if (edificacaoId) {
+    where = { edificacaoId_perguntaId: { edificacaoId, perguntaId } };
+    existing = await client.facilitiesAnswer.findUnique({ where });
+  } else if (familyId) {
+    where = { familyId_perguntaId: { familyId, perguntaId } };
+    existing = await client.facilitiesAnswer.findUnique({ where });
+  } else {
+    report.issues.push({ type: 'answer_without_context', perguntaId });
+    return;
+  }
+
   if (existing) {
     report.existingAnswers++;
     if (!OVERWRITE) return;
     report.toUpdate++;
-  } else report.toCreate++;
+  } else {
+    report.toCreate++;
+  }
+
   if (!tx) return;
-  await tx.facilitiesAnswer.upsert({
-    where,
-    update: { resposta, userId: userId ?? existing?.userId ?? null },
-    create: { familyId, perguntaId, resposta, ...(dataResposta ? { dataResposta } : {}), userId: userId ?? null }
-  });
+
+  if (edificacaoId) {
+    await tx.facilitiesAnswer.upsert({
+      where,
+      update: { resposta, userId: userId ?? existing?.userId ?? null },
+      create: { edificacaoId, familyId: null, perguntaId, resposta, ...(dataResposta ? { dataResposta } : {}), userId: userId ?? null }
+    });
+  } else {
+    await tx.facilitiesAnswer.upsert({
+      where,
+      update: { resposta, userId: userId ?? existing?.userId ?? null },
+      create: { familyId, edificacaoId: null, perguntaId, resposta, ...(dataResposta ? { dataResposta } : {}), userId: userId ?? null }
+    });
+  }
 }
 
-async function processRows(mappings, familyMatches, sourceIdsByRowId, familyBySourceId, report, tx = null) {
+async function processRows(mappings, familyMatches, sourceIdsByRowId, familyBySourceId, edificacaoBySourceId, report, tx = null) {
   const facilities = mappings.Facilities.rows;
   for (const row of facilities) {
     const family = familyMatches.get(familySourceId(row));
@@ -357,12 +457,17 @@ async function processRows(mappings, familyMatches, sourceIdsByRowId, familyBySo
       const resposta = serialize(value, q.tipo, q.codigo);
       if (resposta === null) continue;
       report.rowsProcessed++;
-      await processAnswer({ familyId: family.id, perguntaId: q.id, resposta, dataResposta: row['Data da 1ª visita:'] instanceof Date ? row['Data da 1ª visita:'] : null, userId: null }, report, tx);
+      await processAnswer({ familyId: family.id, edificacaoId: null, perguntaId: q.id, resposta, dataResposta: row['Data da 1ª visita:'] instanceof Date ? row['Data da 1ª visita:'] : null, userId: null }, report, tx);
     }
   }
+
   for (const row of mappings.Edificacoes.rows) {
-    const family = resolveEstrutural(row, familyBySourceId, sourceIdsByRowId, tx ? [] : report.issues);
-    if (!family) continue;
+    const sourceIdEdif = edificacaoSourceId(row);
+    const edificacao = sourceIdEdif ? edificacaoBySourceId.get(sourceIdEdif) : null;
+    if (!edificacao) {
+      report.issues.push({ type: 'structural_answer_without_edificacao', edificacaoSourceId: sourceIdEdif, row });
+      continue;
+    }
     for (const [column, resolved] of mappings.Edificacoes.columns) {
       const value = sourceValue(row[column]);
       if (empty(value)) continue;
@@ -370,7 +475,134 @@ async function processRows(mappings, familyMatches, sourceIdsByRowId, familyBySo
       const resposta = serialize(value, q.tipo, q.codigo);
       if (resposta === null) continue;
       report.rowsProcessed++;
-      await processAnswer({ familyId: family.id, perguntaId: q.id, resposta, dataResposta: row['Data da visita:'] instanceof Date ? row['Data da visita:'] : null, userId: null }, report, tx);
+      await processAnswer({ familyId: null, edificacaoId: edificacao.id, perguntaId: q.id, resposta, dataResposta: row['Data da visita:'] instanceof Date ? row['Data da visita:'] : null, userId: null }, report, tx);
+    }
+  }
+}
+
+async function processImages(wb, edificacaoBySourceId, familyBySourceId, report, tx = null) {
+  const photoSheets = wb.SheetNames.filter(s => norm(s).startsWith('fotos'));
+  report.photoSheetsFound = photoSheets;
+
+  const client = tx ?? prisma;
+  const existingImages = await client.imagem.findMany({ select: { id: true, appsheetSourceId: true, edificacaoId: true } });
+  const existingImagesBySourceId = new Map();
+  for (const img of existingImages) {
+    if (img.appsheetSourceId && img.edificacaoId) {
+      existingImagesBySourceId.set(`${img.edificacaoId}:${img.appsheetSourceId}`, img);
+    }
+  }
+  const existingFamilyImages = await client.familyImage.findMany({ select: { id: true, familyId: true, caminho: true } });
+  const existingFamilyImagesBySource = new Map();
+  for (const img of existingFamilyImages) {
+    existingFamilyImagesBySource.set(`${img.familyId}:${img.caminho}`, img);
+  }
+
+  for (const sheetName of photoSheets) {
+    const rows = loadRows(wb, sheetName);
+    const isFamilySheet = sheetName === 'Fotos';
+    for (const row of rows) {
+      const imgSourceId = sourceValue(row['ID:'] ?? row['ID']);
+      if (isFamilySheet) {
+        const familySourceId = sourceValue(row['Nome'] ?? row['Nome:']);
+        const family = familySourceId ? familyBySourceId.get(String(familySourceId).trim()) : null;
+        const foto = sourceValue(row['Foto:'] ?? row['Foto']);
+        const descricao = sourceValue(row['Descrição:'] ?? row['Descrição']);
+
+        if (!imgSourceId) {
+          report.issues.push({ type: 'image_source_id_missing', sheet: sheetName, row });
+          continue;
+        }
+        if (!familySourceId || !family) {
+          report.issues.push({ type: 'image_family_not_found', imageSourceId: String(imgSourceId), familySourceId: familySourceId ? String(familySourceId) : null, sheet: sheetName });
+          continue;
+        }
+        if (!foto) {
+          report.issues.push({ type: 'image_path_missing', imageSourceId: String(imgSourceId), sheet: sheetName });
+          continue;
+        }
+
+        const familyImageKey = `${family.id}:${String(foto)}`;
+        const existingFamilyImage = existingFamilyImagesBySource.get(familyImageKey);
+        if (existingFamilyImage) {
+          report.existingImages++;
+          if (!OVERWRITE) continue;
+          report.imagesToUpdate++;
+        } else {
+          report.imagesToCreate++;
+        }
+
+        if (tx) {
+          if (existingFamilyImage) {
+            if (OVERWRITE) {
+              await tx.familyImage.update({ where: { id: existingFamilyImage.id }, data: { descricao } });
+            }
+          } else {
+            const created = await tx.familyImage.create({ data: { familyId: family.id, caminho: String(foto), descricao } });
+            existingFamilyImagesBySource.set(familyImageKey, created);
+            report.imagesCreated++;
+          }
+        }
+        continue;
+      }
+
+      const edifSourceId = sourceValue(row['ID_edificação:'] ?? row['ID_edificação'] ?? row['ID edificação:'] ?? row['ID edificação']);
+      const foto = sourceValue(row['Foto:'] ?? row['Foto']);
+      const descricao = sourceValue(row['Descrição:'] ?? row['Descrição']);
+      const orientacoes = sourceValue(row['Orientações:'] ?? row['Orientações']);
+      const timestampRaw = row['Timestamp:'] ?? row['Timestamp'];
+      const timestamp = timestampRaw instanceof Date ? timestampRaw : (empty(timestampRaw) ? null : new Date(timestampRaw));
+      const validTimestamp = timestamp instanceof Date && !isNaN(timestamp.getTime()) ? timestamp : null;
+
+      if (!imgSourceId) {
+        report.issues.push({ type: 'image_source_id_missing', sheet: sheetName, row });
+        continue;
+      }
+      if (!edifSourceId) {
+        report.issues.push({ type: 'image_edificacao_id_missing', imageSourceId: String(imgSourceId), sheet: sheetName });
+        continue;
+      }
+
+      const edificacao = edificacaoBySourceId.get(String(edifSourceId).trim());
+      if (!edificacao) {
+        report.issues.push({ type: 'image_edificacao_not_found', imageSourceId: String(imgSourceId), edifSourceId: String(edifSourceId), sheet: sheetName });
+        continue;
+      }
+
+      const compositeKey = `${edificacao.id}:${String(imgSourceId).trim()}`;
+      const existing = existingImagesBySourceId.get(compositeKey);
+
+      if (existing) {
+        report.existingImages++;
+        if (!OVERWRITE) continue;
+        report.imagesToUpdate++;
+      } else {
+        report.imagesToCreate++;
+      }
+
+      if (tx) {
+        if (existing) {
+          if (OVERWRITE) {
+            await tx.imagem.update({
+              where: { id: existing.id },
+              data: { foto, descricao, orientacoes, timestamp: validTimestamp }
+            });
+          }
+        } else {
+          const created = await tx.imagem.create({
+            data: {
+              edificacaoId: edificacao.id,
+              appsheetSourceId: String(imgSourceId).trim(),
+              foto,
+              descricao,
+              orientacoes,
+              timestamp: validTimestamp
+            }
+          });
+          existingImagesBySourceId.set(compositeKey, created);
+          report.imagesCreated++;
+        }
+      }
     }
   }
 }
@@ -383,7 +615,32 @@ async function main() {
   await validatePhysicalSchema();
   const wb = XLSX.readFile(workbookPath, { cellDates: true });
   const questions = await prisma.facilitiesQuestion.findMany({ orderBy: [{ formulario: 'asc' }, { ordem: 'asc' }] });
-  const report = { mode: DRY_RUN ? 'dry-run' : 'execute', overwrite: OVERWRITE, workbook: workbookPath, timestamp: new Date().toISOString(), summary: {}, mapping: {}, issues: [], existingAnswers: 0, toCreate: 0, toUpdate: 0, rowsProcessed: 0, familiesToCreate: 0, familiesCreated: 0, familiesExistingBySurveyNumber: 0, familiesReusedByLegacyMatch: 0 };
+  const report = {
+    mode: DRY_RUN ? 'dry-run' : 'execute',
+    overwrite: OVERWRITE,
+    workbook: workbookPath,
+    timestamp: new Date().toISOString(),
+    summary: {},
+    mapping: {},
+    issues: [],
+    existingAnswers: 0,
+    toCreate: 0,
+    toUpdate: 0,
+    rowsProcessed: 0,
+    familiesToCreate: 0,
+    familiesCreated: 0,
+    familiesExistingBySurveyNumber: 0,
+    familiesReusedByLegacyMatch: 0,
+    edificacoesToCreate: 0,
+    edificacoesCreated: 0,
+    edificacoesExistingBySourceId: 0,
+    photoSheetsFound: [],
+    existingImages: 0,
+    imagesToCreate: 0,
+    imagesToUpdate: 0,
+    imagesCreated: 0
+  };
+
   const mappings = buildMappings(wb, questions, report);
   for (const [form, info] of Object.entries(mappings)) {
     report.mapping[form] = [...info.columns.entries()].map(([column, r]) => ({ column, code: r.code, method: r.method, active: r.question.ativa, question: r.question.texto }));
@@ -394,7 +651,16 @@ async function main() {
   const familyPreparation = await prepareFamilies(mappings.Facilities.rows, surveyQuestion, report);
   const { result: familyMatches, sourceIdsByRowId, bySurveyNumber: familyBySourceId } = familyPreparation;
 
-  await processRows(mappings, familyMatches, sourceIdsByRowId, familyBySourceId, report);
+  const edificacaoBySourceId = await prepareEdificacoes(mappings.Edificacoes.rows, familyMatches, sourceIdsByRowId, familyBySourceId, report);
+
+  await processRows(mappings, familyMatches, sourceIdsByRowId, familyBySourceId, edificacaoBySourceId, report);
+  const familyByAppSheetSourceId = new Map(
+    [...familyMatches.values()]
+      .filter(family => family.appsheetSourceId)
+      .map(family => [String(family.appsheetSourceId).trim(), family])
+  );
+  await processImages(wb, edificacaoBySourceId, familyByAppSheetSourceId, report);
+
   report.summary = {
     facilitiesRows: mappings.Facilities.rows.length,
     structuralRows: mappings.Edificacoes.rows.length,
@@ -405,29 +671,56 @@ async function main() {
     familiesCreated: report.familiesCreated,
     familiesExistingBySurveyNumber: report.familiesExistingBySurveyNumber,
     familiesReusedByLegacyMatch: report.familiesReusedByLegacyMatch,
+    edificacoesInXlsx: mappings.Edificacoes.rows.length,
+    edificacoesMatched: edificacaoBySourceId.size,
+    edificacoesToCreate: report.edificacoesToCreate,
+    edificacoesCreated: report.edificacoesCreated,
+    edificacoesExisting: report.edificacoesExistingBySourceId,
     mappedFacilitiesColumns: mappings.Facilities.columns.size,
     mappedStructuralColumns: mappings.Edificacoes.columns.size,
     answersToCreate: report.toCreate,
     answersToUpdate: report.toUpdate,
     answersAlreadyExisting: report.existingAnswers,
+    photoSheetsFound: report.photoSheetsFound,
+    imagesToCreate: report.imagesToCreate,
+    imagesCreated: report.imagesCreated,
+    imagesAlreadyExisting: report.existingImages,
     issues: report.issues.length
   };
 
-  const blocking = new Set(['question_alias_target_not_found', 'question_text_ambiguous', 'family_source_id_missing', 'family_source_id_duplicated_in_xlsx', 'family_name_missing', 'structural_family_not_found']);
+  const blocking = new Set([
+    'question_alias_target_not_found',
+    'question_text_ambiguous',
+    'family_source_id_missing',
+    'family_source_id_duplicated_in_xlsx',
+    'family_name_missing',
+    'structural_family_not_found',
+    'edificacao_source_id_missing',
+    'edificacao_family_not_found'
+  ]);
   if (EXECUTE && report.issues.some(i => blocking.has(i.type))) throw new Error('Migração abortada: o dry-run encontrou problemas estruturais. Corrija-os antes do --execute.');
 
   if (EXECUTE) {
     report.toCreate = 0; report.toUpdate = 0; report.existingAnswers = 0; report.rowsProcessed = 0;
-    report.familiesCreated = 0;
+    report.familiesCreated = 0; report.edificacoesCreated = 0; report.imagesCreated = 0; report.imagesToCreate = 0; report.existingImages = 0;
     await prisma.$transaction(async tx => {
       const prepared = await prepareFamilies(mappings.Facilities.rows, surveyQuestion, report, tx);
-      await processRows(mappings, prepared.result, prepared.sourceIdsByRowId, prepared.bySurveyNumber, report, tx);
+      const preparedEdifs = await prepareEdificacoes(mappings.Edificacoes.rows, prepared.result, prepared.sourceIdsByRowId, prepared.bySurveyNumber, report, tx);
+      await processRows(mappings, prepared.result, prepared.sourceIdsByRowId, prepared.bySurveyNumber, preparedEdifs, report, tx);
+      const familyByAppSheetSourceId = new Map(
+        [...prepared.result.values()]
+          .filter(family => family.appsheetSourceId)
+          .map(family => [String(family.appsheetSourceId).trim(), family])
+      );
+      await processImages(wb, preparedEdifs, familyByAppSheetSourceId, report, tx);
     },
-  {
-    timeout: 60000
-  });
+    {
+      timeout: 120000
+    });
     report.summary.answersCreated = report.toCreate;
     report.summary.answersUpdated = report.toUpdate;
+    report.summary.edificacoesCreated = report.edificacoesCreated;
+    report.summary.imagesCreated = report.imagesCreated;
   }
 
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');
@@ -436,4 +729,5 @@ async function main() {
   if (DRY_RUN) console.log('\nDRY-RUN: nenhuma alteração foi feita no banco.');
 }
 
-main().catch(err => { console.error('\nMIGRATION ERROR:', err.message); process.exitCode = 1; }).finally(async () => { await prisma.$disconnect(); });
+main().catch(err => { console.error('\nMIGRATION ERROR:', err); process.exitCode = 1; }).finally(async () => { await prisma.$disconnect(); });
+

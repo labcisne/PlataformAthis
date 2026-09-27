@@ -139,6 +139,15 @@ exports.getFamilia = asyncErrorHandler(async (req, res, next) => {
             imagens: true,
             arquivos: true,
             memberships: true,
+            edificacoes: {
+                include: {
+                    respostas: {
+                        include: {
+                            pergunta: true
+                        }
+                    }
+                }
+            },
             answers: {
                 include: {
                     pergunta: true

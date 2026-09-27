@@ -115,6 +115,21 @@ function castAnswerValue(value, type) {
     return value;
 }
 
+function addStructuralAnswer(table, answer) {
+    const question = answer.pergunta;
+    if (!question || question.formulario !== 'Edificacoes') return;
+
+    const value = castAnswerValue(answer.resposta, question.tipo);
+    if (!(question.codigo in table)) {
+        table[question.codigo] = value;
+        return;
+    }
+
+    const values = Array.isArray(table[question.codigo]) ? table[question.codigo] : [table[question.codigo]];
+    const duplicate = values.some(existing => JSON.stringify(existing) === JSON.stringify(value));
+    if (!duplicate) table[question.codigo] = [...values, value];
+}
+
 /**
  * Formata um objeto de Família do Prisma para o formato esperado pelo Frontend (Mongoose-like).
  */
@@ -133,11 +148,17 @@ function formatFamily(family) {
                 if (question.formulario === 'Facilities') {
                     tabelaSocioeconomica[question.codigo] = castAnswerValue(answer.resposta, question.tipo);
                     if (answer.userId) socioeconomicaUserId = answer.userId;
-                } else if (question.formulario === 'Edificacoes') {
-                    tabelaEstrutural[question.codigo] = castAnswerValue(answer.resposta, question.tipo);
-                    if (answer.userId) estruturalUserId = answer.userId;
                 }
             }
+        });
+    }
+
+    if (family.edificacoes) {
+        family.edificacoes.forEach(edificacao => {
+            (edificacao.respostas || []).forEach(answer => {
+                addStructuralAnswer(tabelaEstrutural, answer);
+                if (answer.pergunta?.formulario === 'Edificacoes' && answer.userId) estruturalUserId = answer.userId;
+            });
         });
     }
 

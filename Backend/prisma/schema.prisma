@@ -53,6 +53,7 @@ model Family {
   arquivos       FamilyFile[]
   memberships    FamilyMembership[]
   answers        FacilitiesAnswer[]
+  edificacoes    Edificacao[]
 
   @@map("families")
 }
@@ -238,8 +239,10 @@ model FacilitiesQuestion {
 
 model FacilitiesAnswer {
   id           String             @id @default(uuid()) @db.Uuid
-  familyId     String             @db.Uuid
-  family       Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId     String?            @db.Uuid
+  family       Family?            @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  edificacaoId String?            @db.Uuid @map("edificacao_id")
+  edificacao   Edificacao?        @relation(fields: [edificacaoId], references: [id], onDelete: Cascade)
   perguntaId   String             @db.Uuid
   pergunta     FacilitiesQuestion @relation(fields: [perguntaId], references: [id], onDelete: Cascade)
   resposta     String             // Resposta final (se múltipla, JSON array de strings)
@@ -248,7 +251,46 @@ model FacilitiesAnswer {
   user         User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@unique([familyId, perguntaId])
+  @@unique([edificacaoId, perguntaId])
   @@index([familyId])
+  @@index([edificacaoId])
   @@index([perguntaId])
   @@map("facilities_answers")
 }
+
+model Edificacao {
+  id               String             @id @default(uuid()) @db.Uuid
+  familyId         String             @db.Uuid
+  family           Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  appsheetSourceId String?            @map("appsheet_source_id")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  imagens          Imagem[]
+  respostas        FacilitiesAnswer[]
+
+  @@index([familyId])
+  @@map("edificacoes")
+}
+
+model Imagem {
+  id               String     @id @default(uuid()) @db.Uuid
+  appsheetSourceId String?    @map("appsheet_source_id")
+  timestamp        DateTime?  @map("timestamp")
+  edificacaoId     String     @db.Uuid @map("edificacao_id")
+  edificacao       Edificacao @relation(fields: [edificacaoId], references: [id], onDelete: Cascade)
+  foto             String?    @map("foto")
+  descricao        String?    @map("descricao")
+  orientacoes      String?    @map("orientacoes")
+  storageKey       String?    @map("storage_key")
+  nomeOriginal     String?    @map("nome_original")
+  mimeType         String?    @map("mime_type")
+  tamanho          Int?
+  hash             String?
+  origem           String?
+  urlOriginal      String?    @map("url_original")
+  createdAt        DateTime   @default(now()) @map("created_at")
+
+  @@index([edificacaoId])
+  @@map("edificacao_images")
+}
+
