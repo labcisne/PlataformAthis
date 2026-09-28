@@ -11,7 +11,8 @@
     "migrate:execute": "node scripts/migrate-appsheet.js --execute",
     "migrate:overwrite": "node scripts/migrate-appsheet.js --execute --overwrite",
     "questions:sync": "node Utils/seedQuestions.js",
-    "db:validate": "node scripts/validate-db-schema.js"
+    "db:validate": "node scripts/validate-db-schema.js",
+    "storage:test": "node scripts/test-storage.js"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +29,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
+    "minio": "^8.0.5",
     "multer": "^1.4.5-lts.1",
     "prisma": "^6.19.3",
     "xlsx": "^0.18.5"

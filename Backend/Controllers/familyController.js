@@ -3,10 +3,21 @@ const asyncErrorHandler = require('../Utils/asyncErrorHandler');
 const CustomError = require('../Utils/customError');
 const multer = require('multer');
 const path = require('node:path');
-const fs = require('node:fs');
+const crypto = require('node:crypto');
+const MinioStorageService = require('../Services/storage/MinioStorageService');
 
 const { hashSenha, hashRespostaSeguranca } = require("../Utils/userHelpers");
 const { formatFamily } = require("../Utils/mapper");
+
+const storage = new MinioStorageService();
+
+function storageKeyFromPath(filePath) {
+    return filePath.replace(/^\//, '');
+}
+
+function createStoragePath(folder, originalName) {
+    return `/${folder}/${crypto.randomUUID()}${path.extname(originalName)}`;
+}
 
 exports.criaFamilia = asyncErrorHandler(async (req, res, next) => {
     const dadosPessoais = req.body.dadosPessoais;
@@ -439,27 +450,24 @@ exports.enviaFormularioEstrutural = asyncErrorHandler(async (req, res, next) => 
 });
 
 // FUNÇÕES DE UPLOAD DE IMAGEM
-const storageImagem = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "imagens/");
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${req.params.id}_${Date.now()}${path.extname(file.originalname)}`);
-    }
-});
-
-const uploadImagem = multer({ storage: storageImagem });
+const uploadImagem = multer({ storage: multer.memoryStorage() });
 exports.fazUploadImagem = uploadImagem;
 
 exports.insereNovaImagem = asyncErrorHandler(async (req, res, next) => {
     const familyId = req.params.id;
     const descricao = req.body.descricao || null;
-    const imagePath = `/imagens/${req.file.filename}`;
-
     const family = await prisma.family.findUnique({ where: { id: familyId } });
     if (!family) {
         throw new CustomError('Família não encontrada!', 404);
     }
+
+    const imagePath = createStoragePath('imagens', req.file.originalname);
+    await storage.uploadFile({
+        content: req.file.buffer,
+        storageKey: storageKeyFromPath(imagePath),
+        contentType: req.file.mimetype,
+        size: req.file.size
+    });
 
     await prisma.familyImage.create({
         data: {
@@ -488,16 +496,12 @@ exports.deletaImagem = asyncErrorHandler(async (req, res, next) => {
         throw new CustomError('Família não encontrada!', 404);
     }
 
+    await storage.deleteFile(storageKeyFromPath(caminhoArquivo));
+
     await prisma.familyImage.deleteMany({
         where: {
             familyId,
             caminho: caminhoArquivo
-        }
-    });
-
-    fs.rm(`.${caminhoArquivo}`, (error) => {
-        if (error) {
-            throw new CustomError('Erro ao remover a imagem do servidor', 400);
         }
     });
 
@@ -541,28 +545,31 @@ exports.editaDescricaoImagem = asyncErrorHandler(async (req, res, next) => {
     });
 });
 
-// FUNÇÕES DE UPLOAD DE ARQUIVOS GERAIS
-const storageArquivos = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "arquivos/");
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${req.params.id}_${Date.now()}${path.extname(file.originalname)}`);
-    }
+exports.serveImagem = asyncErrorHandler(async (req, res) => {
+    const file = await storage.getFile(`imagens/${req.params.filename}`);
+    res.type(path.extname(req.params.filename));
+    file.pipe(res);
 });
 
-const uploadArquivo = multer({ storage: storageArquivos });
+// FUNÇÕES DE UPLOAD DE ARQUIVOS GERAIS
+const uploadArquivo = multer({ storage: multer.memoryStorage() });
 exports.fazUploadArquivo = uploadArquivo;
 
 exports.insereNovoArquivo = asyncErrorHandler(async (req, res, next) => {
     const familyId = req.params.id;
     const descricao = req.body.descricao || null;
-    const arquivoPath = `/arquivos/${req.file.filename}`;
-
     const family = await prisma.family.findUnique({ where: { id: familyId } });
     if (!family) {
         throw new CustomError("Família não encontrada!", 404);
     }
+
+    const arquivoPath = createStoragePath('arquivos', req.file.originalname);
+    await storage.uploadFile({
+        content: req.file.buffer,
+        storageKey: storageKeyFromPath(arquivoPath),
+        contentType: req.file.mimetype,
+        size: req.file.size
+    });
 
     await prisma.familyFile.create({
         data: {
@@ -591,16 +598,12 @@ exports.deletaArquivo = asyncErrorHandler(async (req, res, next) => {
         throw new CustomError('Família não encontrada!', 404);
     }
 
+    await storage.deleteFile(storageKeyFromPath(caminhoArquivo));
+
     await prisma.familyFile.deleteMany({
         where: {
             familyId,
             caminho: caminhoArquivo
-        }
-    });
-
-    fs.rm(`.${caminhoArquivo}`, (error) => {
-        if (error) {
-            throw new CustomError('Erro ao remover o arquivo do servidor', 400);
         }
     });
 
@@ -612,6 +615,12 @@ exports.deletaArquivo = asyncErrorHandler(async (req, res, next) => {
         status: 'success',
         arquivos: updatedArquivos
     });
+});
+
+exports.serveArquivo = asyncErrorHandler(async (req, res) => {
+    const file = await storage.getFile(`arquivos/${req.params.filename}`);
+    res.type(path.extname(req.params.filename));
+    file.pipe(res);
 });
 
 exports.editaDescricaoArquivo = asyncErrorHandler(async (req, res, next) => {

@@ -22,6 +22,9 @@ router.post('/entrevista/facilities', authController.verificaAcesso, familyContr
 
 router.post('/entrevista/estrutural', authController.verificaAcesso, familyController.enviaFormularioEstrutural);
 
+router.get('/dadosFamilia/arquivosGerais/imagens/:filename', familyController.serveImagem);
+router.get('/dadosFamilia/arquivosGerais/arquivos/:filename', familyController.serveArquivo);
+
 router.route('/upload/imagem/:id')
     .post(familyController.fazUploadImagem.single('image'), familyController.insereNovaImagem)
     .delete(familyController.deletaImagem)
