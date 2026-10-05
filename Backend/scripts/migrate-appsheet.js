@@ -482,6 +482,19 @@ async function processRows(mappings, familyMatches, sourceIdsByRowId, familyBySo
 
 async function processImages(wb, edificacaoBySourceId, familyBySourceId, report, tx = null) {
   const photoSheets = wb.SheetNames.filter(s => norm(s).startsWith('fotos'));
+   const imageTypeBySheet = {
+    'Fotos_fundação': 'FUNDACAO',
+    'Fotos_localizacao': 'LOCALIZACAO',
+    'Fotos_estrutura': 'ESTRUTURA',
+    'Fotos_vedações': 'VEDACOES',
+    'Fotos_cobertura': 'COBERTURA',
+    'Fotos_esquadrias': 'ESQUADRIAS',
+    'Fotos_hidrosanitário': 'HIDROSANITARIO',
+    'Fotos_elétrico': 'ELETRICO',
+    'Fotos_banheiros': 'BANHEIROS',
+    'Fotos_cozinha e a.serviço': 'COZINHA_SERVICO',
+    'Fotos_outros': 'OUTROS'
+  };
   report.photoSheetsFound = photoSheets;
 
   const client = tx ?? prisma;
@@ -585,7 +598,7 @@ async function processImages(wb, edificacaoBySourceId, familyBySourceId, report,
           if (OVERWRITE) {
             await tx.imagem.update({
               where: { id: existing.id },
-              data: { foto, descricao, orientacoes, timestamp: validTimestamp }
+              data: { foto, descricao, orientacoes, timestamp: validTimestamp, tipo: imageTypeBySheet[sheetName] ?? 'OUTROS' }
             });
           }
         } else {
@@ -596,7 +609,8 @@ async function processImages(wb, edificacaoBySourceId, familyBySourceId, report,
               foto,
               descricao,
               orientacoes,
-              timestamp: validTimestamp
+              timestamp: validTimestamp,
+              tipo: imageTypeBySheet[sheetName] ?? 'OUTROS'
             }
           });
           existingImagesBySourceId.set(compositeKey, created);

@@ -10,6 +10,7 @@
     "migrate:dry-run": "node scripts/migrate-appsheet.js --dry-run",
     "migrate:execute": "node scripts/migrate-appsheet.js --execute",
     "migrate:overwrite": "node scripts/migrate-appsheet.js --execute --overwrite",
+    "migrate:image-test": "node scripts/migrate-image-test.js --image-id",
     "questions:sync": "node Utils/seedQuestions.js",
     "db:validate": "node scripts/validate-db-schema.js",
     "storage:test": "node scripts/test-storage.js"
@@ -28,6 +29,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "googleapis": "^183.0.0",
     "jsonwebtoken": "^9.0.2",
     "minio": "^8.0.5",
     "multer": "^1.4.5-lts.1",

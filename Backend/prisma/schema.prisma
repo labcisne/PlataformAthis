@@ -278,6 +278,7 @@ model Imagem {
   timestamp        DateTime?  @map("timestamp")
   edificacaoId     String     @db.Uuid @map("edificacao_id")
   edificacao       Edificacao @relation(fields: [edificacaoId], references: [id], onDelete: Cascade)
+  tipo             String?    @map("tipo")
   foto             String?    @map("foto")
   descricao        String?    @map("descricao")
   orientacoes      String?    @map("orientacoes")
