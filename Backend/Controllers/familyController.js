@@ -177,6 +177,83 @@ exports.getFamilia = asyncErrorHandler(async (req, res, next) => {
     });
 });
 
+exports.listarImagensEdificacoes = asyncErrorHandler(async (req, res) => {
+    const family = await prisma.family.findUnique({
+        where: { id: req.params.id },
+        select: {
+            id: true,
+            edificacoes: {
+                select: {
+                    id: true,
+                    imagens: {
+                        select: {
+                            id: true,
+                            tipo: true,
+                            storageKey: true,
+                            descricao: true
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    if (!family) throw new CustomError('Familia não existe!', 404);
+
+    const imagens = (await Promise.all(family.edificacoes.flatMap(edificacao => (
+        edificacao.imagens.map(async imagem => ({
+            id: imagem.id,
+            edificacaoId: edificacao.id,
+            tipo: imagem.tipo || 'OUTROS',
+            descricao: imagem.descricao,
+            imagemUrl: imagem.storageKey
+                ? `/familia/imagens-edificacoes/${family.id}/${imagem.id}/file`
+                : null
+        }))
+    )))).filter(imagem => imagem.imagemUrl);
+
+    res.status(200).json({ imagens });
+});
+
+exports.serveImagemEdificacao = asyncErrorHandler(async (req, res, next) => {
+    const imagem = await prisma.imagem.findFirst({
+        where: {
+            id: req.params.imageId,
+            edificacao: { familyId: req.params.familyId }
+        },
+        select: { storageKey: true, mimeType: true }
+    });
+
+    if (!imagem || !imagem.storageKey) throw new CustomError('Imagem da edificação não encontrada!', 404);
+
+    const file = await storage.getFile(imagem.storageKey);
+    if (imagem.mimeType) res.type(imagem.mimeType);
+    file.on('error', next);
+    file.pipe(res);
+});
+
+exports.deletaImagemEdificacao = asyncErrorHandler(async (req, res) => {
+    const imagem = await prisma.imagem.findFirst({
+        where: {
+            id: req.params.imageId,
+            edificacao: { familyId: req.params.familyId }
+        },
+        select: { id: true, storageKey: true }
+    });
+
+    if (!imagem) throw new CustomError('Imagem da edificação não encontrada!', 404);
+    if (!imagem.storageKey) throw new CustomError('Imagem não possui objeto armazenado no MinIO!', 409);
+
+    await storage.deleteFile(imagem.storageKey);
+    try {
+        await prisma.imagem.delete({ where: { id: imagem.id } });
+    } catch (error) {
+        throw new CustomError('O objeto foi removido, mas o registro não pôde ser atualizado.', 502);
+    }
+
+    res.status(200).json({ status: 'success', imageId: imagem.id });
+});
+
 exports.associaFamilia = asyncErrorHandler(async (req, res, next) => {
     const user = await prisma.user.findUnique({
         where: { id: req.body.userId },

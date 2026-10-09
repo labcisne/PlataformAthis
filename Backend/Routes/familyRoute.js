@@ -7,6 +7,9 @@ const router = express.Router();
 
 
 router.get('/usuariosAssociados', familyController.getUsuariosAssociados);
+router.get('/imagens-edificacoes/:id', authController.verificaAcesso, familyController.listarImagensEdificacoes);
+router.get('/imagens-edificacoes/:familyId/:imageId/file', authController.verificaAcesso, familyController.serveImagemEdificacao);
+router.delete('/imagens-edificacoes/:familyId/:imageId', authController.verificaAcesso, familyController.deletaImagemEdificacao);
 
 router.route('/')
     .get(authController.verificaAcesso, familyController.listarFamilias)
