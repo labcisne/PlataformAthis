@@ -11,6 +11,8 @@
     "migrate:execute": "node scripts/migrate-appsheet.js --execute",
     "migrate:overwrite": "node scripts/migrate-appsheet.js --execute --overwrite",
     "migrate:image-test": "node scripts/migrate-image-test.js --image-id",
+    "migrate:images": "node scripts/migrate-images.js",
+    "migrate:family-images": "node scripts/migrate-family-images.js",
     "questions:sync": "node Utils/seedQuestions.js",
     "db:validate": "node scripts/validate-db-schema.js",
     "storage:test": "node scripts/test-storage.js"

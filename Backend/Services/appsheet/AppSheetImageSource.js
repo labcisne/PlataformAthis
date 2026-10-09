@@ -34,11 +34,11 @@ class AppSheetImageSource {
     this.fileCache = new Map();
   }
 
-  async resolve(sourcePath, appsheetSourceId) {
+  async resolve(sourcePath, appsheetSourceId, sourceTableOverride = null) {
     const pathValue = String(sourcePath || '').trim();
     if (!pathValue) throw new Error('AppSheet image path is empty');
     if (!appsheetSourceId) throw new Error('AppSheet source id is empty');
-    const sourceTable = pathValue.match(/^(.+)_Images\//)?.[1];
+    const sourceTable = sourceTableOverride || pathValue.match(/^(.+)_Images\//)?.[1];
     if (!sourceTable) throw new Error('AppSheet image path does not identify a photo table');
 
     const apiUrl = `https://${this.apiHost}/api/v2/apps/${encodeURIComponent(this.appId)}/tables/${encodeURIComponent(sourceTable)}/Action`;

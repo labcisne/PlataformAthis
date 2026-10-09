@@ -1,0 +1,156 @@
+{
+  "startedAt": "2026-10-09T12:38:09.932Z",
+  "dryRun": false,
+  "total": 16,
+  "counts": {
+    "already_migrated_valid": 16
+  },
+  "results": [
+    {
+      "familyImageId": "21dace23-42f9-4f0f-b3c3-a16e665f0ab0",
+      "familyId": "60eaafac-11f2-4a95-95f2-f87488410d29",
+      "originalPath": "/imagens/21dace23-42f9-4f0f-b3c3-a16e665f0ab0.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/21dace23-42f9-4f0f-b3c3-a16e665f0ab0.jpg",
+      "size": 73221,
+      "hash": "2c3f69fab415c41a0a03f503ea66b6aeb13710e379e9a5f4d112a46c23547e49"
+    },
+    {
+      "familyImageId": "27863f55-cdab-4317-8c3d-11c80dbfeb5e",
+      "familyId": "cac0e9e6-7ffb-4616-b06b-9d5079b46abf",
+      "originalPath": "/imagens/27863f55-cdab-4317-8c3d-11c80dbfeb5e.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/27863f55-cdab-4317-8c3d-11c80dbfeb5e.jpg",
+      "size": 61749,
+      "hash": "e5e1cf2d9b967fc678b8aafea1a23c59bda3be998f95ccadf6e6c89306e6da98"
+    },
+    {
+      "familyImageId": "32c4777c-1d35-4017-8993-e7f1d179f0de",
+      "familyId": "cac0e9e6-7ffb-4616-b06b-9d5079b46abf",
+      "originalPath": "/imagens/32c4777c-1d35-4017-8993-e7f1d179f0de.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/32c4777c-1d35-4017-8993-e7f1d179f0de.jpg",
+      "size": 55452,
+      "hash": "219daa31c7dcf7987886091a4da3f1159769d90d7c7b19fe84e5a0dcbff16078"
+    },
+    {
+      "familyImageId": "382e42cc-766f-414e-abd6-1b66be0da46e",
+      "familyId": "cac0e9e6-7ffb-4616-b06b-9d5079b46abf",
+      "originalPath": "/imagens/382e42cc-766f-414e-abd6-1b66be0da46e.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/382e42cc-766f-414e-abd6-1b66be0da46e.jpg",
+      "size": 55733,
+      "hash": "18ab685b0e11f1e57fcd18fe555a999e3e30287ea65bc8b1790adc0c25c0ba0a"
+    },
+    {
+      "familyImageId": "40428a9e-4a0f-41bf-90a2-fafd7dad395d",
+      "familyId": "56c465d5-9cdc-4c2b-a39a-f5651b128d8c",
+      "originalPath": "/imagens/40428a9e-4a0f-41bf-90a2-fafd7dad395d.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/40428a9e-4a0f-41bf-90a2-fafd7dad395d.jpg",
+      "size": 86235,
+      "hash": "1824aaab8ec6123e7893249bbc793050ec39311746d16ea3b3ffe8c8c430b9ca"
+    },
+    {
+      "familyImageId": "4f2913ff-9932-4c5f-88df-2dc17b5b34a6",
+      "familyId": "56c465d5-9cdc-4c2b-a39a-f5651b128d8c",
+      "originalPath": "/imagens/4f2913ff-9932-4c5f-88df-2dc17b5b34a6.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/4f2913ff-9932-4c5f-88df-2dc17b5b34a6.jpg",
+      "size": 99204,
+      "hash": "568e8f7e357099e7bef2ee7df7c3a476cc61493c7addc48fb8e669d2e8d33fdd"
+    },
+    {
+      "familyImageId": "5298bc1d-5c8d-4225-81eb-dcbac89bf848",
+      "familyId": "56c465d5-9cdc-4c2b-a39a-f5651b128d8c",
+      "originalPath": "/imagens/5298bc1d-5c8d-4225-81eb-dcbac89bf848.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/5298bc1d-5c8d-4225-81eb-dcbac89bf848.jpg",
+      "size": 96958,
+      "hash": "a860942958ebd037bb56070fc5773127b08a6f392aeba656adf43963eec5a75b"
+    },
+    {
+      "familyImageId": "57f5c0d1-6f5f-4f79-9d0b-db1ae04c057d",
+      "familyId": "56c465d5-9cdc-4c2b-a39a-f5651b128d8c",
+      "originalPath": "/imagens/57f5c0d1-6f5f-4f79-9d0b-db1ae04c057d.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/57f5c0d1-6f5f-4f79-9d0b-db1ae04c057d.jpg",
+      "size": 83913,
+      "hash": "e5fc2a70831a8c65b70b4a242be3d820e141b96b4d61ebb8e6acba0d12251c67"
+    },
+    {
+      "familyImageId": "5bc80013-459f-4035-b9d0-7d9ab0ab4aeb",
+      "familyId": "56c465d5-9cdc-4c2b-a39a-f5651b128d8c",
+      "originalPath": "/imagens/5bc80013-459f-4035-b9d0-7d9ab0ab4aeb.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/5bc80013-459f-4035-b9d0-7d9ab0ab4aeb.jpg",
+      "size": 113409,
+      "hash": "b9ebc310b6069a8e818434038160444e0e834cfda75423d1b6dac1eb40a50861"
+    },
+    {
+      "familyImageId": "7bbc9323-ea40-4115-9832-e320a6ac7049",
+      "familyId": "cac0e9e6-7ffb-4616-b06b-9d5079b46abf",
+      "originalPath": "/imagens/7bbc9323-ea40-4115-9832-e320a6ac7049.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/7bbc9323-ea40-4115-9832-e320a6ac7049.jpg",
+      "size": 56555,
+      "hash": "26e64315cbbfd4a38c1cdc090c3312341fe8d2b153d41448a0face5e4db6b807"
+    },
+    {
+      "familyImageId": "98315950-ba80-45d5-96f1-bba1584d598d",
+      "familyId": "56c465d5-9cdc-4c2b-a39a-f5651b128d8c",
+      "originalPath": "/imagens/98315950-ba80-45d5-96f1-bba1584d598d.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/98315950-ba80-45d5-96f1-bba1584d598d.jpg",
+      "size": 55563,
+      "hash": "fdd06071ff93acb9a2bc2342d74ad80f4cbbdf9b98d46cc550f9a485e5681975"
+    },
+    {
+      "familyImageId": "9afcf2cb-e8a5-4341-a627-cab46af1243d",
+      "familyId": "9df9c456-95ac-455d-b736-684359055066",
+      "originalPath": "/imagens/9afcf2cb-e8a5-4341-a627-cab46af1243d.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/9afcf2cb-e8a5-4341-a627-cab46af1243d.jpg",
+      "size": 68097,
+      "hash": "98f274d4878936fa95eb4f0fcc531d997d09b4da0365fa203446de8a80306dd2"
+    },
+    {
+      "familyImageId": "caa0fb76-20ca-406b-938c-455d0ea5ef90",
+      "familyId": "60eaafac-11f2-4a95-95f2-f87488410d29",
+      "originalPath": "/imagens/caa0fb76-20ca-406b-938c-455d0ea5ef90.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/caa0fb76-20ca-406b-938c-455d0ea5ef90.jpg",
+      "size": 60052,
+      "hash": "0d07deab5c93307e19ae7a878ec1da744aacf068e8793a9d21ef0953b83bf294"
+    },
+    {
+      "familyImageId": "ccde7aae-26d9-40c4-88b0-2aa52e403f0f",
+      "familyId": "60eaafac-11f2-4a95-95f2-f87488410d29",
+      "originalPath": "/imagens/ccde7aae-26d9-40c4-88b0-2aa52e403f0f.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/ccde7aae-26d9-40c4-88b0-2aa52e403f0f.jpg",
+      "size": 82903,
+      "hash": "bf05c70cd6e9babe260ae81135af2f02888c9205e01eb5828af247b84aad73c6"
+    },
+    {
+      "familyImageId": "cfc6253d-0ed5-48a4-88f7-e304a451932d",
+      "familyId": "56c465d5-9cdc-4c2b-a39a-f5651b128d8c",
+      "originalPath": "/imagens/cfc6253d-0ed5-48a4-88f7-e304a451932d.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/cfc6253d-0ed5-48a4-88f7-e304a451932d.jpg",
+      "size": 104106,
+      "hash": "f63b0c78108b84bcc323ff6cc3e09a6601e2bc47ca1e04b3d7ec37f23af1fc0d"
+    },
+    {
+      "familyImageId": "e9b15286-70a4-4b24-bf45-4bd7b4461c03",
+      "familyId": "9df9c456-95ac-455d-b736-684359055066",
+      "originalPath": "/imagens/e9b15286-70a4-4b24-bf45-4bd7b4461c03.jpg",
+      "status": "already_migrated_valid",
+      "storageKey": "imagens/e9b15286-70a4-4b24-bf45-4bd7b4461c03.jpg",
+      "size": 60990,
+      "hash": "267f5bae8b007647e4336b14b9a4bf1db6d5b16bcb929f90d2492e17bfdb95c7"
+    }
+  ],
+  "elegible": 0,
+  "finishedAt": "2026-10-09T12:38:10.151Z"
+}
