@@ -4,6 +4,7 @@ const CustomError = require('../Utils/customError');
 const multer = require('multer');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { ZipArchive } = require('archiver');
 const MinioStorageService = require('../Services/storage/MinioStorageService');
 
 const { hashSenha, hashRespostaSeguranca } = require("../Utils/userHelpers");
@@ -190,6 +191,8 @@ exports.listarImagensEdificacoes = asyncErrorHandler(async (req, res) => {
                             id: true,
                             tipo: true,
                             storageKey: true,
+                            nomeOriginal: true,
+                            mimeType: true,
                             descricao: true
                         }
                     }
@@ -206,13 +209,17 @@ exports.listarImagensEdificacoes = asyncErrorHandler(async (req, res) => {
             edificacaoId: edificacao.id,
             tipo: imagem.tipo || 'OUTROS',
             descricao: imagem.descricao,
+            nomeOriginal: imagem.nomeOriginal,
             imagemUrl: imagem.storageKey
                 ? `/familia/imagens-edificacoes/${family.id}/${imagem.id}/file`
                 : null
         }))
     )))).filter(imagem => imagem.imagemUrl);
 
-    res.status(200).json({ imagens });
+    res.status(200).json({
+        imagens,
+        edificacoes: family.edificacoes.map(edificacao => ({ id: edificacao.id }))
+    });
 });
 
 exports.serveImagemEdificacao = asyncErrorHandler(async (req, res, next) => {
@@ -221,15 +228,73 @@ exports.serveImagemEdificacao = asyncErrorHandler(async (req, res, next) => {
             id: req.params.imageId,
             edificacao: { familyId: req.params.familyId }
         },
-        select: { storageKey: true, mimeType: true }
+        select: { id: true, storageKey: true, mimeType: true, nomeOriginal: true }
     });
 
     if (!imagem || !imagem.storageKey) throw new CustomError('Imagem da edificação não encontrada!', 404);
 
     const file = await storage.getFile(imagem.storageKey);
     if (imagem.mimeType) res.type(imagem.mimeType);
+    if (req.query.download === '1') {
+        const fallbackExtension = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/gif': '.gif', 'image/webp': '.webp' }[imagem.mimeType] || '.bin';
+        const filename = path.basename(imagem.nomeOriginal || `${imagem.id}${fallbackExtension}`).replace(/["\r\n]/g, '_');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    }
     file.on('error', next);
     file.pipe(res);
+});
+
+exports.baixarImagensEdificacaoZip = asyncErrorHandler(async (req, res) => {
+    const imagens = await prisma.imagem.findMany({
+        where: {
+            tipo: req.params.tipo,
+            storageKey: { not: null },
+            edificacao: { familyId: req.params.familyId }
+        },
+        select: { id: true, storageKey: true, nomeOriginal: true, mimeType: true },
+        orderBy: { id: 'asc' }
+    });
+
+    if (!imagens.length) throw new CustomError('Nenhuma foto encontrada nesta categoria.', 404);
+
+    const arquivos = [];
+    const nomesUsados = new Map();
+    for (const imagem of imagens) {
+        let content;
+        try {
+            const file = await storage.getFile(imagem.storageKey);
+            const chunks = [];
+            for await (const chunk of file) chunks.push(chunk);
+            content = Buffer.concat(chunks);
+        } catch (error) {
+            throw new CustomError(`Não foi possível ler a foto ${imagem.id} no armazenamento.`, 502);
+        }
+        if (!content.length) throw new CustomError(`A foto ${imagem.id} está vazia e o ZIP não pôde ser criado.`, 502);
+
+        const fallbackExtension = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/gif': '.gif', 'image/webp': '.webp' }[imagem.mimeType] || '.bin';
+        const baseName = path.basename(imagem.nomeOriginal || `${imagem.id}${fallbackExtension}`).replace(/[\\/:*?"<>|\r\n]/g, '_');
+        const count = (nomesUsados.get(baseName) || 0) + 1;
+        nomesUsados.set(baseName, count);
+        const extension = path.extname(baseName);
+        const name = count === 1 ? baseName : `${path.basename(baseName, extension)}-${count}${extension}`;
+        arquivos.push({ name, content });
+    }
+
+    res.status(200);
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="fotos-${req.params.tipo.toLowerCase()}.zip"`);
+    const archive = new ZipArchive({ zlib: { level: 9 } });
+    archive.pipe(res);
+    arquivos.forEach(arquivo => archive.append(arquivo.content, { name: arquivo.name }));
+    await new Promise((resolve, reject) => {
+        archive.once('error', reject);
+        res.once('error', reject);
+        res.once('finish', resolve);
+
+        // Archiver's finalize() starts the ZIP stream; it does not provide
+        // a Promise to await. Wait for the HTTP response to finish instead.
+        archive.finalize();
+});
 });
 
 exports.deletaImagemEdificacao = asyncErrorHandler(async (req, res) => {
@@ -529,6 +594,56 @@ exports.enviaFormularioEstrutural = asyncErrorHandler(async (req, res, next) => 
 // FUNÇÕES DE UPLOAD DE IMAGEM
 const uploadImagem = multer({ storage: multer.memoryStorage() });
 exports.fazUploadImagem = uploadImagem;
+
+exports.uploadImagemEdificacao = asyncErrorHandler(async (req, res) => {
+    if (!req.file) throw new CustomError('Imagem não enviada!', 400);
+
+    const tiposPermitidos = new Set([
+        'FUNDACAO', 'LOCALIZACAO', 'ESTRUTURA', 'VEDACOES', 'COBERTURA',
+        'ESQUADRIAS', 'HIDROSANITARIO', 'ELETRICO', 'BANHEIROS',
+        'COZINHA_SERVICO', 'OUTROS'
+    ]);
+    const tipo = String(req.params.tipo || '').toUpperCase();
+    if (!tiposPermitidos.has(tipo)) throw new CustomError('Categoria de imagem inválida!', 400);
+
+    const edificacao = await prisma.edificacao.findFirst({
+        where: { id: req.params.edificacaoId, familyId: req.params.familyId },
+        select: { id: true, familyId: true }
+    });
+    if (!edificacao) throw new CustomError('Edificação não pertence à família informada!', 404);
+
+    const extension = path.extname(req.file.originalname || '').toLowerCase() || '.bin';
+    const storageKey = `families/${edificacao.familyId}/edificacoes/${edificacao.id}/images/${crypto.randomUUID()}${extension}`;
+    await storage.uploadFile({
+        content: req.file.buffer,
+        storageKey,
+        contentType: req.file.mimetype,
+        size: req.file.size
+    });
+
+    try {
+        const imagem = await prisma.imagem.create({
+            data: {
+                edificacaoId: edificacao.id,
+                tipo,
+                storageKey,
+                nomeOriginal: req.file.originalname,
+                mimeType: req.file.mimetype,
+                tamanho: req.file.size,
+                origem: 'Athis'
+            },
+            select: { id: true, tipo: true, descricao: true }
+        });
+        res.status(201).json({
+            ...imagem,
+            edificacaoId: edificacao.id,
+            imagemUrl: `/familia/imagens-edificacoes/${edificacao.familyId}/${imagem.id}/file`
+        });
+    } catch (error) {
+        await storage.deleteFile(storageKey).catch(() => {});
+        throw new CustomError('Não foi possível registrar a imagem após o upload.', 502);
+    }
+});
 
 exports.insereNovaImagem = asyncErrorHandler(async (req, res, next) => {
     const familyId = req.params.id;

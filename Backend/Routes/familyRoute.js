@@ -9,6 +9,8 @@ const router = express.Router();
 router.get('/usuariosAssociados', familyController.getUsuariosAssociados);
 router.get('/imagens-edificacoes/:id', authController.verificaAcesso, familyController.listarImagensEdificacoes);
 router.get('/imagens-edificacoes/:familyId/:imageId/file', authController.verificaAcesso, familyController.serveImagemEdificacao);
+router.get('/imagens-edificacoes/:familyId/:tipo/zip', authController.verificaAcesso, familyController.baixarImagensEdificacaoZip);
+router.post('/imagens-edificacoes/:familyId/:edificacaoId/:tipo/upload', authController.verificaAcesso, familyController.fazUploadImagem.single('image'), familyController.uploadImagemEdificacao);
 router.delete('/imagens-edificacoes/:familyId/:imageId', authController.verificaAcesso, familyController.deletaImagemEdificacao);
 
 router.route('/')
