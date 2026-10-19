@@ -14,5 +14,7 @@ make migrate-family-images
 
 # antes
 npm run migrate:execute
+
 npm run migrate:images
+
 npm run migrate:family-images
