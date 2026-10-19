@@ -17,7 +17,8 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const XLSX = require('xlsx');
 const prisma = require('../Utils/prisma');
-const { legacyColumnAliases = {}, ignoredSourceColumns = {} } = require('../Utils/questionCatalog');
+const { ignoredSourceColumns = {}, facilitiesQuestions = [], estruturalQuestions = [] } = require('../Utils/questionCatalog');
+
 
 const args = new Set(process.argv.slice(2));
 const EXECUTE = args.has('--execute');
@@ -45,7 +46,8 @@ function norm(value) {
   return String(value ?? '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\\n/g, ' ')
+    .replace(/\r?\n/g, ' ')
+    .replace(/[:：]\s*$/, '')
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
@@ -59,7 +61,20 @@ function splitMulti(value) {
   if (raw.startsWith('[')) {
     try { const parsed = JSON.parse(raw); if (Array.isArray(parsed)) return parsed.map(v => String(v).trim()).filter(Boolean); } catch (_) {}
   }
-  const parts = raw.split(/\s*(?:,|;|\r?\n)\s*/).map(v => v.trim()).filter(Boolean);
+  const parts = [];
+  let current = '';
+  let parentheses = 0;
+  for (const character of raw) {
+    if (character === '(') parentheses += 1;
+    if (character === ')') parentheses = Math.max(0, parentheses - 1);
+    if ((character === ';' || character === '\n' || character === '\r' || character === ',') && parentheses === 0) {
+      if (current.trim()) parts.push(current.trim());
+      current = '';
+    } else {
+      current += character;
+    }
+  }
+  if (current.trim()) parts.push(current.trim());
   return parts.length ? parts : [raw];
 }
 function serialize(value, type, code) {
@@ -111,30 +126,39 @@ async function validatePhysicalSchema() {
 
 function buildQuestionIndexes(questions, formulario) {
   const formQuestions = questions.filter(q => q.formulario === formulario);
+  const catalogQuestions = formulario === 'Facilities' ? facilitiesQuestions : estruturalQuestions;
+  const catalogByCode = new Map(catalogQuestions.map(q => [q.codigo, q]));
   const byCode = new Map(formQuestions.map(q => [q.codigo, q]));
   const byText = new Map();
+  const bySourceColumn = new Map();
   for (const q of formQuestions) {
     const key = norm(q.texto);
     if (!key) continue;
     if (!byText.has(key)) byText.set(key, []);
     byText.get(key).push(q);
+    const sourceColumns = catalogByCode.get(q.codigo)?.colunasOrigem || q.colunasOrigem || [];
+    for (const column of sourceColumns) {
+      const sourceKey = norm(column);
+      if (!sourceKey) continue;
+      if (!bySourceColumn.has(sourceKey)) bySourceColumn.set(sourceKey, []);
+      bySourceColumn.get(sourceKey).push(q);
+    }
   }
-  return { byCode, byText };
+  return { byCode, byText, bySourceColumn };
 }
 
 function resolveColumn(formulario, header, indexes, report) {
-  const aliases = legacyColumnAliases?.[formulario] || {};
   const ignored = ignoredSourceColumns?.[formulario] || new Set();
   if (ignored.has && ignored.has(header)) return { ignored: true };
 
-  const aliasCode = aliases[header] ?? Object.entries(aliases).find(([h]) => norm(h) === norm(header))?.[1];
-  if (aliasCode) {
-    const q = indexes.byCode.get(aliasCode);
-    if (!q) {
-      report.issues.push({ type: 'question_alias_target_not_found', formulario, column: header, code: aliasCode });
-      return null;
-    }
-    return { question: q, method: 'alias', code: q.codigo };
+  const sourceCandidates = indexes.bySourceColumn.get(norm(header)) || [];
+  const activeSourceCandidates = sourceCandidates.filter(q => q.ativa);
+  if (activeSourceCandidates.length === 1) {
+    return { question: activeSourceCandidates[0], method: 'source_column', code: activeSourceCandidates[0].codigo };
+  }
+  if (activeSourceCandidates.length > 1) {
+    report.issues.push({ type: 'source_column_ambiguous', formulario, column: header, candidates: activeSourceCandidates.map(q => ({ code: q.codigo, texto: q.texto })) });
+    return null;
   }
 
   const candidates = indexes.byText.get(norm(header)) || [];
@@ -744,4 +768,3 @@ async function main() {
 }
 
 main().catch(err => { console.error('\nMIGRATION ERROR:', err); process.exitCode = 1; }).finally(async () => { await prisma.$disconnect(); });
-
