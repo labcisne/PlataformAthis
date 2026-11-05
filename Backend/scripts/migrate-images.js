@@ -287,7 +287,7 @@ async function main() {
   const batchSize = numberArgument('--batch-size', DEFAULT_BATCH_SIZE, 1000);
   const concurrency = numberArgument('--concurrency', DEFAULT_CONCURRENCY, 10);
   const retries = numberArgument('--retries', DEFAULT_RETRIES, 5);
-  const spreadsheet = path.resolve(__dirname, argumentValue('--spreadsheet', '../../Dados para serem migrados.xlsx'));
+  const spreadsheet = path.resolve(argumentValue('--spreadsheet', process.env.APPSHEET_XLSX || '../../Dados para serem migrados.xlsx'));
   let lock;
   try {
     lock = await acquireLock();

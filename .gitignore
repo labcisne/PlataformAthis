@@ -2,4 +2,6 @@ node_modules
 imagens
 arquivos
 package-lock.json
+!Backend/package-lock.json
+minio.license
 *.env

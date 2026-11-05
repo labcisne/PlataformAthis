@@ -37,6 +37,7 @@ services:
     environment:
       MINIO_ROOT_USER: athis_minio
       MINIO_ROOT_PASSWORD: athis_minio_dev_secret
+      MINIO_BUCKET: athis-images
     entrypoint:
       - /bin/sh
       - -c
@@ -44,8 +45,8 @@ services:
         until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD"; do
           sleep 2
         done
-        mc mb --ignore-existing local/bucket-local;
-        mc anonymous set none local/bucket-local;
+        mc mb --ignore-existing "local/$$MINIO_BUCKET";
+        mc anonymous set none "local/$$MINIO_BUCKET";
 
 
   backend:
@@ -67,12 +68,17 @@ services:
       MINIO_SECRET_KEY: "athis_minio_dev_secret"
       MINIO_BUCKET: "athis-images"
       MINIO_USE_SSL: "false"
+      APPSHEET_XLSX: "/migration-input/Dados para serem migrados.xlsx"
+      MIGRATION_REPORT: "/app/migration-appsheet-report.json"
+      GOOGLE_SERVICE_ACCOUNT_FILE: "/migration-secrets/athis-drive-migration-dd29e56d2788.json"
     depends_on:
       - postgres
       - minio
     volumes:
       - ./Backend:/app
       - /app/node_modules
+      - ./Dados para serem migrados.xlsx:/migration-input/Dados para serem migrados.xlsx:ro
+      - ./athis-drive-migration-dd29e56d2788.json:/migration-secrets/athis-drive-migration-dd29e56d2788.json:ro
 
   frontend:
     build:

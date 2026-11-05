@@ -39,6 +39,7 @@ const facilitiesQuestions = [
     obrigatoria: false,
     ativa: true,
     opcoes: [],
+    colunasOrigem: ["Idade do morador:"],
     categoria: "Identificação"
   },
   {
@@ -117,6 +118,7 @@ const facilitiesQuestions = [
     obrigatoria: false,
     ativa: true,
     opcoes: [],
+    colunasOrigem: ["Telefone"],
     categoria: "Identificação"
   },
   {
@@ -243,24 +245,26 @@ const facilitiesQuestions = [
     formulario: "Facilities",
     codigo: "parentesco_casa",
     texto: "Relação de parentesco na casa",
-    tipo: "resposta_unica",
+    tipo: "resposta_multipla",
     ordem: 22,
     obrigatoria: false,
     ativa: true,
     opcoes: ["Pessoa responsável", "Cônjuge", "Filho(a)", "Outro parente", "Empregado(a) doméstico(a)"],
     allowOther: true,
+    colunasOrigem: ["Relação de parentesco na casa:"],
     categoria: "Renda e Composição Familiar"
   },
   {
     formulario: "Facilities",
     codigo: "parentesco_lote",
     texto: "Relação de parentesco no lote",
-    tipo: "resposta_unica",
+    tipo: "resposta_multipla",
     ordem: 23,
     obrigatoria: false,
     ativa: true,
     opcoes: ["Pessoa responsável", "Cônjuge", "Filho(a)", "Outro parente", "Empregado(a) doméstico(a)"],
     allowOther: true,
+    colunasOrigem: ["Relação de parentesco no lote:"],
     categoria: "Renda e Composição Familiar"
   },
   {
@@ -695,6 +699,7 @@ const facilitiesQuestions = [
     obrigatoria: false,
     ativa: true,
     opcoes: [],
+    colunasOrigem: ["Quantas gerações moram na casa:"],
     categoria: "Imóvel e Moradia"
   },
   {
@@ -706,6 +711,7 @@ const facilitiesQuestions = [
     obrigatoria: false,
     ativa: true,
     opcoes: [],
+    colunasOrigem: ["Quantas gerações moram no lote:"],
     categoria: "Imóvel e Moradia"
   },
   {
@@ -741,6 +747,7 @@ const facilitiesQuestions = [
     obrigatoria: false,
     ativa: true,
     opcoes: [],
+    colunasOrigem: ["Há quantos anos a família reside em Araçatiba:"],
     categoria: "Imóvel e Moradia"
   },
   {
@@ -785,6 +792,7 @@ const facilitiesQuestions = [
     obrigatoria: false,
     ativa: true,
     opcoes: ["Sim", "Não"],
+    colunasOrigem: ["O imóvel já recebeu algum tipo de reforma ou ampliação:"],
     categoria: "Imóvel e Moradia"
   },
   {
@@ -808,6 +816,7 @@ const facilitiesQuestions = [
     ativa: true,
     opcoes: ["Os moradores", "Vizinhos da comunidade", "Contratou profissional especializado", "Não reformei"],
     allowOther: true,
+    colunasOrigem: ["Quem executou a reforma:"],
     categoria: "Imóvel e Moradia"
   },
   {
@@ -820,6 +829,7 @@ const facilitiesQuestions = [
     ativa: true,
     opcoes: ["A prefeitura", "Outro recurso público", "Recurso próprio", "Não reformei"],
     allowOther: true,
+    colunasOrigem: ["Quem custeou a reforma:"],
     categoria: "Imóvel e Moradia"
   },
 
@@ -903,6 +913,7 @@ const facilitiesQuestions = [
     obrigatoria: false,
     ativa: true,
     opcoes: [],
+    colunasOrigem: ["Data da 1ª visita:"],
     categoria: "Gestão da Visita"
   },
   {
@@ -917,7 +928,6 @@ const facilitiesQuestions = [
     categoria: "Gestão da Visita"
   },
 
-  // PREGUNTAS HISTÓRICAS DESCONTINUADAS
   { formulario: "Facilities", codigo: "tipoLevantamento", texto: "Tipo de Levantamento (Histórico)", tipo: "texto", ordem: 100, obrigatoria: false, ativa: false, opcoes: [], categoria: "Histórico" },
   { formulario: "Facilities", codigo: "adultos_empregados_old", texto: "Adultos Empregados (Histórico)", tipo: "texto", ordem: 101, obrigatoria: false, ativa: false, opcoes: [], categoria: "Histórico" },
   { formulario: "Facilities", codigo: "renda_mensal_total_numeric_old", texto: "Renda Mensal Familiar Total (Numérica Histórica)", tipo: "number", ordem: 102, obrigatoria: false, ativa: false, opcoes: [], categoria: "Histórico" },
@@ -966,4 +976,8 @@ const estruturalQuestions = [
   { formulario: "Edificacoes", codigo: "EST039", texto: "Observações gerais:", tipo: "texto", ordem: 38, obrigatoria: false, ativa: true, opcoes: [], categoria: "Diagnóstico e Parecer" }
 ];
 
-module.exports = { facilitiesQuestions, estruturalQuestions, legacySourceQuestions: [] };
+module.exports = {
+  facilitiesQuestions,
+  estruturalQuestions,
+  legacySourceQuestions: []
+};
